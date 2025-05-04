@@ -22,7 +22,7 @@ const recentlyViewedProducts = [
     id: 2,
     name: "Indigo Dyed Cotton Scarf",
     price: 35.00,
-    image: "/images/products/cotton-scarf.jpg",
+    image: "/images/products/cotton-scarf.png",
     vendor: "Textile Traditions",
     category: "Fashion",
     link: "/products/indigo-cotton-scarf"
@@ -31,7 +31,7 @@ const recentlyViewedProducts = [
     id: 3,
     name: "Wooden Serving Board",
     price: 42.50,
-    image: "/images/products/wooden-board.jpg",
+    image: "/images/products/wooden-board.png",
     vendor: "Forest Crafters",
     category: "Kitchen",
     link: "/products/wooden-serving-board"
@@ -40,7 +40,7 @@ const recentlyViewedProducts = [
     id: 4,
     name: "Lavender Essential Oil",
     price: 18.99,
-    image: "/images/products/lavender-oil.jpg",
+    image: "/images/products/lavender-oil.png",
     vendor: "Natural Essence",
     category: "Wellness",
     link: "/products/lavender-essential-oil"
@@ -49,7 +49,7 @@ const recentlyViewedProducts = [
     id: 5,
     name: "Handwoven Wall Hanging",
     price: 89.00,
-    image: "/images/products/wall-hanging.jpg",
+    image: "/images/products/wall-hanging.png",
     vendor: "Fiber Arts Collective",
     category: "Home Decor",
     link: "/products/handwoven-wall-hanging"
@@ -58,7 +58,7 @@ const recentlyViewedProducts = [
     id: 6,
     name: "Artisanal Honey Set",
     price: 32.00,
-    image: "/images/products/honey-set.jpg",
+    image: "/images/products/honey-jar.png",
     vendor: "Wild Bee Farms",
     category: "Foods",
     link: "/products/artisanal-honey-set"

@@ -2,6 +2,7 @@ import { Montserrat } from 'next/font/google'
 import localFont from 'next/font/local'
 import './globals.css'
 import Script from 'next/script'
+import { AuthProvider } from '@/providers/auth-provider'
 
 const montserrat = Montserrat({
   subsets: ['latin'],
@@ -26,6 +27,7 @@ export default function RootLayout({ children }) {
         {/* Google Translate script should be added using Next.js Script component */}
       </head>
       <body className="bg-background text-foreground">
+        <AuthProvider>
         {/* This div is needed for Google Translate - moved to body */}
         <div id="google_translate_element" className="hidden"></div>
         {children}
@@ -46,6 +48,7 @@ export default function RootLayout({ children }) {
             }
           `}
         </Script>
+        </AuthProvider>
       </body>
     </html>
   )

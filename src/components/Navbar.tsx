@@ -4,8 +4,9 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { ShoppingCart, Heart, Menu, X, Globe, ChevronDown, Search } from "lucide-react";
+import { ShoppingCart, Heart, Menu, X, Globe, ChevronDown, Search, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/hooks/use-auth";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -34,6 +35,7 @@ export default function Navbar() {
   const [selectedLanguage, setSelectedLanguage] = useState(languages[0]);
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearchFocused, setIsSearchFocused] = useState(false);
+  const { user, isAuthenticated, logout } = useAuth();
   
   // Function to change language using Google Translate
   const changeLanguage = (languageCode) => {
@@ -139,7 +141,46 @@ export default function Navbar() {
             </div>
 
             {/* Right section (40%) - Icons */}
-            <div className="w-[40%] flex items-center justify-end space-x-10">
+            <div className="w-[40%] flex items-center justify-end space-x-6">
+              {/* Authentication Buttons - Show when not authenticated */}
+              {!isAuthenticated ? (
+                <div className="flex items-center space-x-3">
+                  <Link href="/sign-in">
+                    <Button variant="ghost" size="sm" className="text-gray-600 hover:text-primary">
+                      Sign In
+                    </Button>
+                  </Link>
+                  <Link href="/sign-up">
+                    <Button variant="default" size="sm" className="bg-primary hover:bg-primary/90 text-white">
+                      Sign Up
+                    </Button>
+                  </Link>
+                </div>
+              ) : (
+                /* User Menu - Show when authenticated */
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon" className="relative">
+                      <User className="h-5 w-5 text-gray-600" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-48">
+                    <DropdownMenuItem className="cursor-default font-medium">
+                      {user?.name || 'User'}
+                    </DropdownMenuItem>
+                    <DropdownMenuItem>
+                      <Link href="/dashboard" className="w-full">Dashboard</Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem>
+                      <Link href="/profile" className="w-full">Profile</Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={logout}>
+                      Sign Out
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              )}
+              
               {/* Wishlist Button */}
               <Button 
                 variant="ghost" 
@@ -238,6 +279,35 @@ export default function Navbar() {
             <Link href="/sales" className="block text-gray-600 hover:text-primary">
               Sales
             </Link>
+            
+            {/* Authentication Links for Mobile */}
+            <div className="pt-4 border-t border-gray-100">
+              {!isAuthenticated ? (
+                <>
+                  <Link href="/sign-in" className="block text-gray-600 hover:text-primary py-2">
+                    Sign In
+                  </Link>
+                  <Link href="/sign-up" className="block text-gray-600 hover:text-primary py-2">
+                    Sign Up
+                  </Link>
+                </>
+              ) : (
+                <>
+                  <Link href="/dashboard" className="block text-gray-600 hover:text-primary py-2">
+                    Dashboard
+                  </Link>
+                  <Link href="/profile" className="block text-gray-600 hover:text-primary py-2">
+                    Profile
+                  </Link>
+                  <button 
+                    onClick={logout}
+                    className="block w-full text-left text-gray-600 hover:text-primary py-2"
+                  >
+                    Sign Out
+                  </button>
+                </>
+              )}
+            </div>
           </div>
         </motion.div>
       )}
