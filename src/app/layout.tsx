@@ -3,6 +3,7 @@ import localFont from 'next/font/local'
 import './globals.css'
 import Script from 'next/script'
 import { AuthProvider } from '@/providers/auth-provider'
+import { ToastProvider } from '@/hooks/use-toast'
 
 const montserrat = Montserrat({
   subsets: ['latin'],
@@ -28,6 +29,7 @@ export default function RootLayout({ children }) {
       </head>
       <body className="bg-background text-foreground">
         <AuthProvider>
+          <ToastProvider>
         {/* This div is needed for Google Translate - moved to body */}
         <div id="google_translate_element" className="hidden"></div>
         {children}
@@ -48,6 +50,7 @@ export default function RootLayout({ children }) {
             }
           `}
         </Script>
+        </ToastProvider>
         </AuthProvider>
       </body>
     </html>

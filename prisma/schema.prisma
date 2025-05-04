@@ -52,67 +52,117 @@ enum UserRole {
   ADMIN
 }
 
+model Category {
+  id          String    @id @default(cuid())
+  name        String
+  slug        String    @unique
+  description String?   @db.Text
+  bannerImage String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  products    Product[]
+}
+
+model CartItem {
+  id        String   @id @default(cuid())
+  userId    String
+  productId String
+  quantity  Int      @default(1)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([productId])
+}
+
+model WishlistItem {
+  id         String   @id @default(cuid())
+  wishlistId String
+  productId  String
+  createdAt  DateTime @default(now())
+
+  wishlist Wishlist @relation(fields: [wishlistId], references: [id], onDelete: Cascade)
+  product  Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([wishlistId])
+  @@index([productId])
+}
+
 model User {
-  id            String    @id @default(cuid())
+  id            String          @id @default(cuid())
   name          String?
-  email         String?   @unique
+  email         String?         @unique
   emailVerified DateTime?
   password      String?
   image         String?
-  role          UserRole  @default(CUSTOMER)
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  role          UserRole        @default(CUSTOMER)
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
   preferences   UserPreference?
-  
+
   // Profile information
-  bio           String?   @db.Text
-  phone         String?
-  location      String?
-  
+  bio      String? @db.Text
+  phone    String?
+  location String?
+
   // Role-specific fields
-  isOnboarded   Boolean   @default(false)
-  
+  isOnboarded Boolean @default(false)
+
   // Relations
-  accounts      Account[]
-  sessions      Session[]
-  
-  // Seller-specific relations (will be expanded later)
-  products      Product[]  @relation("SellerProducts")
-  
-  // Customer-specific relations (will be expanded later)
-  orders        Order[]
-  wishlist      Wishlist?
-  
+  accounts Account[]
+  sessions Session[]
+
+  // Seller-specific relations
+  products Product[] @relation("SellerProducts")
+
+  // Customer-specific relations
+  orders    Order[]
+  wishlist  Wishlist?
+  cartItems CartItem[]
+
   // Common relations
-  reviews       Review[]
+  reviews Review[]
 }
 
-// Placeholder models for relations - these will be expanded later
 model Product {
-  id          String   @id @default(cuid())
-  name        String
-  description String?  @db.Text
-  price       Float
-  sellerId    String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  
-  seller      User     @relation("SellerProducts", fields: [sellerId], references: [id])
-  reviews     Review[]
-  
+  id                 String         @id @default(cuid())
+  name               String         // Fixed typo "Strinyg" to "String"
+  description        String?        @db.Text
+  price              Float
+  discountPercentage Float          @default(0)
+  images             Json           // Array of image URLs
+  stock              Int            @default(0)
+  rating             Float          @default(0)
+  reviewCount        Int            @default(0)
+  viewCount          Int            @default(0)
+  sellerId           String
+  categoryId         String
+  createdAt          DateTime       @default(now())
+  updatedAt          DateTime       @updatedAt
+
+  seller        User           @relation("SellerProducts", fields: [sellerId], references: [id])
+  category      Category       @relation(fields: [categoryId], references: [id])
+  reviews       Review[]
+  cartItems     CartItem[]
+  wishlistItems WishlistItem[]
+
   @@index([sellerId])
+  @@index([categoryId])
 }
 
 model Order {
-  id         String   @id @default(cuid())
-  userId     String
-  status     String
-  total      Float
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-  
-  user       User     @relation(fields: [userId], references: [id])
-  
+  id        String   @id @default(cuid())
+  userId    String
+  status    String
+  total     Float
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id])
+
   @@index([userId])
 }
 
@@ -124,10 +174,10 @@ model Review {
   productId String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  
-  user      User     @relation(fields: [userId], references: [id])
-  product   Product  @relation(fields: [productId], references: [id])
-  
+
+  user    User    @relation(fields: [userId], references: [id])
+  product Product @relation(fields: [productId], references: [id])
+
   @@index([userId])
   @@index([productId])
 }
@@ -140,15 +190,16 @@ model UserPreference {
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
   location      String   @default("Kolkata")
-  
-  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Wishlist {
-  id        String   @id @default(cuid())
-  userId    String   @unique
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  
-  user      User     @relation(fields: [userId], references: [id])
+  id        String         @id @default(cuid())
+  userId    String         @unique
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+
+  user  User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items WishlistItem[]
 }
