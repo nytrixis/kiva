@@ -12,16 +12,15 @@ export default function Footer() {
           {/* Logo and About */}
           <div className="space-y-4">
             <Link href="/" className="flex items-center">
-              <div className="relative h-10 w-10 overflow-hidden rounded-full bg-white">
+              <div className="relative h-12 w-12 overflow-hidden rounded-full bg-white">
                 <Image
-                  src="/images/logo.png"
+                  src="/images/logob.png"
                   alt="Kiva Logo"
                   fill
                   className="object-cover"
-                  sizes="40px"
+                  sizes="60px"
                 />
               </div>
-              <span className="ml-2 font-heading text-xl font-bold text-primary">Kiva</span>
             </Link>
             <p className="text-sm text-gray-600 mt-4 max-w-xs">
               Empowering small businesses to gain visibility, manage customers, and grow using digital tools.

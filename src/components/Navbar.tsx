@@ -1,66 +1,198 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { ShoppingCart, Menu, X } from "lucide-react";
+import { ShoppingCart, Heart, Menu, X, Globe, ChevronDown, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+
+// Indian languages for the dropdown
+const languages = [
+  { code: "en", name: "English" },
+  { code: "hi", name: "हिन्दी (Hindi)" },
+  { code: "bn", name: "বাংলা (Bengali)" },
+  { code: "te", name: "తెలుగు (Telugu)" },
+  { code: "mr", name: "मराठी (Marathi)" },
+  { code: "ta", name: "தமிழ் (Tamil)" },
+  { code: "ur", name: "اردو (Urdu)" },
+  { code: "gu", name: "ગુજરાતી (Gujarati)" },
+  { code: "kn", name: "ಕನ್ನಡ (Kannada)" },
+  { code: "ml", name: "മലയാളം (Malayalam)" },
+  { code: "pa", name: "ਪੰਜਾਬੀ (Punjabi)" },
+];
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isWishlistHovered, setIsWishlistHovered] = useState(false);
+  const [selectedLanguage, setSelectedLanguage] = useState(languages[0]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
+  
+  // Function to change language using Google Translate
+  const changeLanguage = (languageCode) => {
+    if (typeof window !== 'undefined' && window.google && window.google.translate) {
+      const selectedLang = languages.find(lang => lang.code === languageCode);
+      if (selectedLang) {
+        setSelectedLanguage(selectedLang);
+        window.google.translate.TranslateElement({
+          pageLanguage: 'en',
+          includedLanguages: languageCode,
+          autoDisplay: false
+        }, 'google_translate_element');
+      }
+    }
+  };
+  
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    // This would connect to your backend search functionality
+    // For now, just log the search query
+    console.log("Search query:", searchQuery);
+    
+    /* 
+    // Uncomment this when you have backend integration
+    const searchProducts = async () => {
+      try {
+        const response = await fetch(`/api/search?q=${encodeURIComponent(searchQuery)}`);
+        const data = await response.json();
+        // Handle search results
+      } catch (error) {
+        console.error("Error searching products:", error);
+      }
+    };
+    searchProducts();
+    */
+  };
   
   return (
-    <header className="bg-[#fff9f9] sticky top-0 z-50 shadow-sm">
-      <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between h-16">
-          {/* Logo - Updated to use Image */}
-          <Link href="/" className="flex items-center">
-            <div className="relative h-12 w-12 overflow-hidden rounded-full border border-[#E6E6FA]">
-              <Image
-                src="/images/logo.png"
-                alt="Kiva Logo"
-                fill
-                className="object-cover"
-                sizes="48px"
-                priority
-              />
+    <header className="sticky top-0 z-50 shadow-sm">
+      {/* 60-40 division with background colors */}
+      <div className="relative">
+        <div className="absolute inset-0 flex">
+          <div className="w-[60%] bg-background"></div>
+          <div className="w-[40%] bg-accent"></div>
+        </div>
+        
+        <div className="container mx-auto px-4 relative">
+          <div className="flex items-center h-16">
+            {/* Left section (60%) - Logo and Navigation */}
+            <div className="w-[60%] flex items-center">
+              {/* Logo */}
+              <Link href="/" className="flex items-center pr-20">
+                <div className="relative h-10 w-10 overflow-hidden border border-[#E6E6FA]">
+                  <Image
+                    src="/images/logob.png"
+                    alt="Kiva Logo"
+                    fill
+                    className="object-cover"
+                    sizes="40px"
+                    priority
+                  />
+                </div>
+              </Link>
+              
+              {/* Desktop Navigation - positioned in the left section */}
+              <nav className="hidden md:flex items-center space-x-12 ml-10">
+                <Link href="/collections" className="text-gray-600 hover:text-primary transition-colors">
+                  Collections
+                </Link>
+                <Link href="/brands" className="text-gray-600 hover:text-primary transition-colors">
+                  Brands
+                </Link>
+                <Link href="/new" className="text-gray-600 hover:text-primary transition-colors">
+                  New
+                </Link>
+                <Link href="/sales" className="text-gray-600 hover:text-primary transition-colors">
+                  Sales
+                </Link>
+              </nav>
             </div>
-          </Link>
-          
-          {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center space-x-8">
-            <Link href="/collections" className="text-gray-600 hover:text-[#3D5AFE] transition-colors">
-              Collections
-            </Link>
-            <Link href="/brands" className="text-gray-600 hover:text-[#3D5AFE] transition-colors">
-              Brands
-            </Link>
-            <Link href="/new" className="text-gray-600 hover:text-[#3D5AFE] transition-colors">
-              New
-            </Link>
-            <Link href="/sales" className="text-gray-600 hover:text-[#3D5AFE] transition-colors">
-              Sales
-            </Link>
-          </nav>
-          
-          {/* Cart and Menu */}
-          <div className="flex items-center space-x-4">
-            <Button variant="ghost" size="icon" className="relative">
-              <ShoppingCart className="h-5 w-5" />
-              <span className="absolute -top-1 -right-1 bg-[#3D5AFE] text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
-                0
-              </span>
-            </Button>
             
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              className="md:hidden"
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-            >
-              {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-            </Button>
+            <div className="hidden md:flex items-center ml-4 relative">
+              <form onSubmit={handleSearchSubmit} className="relative">
+                <div className={`flex items-center bg-white/80 backdrop-blur-sm rounded-full transition-all duration-300 border ${isSearchFocused ? 'border-primary shadow-sm pr-12' : 'border-muted pr-2'}`}>
+                  <input
+                    type="text"
+                    placeholder="Search products..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onFocus={() => setIsSearchFocused(true)}
+                    onBlur={() => setIsSearchFocused(false)}
+                    className="py-2 pl-4 pr-2 w-48 focus:w-64 transition-all duration-300 bg-transparent outline-none text-sm text-foreground placeholder:text-gray-400"
+                  />
+                  <button 
+                    type="submit" 
+                    className={`${isSearchFocused ? 'absolute right-2' : ''} p-2 text-gray-500 hover:text-primary transition-colors`}
+                    aria-label="Search"
+                  >
+                    <Search className="h-4 w-4" />
+                  </button>
+                </div>
+              </form>
+            </div>
+
+            {/* Right section (40%) - Icons */}
+            <div className="w-[40%] flex items-center justify-end space-x-10">
+              {/* Wishlist Button */}
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="relative"
+                onMouseEnter={() => setIsWishlistHovered(true)}
+                onMouseLeave={() => setIsWishlistHovered(false)}
+              >
+                <Heart 
+                  className={`h-5 w-5 transition-all ${isWishlistHovered ? 'fill-primary text-primary' : 'text-gray-600'}`} 
+                />
+              </Button>
+              
+              {/* Cart Button */}
+              <Button variant="ghost" size="icon" className="relative">
+                <ShoppingCart className="h-5 w-5 text-gray-600" />
+                <span className="absolute -top-1 -right-1 bg-primary text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
+                  0
+                </span>
+              </Button>
+              
+              {/* Language Selector Dropdown */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="flex items-center space-x-1 px-2 py-1 rounded-full border border-gray-200 hover:bg-gray-50">
+                    <Globe className="h-4 w-4 text-gray-600" />
+                    <span className="text-sm text-gray-600">{selectedLanguage.code.toUpperCase()}</span>
+                    <ChevronDown className="h-4 w-4 text-gray-600" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  {languages.map((language) => (
+                    <DropdownMenuItem 
+                      key={language.code}
+                      className="cursor-pointer"
+                      onClick={() => changeLanguage(language.code)}
+                    >
+                      {language.name}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+              
+              {/* Mobile Menu Button */}
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="md:hidden"
+                onClick={() => setIsMenuOpen(!isMenuOpen)}
+              >
+                {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+              </Button>
+            </div>
           </div>
         </div>
       </div>
@@ -73,17 +205,37 @@ export default function Navbar() {
           exit={{ opacity: 0, height: 0 }}
           className="md:hidden bg-white border-t"
         >
+          <div className="pt-2 pb-4">
+            <form onSubmit={handleSearchSubmit} className="relative">
+              <div className="flex items-center bg-white/90 rounded-full border border-muted">
+                <input
+                  type="text"
+                  placeholder="Search products..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="py-2 pl-4 pr-2 w-full bg-transparent outline-none text-sm text-foreground placeholder:text-gray-400"
+                />
+                <button 
+                  type="submit" 
+                  className="p-2 text-gray-500 hover:text-primary transition-colors"
+                  aria-label="Search"
+                >
+                  <Search className="h-4 w-4" />
+                </button>
+              </div>
+            </form>
+          </div>
           <div className="container mx-auto px-4 py-4 space-y-4">
-            <Link href="/collections" className="block text-gray-600 hover:text-[#3D5AFE]">
+            <Link href="/collections" className="block text-gray-600 hover:text-primary">
               Collections
             </Link>
-            <Link href="/brands" className="block text-gray-600 hover:text-[#3D5AFE]">
+            <Link href="/brands" className="block text-gray-600 hover:text-primary">
               Brands
             </Link>
-            <Link href="/new" className="block text-gray-600 hover:text-[#3D5AFE]">
+            <Link href="/new" className="block text-gray-600 hover:text-primary">
               New
             </Link>
-            <Link href="/sales" className="block text-gray-600 hover:text-[#3D5AFE]">
+            <Link href="/sales" className="block text-gray-600 hover:text-primary">
               Sales
             </Link>
           </div>
