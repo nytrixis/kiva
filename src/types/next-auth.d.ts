@@ -5,13 +5,20 @@ declare module "next-auth" {
   interface User {
     id: string;
     role: UserRole;
+    phone?: string | null;
+    location?: string | null;
     isOnboarded: boolean;
   }
 
   interface Session {
-    user: User & {
+    user: {
       id: string;
+      name?: string | null;
+      email?: string | null;
+      image?: string | null;
       role: UserRole;
+      phone?: string | null;
+      location?: string | null;
       isOnboarded: boolean;
     };
   }
@@ -19,7 +26,6 @@ declare module "next-auth" {
 
 declare module "next-auth/jwt" {
   interface JWT {
-    id: string;
     role: UserRole;
     isOnboarded: boolean;
   }

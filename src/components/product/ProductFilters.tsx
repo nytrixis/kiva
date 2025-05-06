@@ -1,9 +1,21 @@
 "use client";
-
 import { useState, useEffect } from "react";
 import { Slider } from "@/components/ui/slider";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Minus, Star } from "lucide-react";
+
+interface Category {
+  id: string;
+  name: string;
+}
+
+interface ProductFiltersProps {
+  categories: Category[];
+  selectedCategory: string | null;
+  minPrice: string | null;
+  maxPrice: string | null;
+  onFilterChange: (filters: { [key: string]: any }) => void;
+}
 
 export default function ProductFilters({
   categories,
@@ -11,18 +23,18 @@ export default function ProductFilters({
   minPrice,
   maxPrice,
   onFilterChange,
-}) {
+}: ProductFiltersProps) {
   const [priceRange, setPriceRange] = useState([
     minPrice ? parseInt(minPrice) : 0,
     maxPrice ? parseInt(maxPrice) : 10000,
   ]);
-  
+ 
   const [expandedSections, setExpandedSections] = useState({
     categories: true,
     price: true,
     ratings: true,
   });
-  
+ 
   // Update price range when props change
   useEffect(() => {
     setPriceRange([
@@ -30,31 +42,30 @@ export default function ProductFilters({
       maxPrice ? parseInt(maxPrice) : 10000,
     ]);
   }, [minPrice, maxPrice]);
-  
-  const handlePriceChange = (values) => {
+ 
+  const handlePriceChange = (values: number[]) => {
     setPriceRange(values);
   };
-  
-  const handlePriceChangeEnd = (values) => {
+ 
+  const handlePriceChangeEnd = (values: number[]) => {
     onFilterChange({
       minPrice: values[0],
       maxPrice: values[1],
     });
   };
-  
-  const handleCategoryChange = (categoryId) => {
+ 
+  const handleCategoryChange = (categoryId: string) => {
     onFilterChange({
       category: categoryId === selectedCategory ? null : categoryId,
     });
   };
-  
-  const toggleSection = (section) => {
+ 
+  const toggleSection = (section: 'categories' | 'price' | 'ratings') => {
     setExpandedSections({
       ...expandedSections,
       [section]: !expandedSections[section],
     });
-  };
-  
+  }; 
   return (
     <div className="space-y-6">
       {/* Categories */}

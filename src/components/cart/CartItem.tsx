@@ -4,12 +4,37 @@ import Link from "next/link";
 import { Trash2 } from "lucide-react";
 import QuantitySelector from "./QuantitySelector";
 
-export default function CartItem({ item, onUpdateQuantity, onRemoveItem, isUpdating }) {
+interface CartItemProps {
+  item: {
+    id: string;
+    product: {
+      id: string;
+      name: string;
+      price: number;
+      discountPercentage: number;
+      images: string[];
+      stock: number;
+      category?: {
+        name: string;
+      };
+      seller?: {
+        name: string;
+      };
+    };
+    quantity: number;
+  };
+  onUpdateQuantity: (id: string, quantity: number) => void;
+  onRemoveItem: (id: string) => void;
+  isUpdating: boolean;
+}
+
+export default function CartItem({ item, onUpdateQuantity, onRemoveItem, isUpdating }: CartItemProps) {
   const { product, quantity, id } = item;
   const [isHovered, setIsHovered] = useState(false);
   
   // Calculate the price to display (either discount price or regular price)
-  const displayPrice = product.discountPrice || product.price;
+  const discountPrice = product.price * (1 - product.discountPercentage / 100);
+  const displayPrice = product.discountPercentage > 0 ? discountPrice : product.price;
   const totalPrice = displayPrice * quantity;
   
   // Get the first image from the product images array
@@ -75,8 +100,7 @@ export default function CartItem({ item, onUpdateQuantity, onRemoveItem, isUpdat
         <div className="flex items-center mt-4 sm:mt-0">
           <QuantitySelector 
             quantity={quantity}
-            onUpdate={(newQuantity) => onUpdateQuantity(id, newQuantity)}
-            min={1}
+            onUpdate={(newQuantity: number) => onUpdateQuantity(id, newQuantity)}            min={1}
             max={product.stock || 10}
             disabled={isUpdating}
           />

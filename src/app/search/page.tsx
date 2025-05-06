@@ -8,7 +8,18 @@ export const metadata: Metadata = {
   description: "Find products from local artisans",
 };
 
-export default async function SearchPage({ searchParams }) {
+interface SearchPageProps {
+  searchParams: {
+    q?: string;
+  };
+}
+
+interface Category {
+  id: string;
+  name: string;
+}
+
+export default async function SearchPage({ searchParams }: SearchPageProps) {
   const query = searchParams.q;
   
   if (!query) {
@@ -17,10 +28,14 @@ export default async function SearchPage({ searchParams }) {
   
   // Fetch categories for filters
   const categories = await prisma.category.findMany({
+    select: {
+      id: true,
+      name: true,
+    },
     orderBy: {
       name: 'asc',
     },
-  });
+  }) as Category[];
   
   return (
     <div className="min-h-screen bg-background">
@@ -29,9 +44,9 @@ export default async function SearchPage({ searchParams }) {
           Search Results for <span className="text-primary">"{query}"</span>
         </h1>
         
-        <ProductCatalog 
-          categories={categories} 
-          searchQuery={query} 
+        <ProductCatalog
+          categories={categories}
+          searchQuery={query}
         />
       </div>
     </div>

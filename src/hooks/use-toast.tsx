@@ -1,11 +1,9 @@
 "use client";
-
 import { useState, useEffect, createContext, useContext } from "react";
 import { v4 as uuidv4 } from "uuid";
+export type ToastVariant = "default" | "success" | "destructive" | "info";
 
-type ToastVariant = "default" | "success" | "destructive" | "info";
-
-interface Toast {
+export interface Toast {
   id: string;
   title: string;
   description?: string;
@@ -31,7 +29,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
     const id = uuidv4();
     const newToast = {
       id,
-      variant: "default",
+      variant: "default" as ToastVariant,
       duration: 5000,
       ...props,
     };

@@ -1,13 +1,46 @@
 "use client";
-
 import { useState } from "react";
 import { useToast } from "./use-toast";
+
+// Define types based on your Prisma schema
+interface CartProduct {
+  id: string;
+  name: string;
+  price: number;
+  discountPercentage: number;
+  images: string[];
+  stock: number;
+  category?: {
+    name: string;
+  };
+  seller?: {
+    name: string;
+  };
+}
+
+interface CartItem {
+  id: string;
+  product: CartProduct;
+  quantity: number;
+}
+
+interface CartData {
+  items: CartItem[];
+  subtotal: number;
+  itemCount: number;
+}
 
 export function useCart() {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
-  const addToCart = async (productId, quantity = 1) => {
+  /**
+   * Add a product to the cart
+   * @param productId - The ID of the product to add
+   * @param quantity - The quantity to add (default: 1)
+   * @returns Promise<boolean> - Whether the operation was successful
+   */
+  const addToCart = async (productId: string, quantity = 1): Promise<boolean> => {
     try {
       setIsLoading(true);
       
@@ -46,7 +79,13 @@ export function useCart() {
     }
   };
 
-  const updateQuantity = async (cartItemId, quantity) => {
+  /**
+   * Update the quantity of an item in the cart
+   * @param cartItemId - The ID of the cart item to update
+   * @param quantity - The new quantity
+   * @returns Promise<boolean> - Whether the operation was successful
+   */
+  const updateQuantity = async (cartItemId: string, quantity: number): Promise<boolean> => {
     try {
       setIsLoading(true);
       
@@ -85,7 +124,12 @@ export function useCart() {
     }
   };
 
-  const removeItem = async (cartItemId) => {
+  /**
+   * Remove an item from the cart
+   * @param cartItemId - The ID of the cart item to remove
+   * @returns Promise<boolean> - Whether the operation was successful
+   */
+  const removeItem = async (cartItemId: string): Promise<boolean> => {
     try {
       setIsLoading(true);
       
@@ -117,7 +161,11 @@ export function useCart() {
     }
   };
 
-  const getCart = async () => {
+  /**
+   * Fetch the current cart data
+   * @returns Promise<CartData> - The cart data
+   */
+  const getCart = async (): Promise<CartData> => {
     try {
       setIsLoading(true);
       
@@ -127,7 +175,7 @@ export function useCart() {
         throw new Error("Failed to fetch cart");
       }
       
-      const data = await response.json();
+      const data: CartData = await response.json();
       return data;
     } catch (error) {
       console.error("Error fetching cart:", error);

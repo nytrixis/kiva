@@ -50,7 +50,7 @@ export default function Hero() {
 
   // Autoplay functionality
   useEffect(() => {
-    let interval;
+    let interval: NodeJS.Timeout;
     if (autoplay) {
       interval = setInterval(() => {
         setCurrentSlide((prev) => (prev === carouselData.length - 1 ? 0 : prev + 1));
@@ -58,7 +58,6 @@ export default function Hero() {
     }
     return () => clearInterval(interval);
   }, [autoplay]);
-
   // Navigation functions
   const nextSlide = () => {
     setAutoplay(false);
@@ -70,11 +69,10 @@ export default function Hero() {
     setCurrentSlide((prev) => (prev === 0 ? carouselData.length - 1 : prev - 1));
   };
 
-  const goToSlide = (index) => {
+  const goToSlide = (index: number) => {
     setAutoplay(false);
     setCurrentSlide(index);
   };
-
   return (
     <section className="min-h-screen h-screen md:h-screen relative overflow-hidden">
       {/* 60-40 division with background colors - adjusted for mobile */}

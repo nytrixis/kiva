@@ -2,8 +2,21 @@
 
 import { useSession, signIn, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { User, UserRole } from "@prisma/client";
+
+export type AuthUser = {
+  id: string;
+  name?: string | null;
+  email?: string | null;
+  image?: string | null;
+  role: UserRole;
+  phone?: string | null;
+  location?: string | null;
+  isOnboarded: boolean;
+};
 
 export function useAuth() {
+  
   const { data: session, status } = useSession();
   const router = useRouter();
   

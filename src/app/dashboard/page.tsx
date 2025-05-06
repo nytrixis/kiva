@@ -1,11 +1,11 @@
 "use client";
-
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/use-auth";
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
+import type { AuthUser } from "@/hooks/use-auth";
 import {
   ShoppingBag,
   Heart,
@@ -23,9 +23,54 @@ import {
   Truck,
   MessageSquare
 } from "lucide-react";
+import { UserRole } from "@prisma/client";
+
+// Define types based on Prisma schema
+interface UserWithProfile {
+  id: string;
+  name?: string | null;
+  email?: string | null;
+  emailVerified?: Date | null;
+  password?: string | null;
+  image?: string | null;
+  role: UserRole;
+  createdAt?: Date;
+  updatedAt?: Date;
+  isOnboarded: boolean;
+  bio?: string | null;
+  phone?: string | null;
+  location?: string | null;
+}
+
+interface UserPreferences {
+  id: string;
+  userId: string;
+  categories: string[];
+  notifications: boolean;
+  location: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
 
 // Mock data for recently viewed products
-const recentlyViewed = [
+interface Product {
+  id: number;
+  name: string;
+  price: number;
+  image: string;
+  vendor?: string;
+  rating?: number;
+}
+
+interface Event {
+  id: number;
+  title: string;
+  date: string;
+  location: string;
+  image: string;
+}
+
+const recentlyViewed: Product[] = [
   {
     id: 1,
     name: "Handcrafted Ceramic Mug",
@@ -47,7 +92,7 @@ const recentlyViewed = [
 ];
 
 // Mock data for recommended products
-const recommended = [
+const recommended: Product[] = [
   {
     id: 4,
     name: "Lavender Essential Oil",
@@ -75,10 +120,10 @@ const recommended = [
 ];
 
 // Mock data for orders
-const orders = [];
+const orders: any[] = [];
 
 // Mock data for upcoming events
-const upcomingEvents = [
+const upcomingEvents: Event[] = [
   {
     id: 1,
     title: "Artisan Market",
@@ -98,8 +143,8 @@ const upcomingEvents = [
 export default function DashboardPage() {
   const { user, isLoading, logout } = useAuth();
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState("overview");
-  const [userPreferences, setUserPreferences] = useState(null);
+  const [activeTab, setActiveTab] = useState<string>("overview");
+  const [userPreferences, setUserPreferences] = useState<UserPreferences | null>(null);
   
   // Redirect if not authenticated
   useEffect(() => {
@@ -188,8 +233,8 @@ export default function DashboardPage() {
                 <button
                   onClick={() => setActiveTab("overview")}
                   className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
-                    activeTab === "overview" 
-                      ? "bg-primary text-white" 
+                    activeTab === "overview"
+                      ? "bg-primary text-white"
                       : "text-gray-700 hover:bg-gray-100"
                   }`}
                 >
@@ -200,8 +245,8 @@ export default function DashboardPage() {
                 <button
                   onClick={() => setActiveTab("orders")}
                   className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
-                    activeTab === "orders" 
-                      ? "bg-primary text-white" 
+                    activeTab === "orders"
+                      ? "bg-primary text-white"
                       : "text-gray-700 hover:bg-gray-100"
                   }`}
                 >
@@ -212,8 +257,8 @@ export default function DashboardPage() {
                 <button
                   onClick={() => setActiveTab("wishlist")}
                   className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
-                    activeTab === "wishlist" 
-                      ? "bg-primary text-white" 
+                    activeTab === "wishlist"
+                      ? "bg-primary text-white"
                       : "text-gray-700 hover:bg-gray-100"
                   }`}
                 >
@@ -224,8 +269,8 @@ export default function DashboardPage() {
                 <button
                   onClick={() => setActiveTab("history")}
                   className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
-                    activeTab === "history" 
-                      ? "bg-primary text-white" 
+                    activeTab === "history"
+                      ? "bg-primary text-white"
                       : "text-gray-700 hover:bg-gray-100"
                   }`}
                 >
@@ -236,8 +281,8 @@ export default function DashboardPage() {
                 <button
                   onClick={() => setActiveTab("settings")}
                   className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
-                    activeTab === "settings" 
-                      ? "bg-primary text-white" 
+                    activeTab === "settings"
+                      ? "bg-primary text-white"
                       : "text-gray-700 hover:bg-gray-100"
                   }`}
                 >
@@ -314,7 +359,7 @@ export default function DashboardPage() {
                 <div className="bg-white rounded-xl shadow-sm p-6">
                   <div className="flex items-center justify-between mb-6">
                     <h2 className="text-xl font-medium">Recently Viewed</h2>
-                    <button 
+                    <button
                       onClick={() => setActiveTab("history")}
                       className="text-sm text-primary hover:text-primary/80 transition-colors flex items-center"
                     >
@@ -361,8 +406,8 @@ export default function DashboardPage() {
                 <div className="bg-white rounded-xl shadow-sm p-6">
                   <div className="flex items-center justify-between mb-6">
                     <h2 className="text-xl font-medium">Recommended For You</h2>
-                    <Link 
-                      href="/recommendations" 
+                    <Link
+                      href="/recommendations"
                       className="text-sm text-primary hover:text-primary/80 transition-colors flex items-center"
                     >
                       View all <ChevronRight className="h-4 w-4 ml-1" />
@@ -415,8 +460,8 @@ export default function DashboardPage() {
                 <div className="bg-white rounded-xl shadow-sm p-6">
                   <div className="flex items-center justify-between mb-6">
                     <h2 className="text-xl font-medium">Upcoming Events</h2>
-                    <Link 
-                      href="/events" 
+                    <Link
+                      href="/events"
                       className="text-sm text-primary hover:text-primary/80 transition-colors flex items-center"
                     >
                       View all <ChevronRight className="h-4 w-4 ml-1" />
@@ -487,8 +532,8 @@ export default function DashboardPage() {
                       <p className="text-gray-500 max-w-md mx-auto mb-6">
                         When you place your first order, it will appear here for you to track.
                       </p>
-                      <Link 
-                        href="/collections" 
+                      <Link
+                        href="/collections"
                         className="inline-block px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors"
                       >
                         Start Shopping
@@ -513,8 +558,8 @@ export default function DashboardPage() {
                     <p className="text-gray-500 max-w-md mx-auto mb-6">
                       Save items you love to your wishlist. Review them anytime and easily move them to your cart.
                     </p>
-                    <Link 
-                      href="/collections" 
+                    <Link
+                      href="/collections"
                       className="inline-block px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors"
                     >
                       Discover Products
@@ -613,7 +658,7 @@ export default function DashboardPage() {
                           </label>
                           <input
                             type="tel"
-                            defaultValue={user.phone || ""}
+                            defaultValue={(user as any)?.phone ?? ""}
                             className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                           />
                         </div>
@@ -623,7 +668,7 @@ export default function DashboardPage() {
                           </label>
                           <input
                             type="text"
-                            defaultValue={user.location || ""}
+                            defaultValue={(user as any)?.location ?? ""}
                             className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                           />
                         </div>

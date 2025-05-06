@@ -5,6 +5,7 @@ Tax and legal documentation upload
 Bank account/payment information setup
 Store profile creation
 Terms of service acceptance
+
 2. Seller Dashboard
 Sales overview and analytics
 Revenue metrics and earnings
@@ -12,6 +13,7 @@ Order management interface
 Inventory status summary
 Recent activities and notifications
 Performance metrics (conversion rate, customer satisfaction)
+
 3. Product Management
 Product listing creation and editing
 Bulk product upload functionality
@@ -20,6 +22,7 @@ Product categorization and tagging
 Product variations (size, color, etc.)
 Pricing and discount management
 Product visibility controls
+
 4. Order Management
 Order processing workflow
 Order status updates
@@ -28,6 +31,7 @@ Batch order processing
 Order cancellation handling
 Return and refund management
 Shipping label generation
+
 5. Inventory Management
 Stock level tracking
 Low stock alerts
@@ -35,6 +39,7 @@ Inventory history
 Batch inventory updates
 Inventory forecasting
 Supplier management
+
 6. Financial Management
 Revenue tracking
 Transaction history
@@ -43,6 +48,7 @@ Tax calculation and reporting
 Invoice generation
 Financial statement downloads
 Commission and fee transparency
+
 7. Shipping Management
 Shipping method configuration
 Shipping rate setup
@@ -50,12 +56,14 @@ Shipping zone management
 Package tracking integration
 Shipping label generation
 Bulk shipping operations
+
 8. Customer Management
 Customer database
 Customer communication tools
 Customer feedback and reviews management
 Customer dispute resolution
 Repeat customer analytics
+
 9. Marketing Tools
 Promotion and discount creation
 Flash sale management
@@ -63,6 +71,7 @@ Product bundling
 Featured product placement
 SEO optimization tools
 Social media integration
+
 10. Analytics and Reporting
 Sales performance reports
 Product performance analytics
@@ -70,48 +79,56 @@ Customer behavior insights
 Seasonal trend analysis
 Competitor benchmarking
 Exportable reports
+
 11. Store Customization
 Store theme and branding
 Custom URL/storefront
 Banner and promotional content management
 About us and policy pages
 Mobile store optimization
+
 12. Communication Center
 Messaging system with customers
 Platform support access
 Notification preferences
 Automated messaging templates
 Communication history
+
 13. Compliance and Policy Management
 Policy creation and management
 Regulatory compliance tools
 Product safety verification
 Intellectual property protection
 Restricted product monitoring
+
 14. Seller Education
 Onboarding tutorials
 Best practices guides
 Performance improvement recommendations
 Marketplace policy updates
 Webinars and training resources
+
 15. Mobile Management
 Mobile-optimized seller dashboard
 On-the-go order management
 Mobile notifications
 Quick inventory updates
 Mobile analytics view
+
 16. Integration Capabilities
 API access for third-party tools
 Accounting software integration
 Inventory management system integration
 CRM integration
 Shipping carrier integration
+
 17. Seller Rating and Performance
 Seller performance metrics
 Customer satisfaction scores
 Delivery time tracking
 Response rate monitoring
 Quality control standards
+
 18. Security Features
 Two-factor authentication
 Secure payment processing

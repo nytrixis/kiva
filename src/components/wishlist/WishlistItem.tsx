@@ -3,20 +3,49 @@ import Image from "next/image";
 import Link from "next/link";
 import { Trash2, ShoppingCart } from "lucide-react";
 
-export default function WishlistItem({ item, onRemoveItem, onAddToCart, isUpdating }) {
+interface WishlistItemProps {
+  item: {
+    id: string;
+    product: {
+      id: string;
+      name: string;
+      price: number;
+      discountPercentage: number;
+      images: string[] | any;
+      category?: {
+        name: string;
+      };
+      seller?: {
+        name: string;
+      };
+    };
+  };
+  onRemoveItem: (id: string) => void;
+  onAddToCart: (productId: string) => void;
+  isUpdating: boolean;
+}
+
+export default function WishlistItem({ 
+  item, 
+  onRemoveItem, 
+  onAddToCart, 
+  isUpdating 
+}: WishlistItemProps) {
   const { product, id } = item;
   const [isHovered, setIsHovered] = useState(false);
-  
-  // Calculate the price to display (either discount price or regular price)
-  const displayPrice = product.discountPrice || product.price;
-  
+ 
+  // Calculate the price to display (based on discount percentage)
+  const displayPrice = product.discountPercentage > 0 
+    ? product.price * (1 - product.discountPercentage / 100) 
+    : product.price;
+ 
   // Get the first image from the product images array
   const imageUrl = Array.isArray(product.images) && product.images.length > 0
     ? product.images[0]
     : "/images/placeholder-product.jpg";
-  
+ 
   return (
-    <div 
+    <div
       className="flex flex-col sm:flex-row items-start sm:items-center py-6 border-b border-gray-200"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}

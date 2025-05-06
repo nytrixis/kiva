@@ -3,6 +3,38 @@ import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { compare } from "bcrypt";
 import { prisma } from "@/lib/db";
+import { UserRole } from "@prisma/client";
+
+// Define types for JWT and Session
+interface ExtendedUser {
+  id: string;
+  email?: string | null;
+  name?: string | null;
+  role: UserRole;
+  image?: string | null;
+  isOnboarded: boolean;
+}
+
+declare module "next-auth" {
+  interface User extends ExtendedUser {}
+  
+  interface Session {
+    user: {
+      id: string;
+      email?: string | null;
+      name?: string | null;
+      role: string;
+      image?: string | null;
+    };
+  }
+}
+
+declare module "next-auth/jwt" {
+  interface JWT {
+    id: string;
+    role: UserRole;
+  }
+}
 
 export const authOptions: NextAuthOptions = {
   // Remove PrismaAdapter for now as it might be causing issues
@@ -28,35 +60,39 @@ export const authOptions: NextAuthOptions = {
         if (!credentials?.email || !credentials?.password) {
           return null;
         }
-
         try {
-        const user = await prisma.user.findUnique({
-          where: {
-            email: credentials.email,
-          },
-        });
-        if (!user || !user.password) {
+          const user = await prisma.user.findUnique({
+            where: {
+              email: credentials.email,
+            },
+          });
+          
+          if (!user || !user.password) {
+            return null;
+          }
+          
+          const isPasswordValid = await compare(
+            credentials.password,
+            user.password
+          );
+          
+          if (!isPasswordValid) {
+            return null;
+          }
+          
+          return {
+            id: user.id,
+            email: user.email,
+            name: user.name,
+            role: user.role,
+            image: user.image,
+            isOnboarded: user.isOnboarded,
+          };
+        } catch (error) {
+          console.error("Error during authorization:", error);
           return null;
         }
-        const isPasswordValid = await compare(
-          credentials.password,
-          user.password
-        );
-        if (!isPasswordValid) {
-          return null;
-        }
-        return {
-          id: user.id,
-          email: user.email,
-          name: user.name,
-          role: user.role,
-          image: user.image,
-        };
-      } catch (error) {
-        console.error("Error during authorization:", error);
-        return null;
-      }
-    },
+      },
     }),
   ],
   callbacks: {
@@ -69,7 +105,7 @@ export const authOptions: NextAuthOptions = {
     },
     async session({ session, token }) {
       if (token && session.user) {
-        session.user.id = token.id as string;
+        session.user.id = token.id;
         session.user.role = token.role as string;
       }
       return session;

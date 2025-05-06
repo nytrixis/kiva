@@ -38,12 +38,12 @@ export default function Navbar() {
   const { user, isAuthenticated, logout } = useAuth();
   
   // Function to change language using Google Translate
-  const changeLanguage = (languageCode) => {
-    if (typeof window !== 'undefined' && window.google && window.google.translate) {
+  const changeLanguage = (languageCode: string) => {
+    if (typeof window !== 'undefined' && (window as any).google && (window as any).google.translate) {
       const selectedLang = languages.find(lang => lang.code === languageCode);
       if (selectedLang) {
         setSelectedLanguage(selectedLang);
-        window.google.translate.TranslateElement({
+        (window as any).google.translate.TranslateElement({
           pageLanguage: 'en',
           includedLanguages: languageCode,
           autoDisplay: false
@@ -51,8 +51,8 @@ export default function Navbar() {
       }
     }
   };
-  
-  const handleSearchSubmit = (e) => {
+
+  const handleSearchSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     // This would connect to your backend search functionality
     // For now, just log the search query
@@ -71,8 +71,7 @@ export default function Navbar() {
     };
     searchProducts();
     */
-  };
-  
+  };  
   return (
     <header className="sticky top-0 z-50 shadow-sm">
       {/* 60-40 division with background colors */}

@@ -1,35 +1,67 @@
 "use client";
-
 import { useState, useEffect } from "react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import ProductGrid from "@/components/product/ProductGrid";
 import ProductFilters from "@/components/product/ProductFilters";
 import ProductSort from "@/components/product/ProductSort";
 import { motion } from "framer-motion";
-import { Filter, X, SlidersHorizontal } from "lucide-react";
+import { Filter, X } from "lucide-react";
 
-export default function ProductCatalog({ 
-  categories, 
+interface Category {
+  id: string;
+  name: string;
+}
+
+interface Seller {
+  name: string;
+}
+
+interface Product {
+  id: string;
+  name: string;
+  price: number;
+  discountPercentage: number;
+  images: string[];
+  rating: number;
+  reviewCount: number;
+  category: {
+    name: string;
+  };
+  seller: {
+    name: string;
+  };
+  stock?: number;
+  isInWishlist?: boolean;
+}
+
+interface ProductCatalogProps {
+  categories: Category[];
+  initialCategory?: string | null;
+  searchQuery?: string | null;
+}
+
+export default function ProductCatalog({
+  categories,
   initialCategory = null,
   searchQuery = null
-}) {
+}: ProductCatalogProps) {
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
-  
-  const [products, setProducts] = useState([]);
+ 
+  const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [totalProducts, setTotalProducts] = useState(0);
   const [activeFilters, setActiveFilters] = useState(0);
-  
+ 
   // Get current filter values from URL
   const categoryParam = searchParams.get("category") || initialCategory;
   const minPrice = searchParams.get("minPrice");
   const maxPrice = searchParams.get("maxPrice");
   const sortBy = searchParams.get("sort") || "newest";
   const page = parseInt(searchParams.get("page") || "1");
-  
+ 
   // Fetch products based on filters
   useEffect(() => {
     const fetchProducts = async () => {
@@ -67,10 +99,10 @@ export default function ProductCatalog({
     
     fetchProducts();
   }, [categoryParam, minPrice, maxPrice, sortBy, page, searchQuery]);
-  
+ 
   // Update URL with filters
-  const updateFilters = (filters) => {
-    const params = new URLSearchParams(searchParams);
+  const updateFilters = (filters: { [key: string]: any }) => {
+    const params = new URLSearchParams(searchParams.toString());
     
     // Update params based on filters
     Object.entries(filters).forEach(([key, value]) => {
@@ -82,23 +114,23 @@ export default function ProductCatalog({
     });
     
     // Reset to page 1 when filters change
-    if (filters.category !== undefined || 
-        filters.minPrice !== undefined || 
-        filters.maxPrice !== undefined || 
+    if (filters.category !== undefined ||
+        filters.minPrice !== undefined ||
+        filters.maxPrice !== undefined ||
         filters.sort !== undefined) {
       params.set("page", "1");
     }
     
     router.push(`${pathname}?${params.toString()}`);
   };
-  
+ 
   // Clear all filters
   const clearFilters = () => {
     const params = new URLSearchParams();
     if (searchQuery) params.set("q", searchQuery);
     router.push(`${pathname}?${params.toString()}`);
   };
-  
+ 
   return (
     <div className="flex flex-col md:flex-row gap-8">
       {/* Mobile filter button */}
@@ -133,7 +165,7 @@ export default function ProductCatalog({
           >
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-lg font-medium">Filters</h2>
-              <button 
+              <button
                 onClick={() => setFiltersOpen(false)}
                 className="p-1 rounded-full hover:bg-gray-100"
               >
@@ -208,9 +240,9 @@ export default function ProductCatalog({
           />
         </div>
         
-        <ProductGrid 
-          products={products} 
-          loading={loading} 
+        <ProductGrid
+          products={products}
+          loading={loading}
         />
         
         {/* Pagination */}

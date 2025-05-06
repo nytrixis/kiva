@@ -1,5 +1,4 @@
 "use client";
-
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/use-auth";
@@ -7,13 +6,26 @@ import { motion } from "framer-motion";
 import { Loader2, Check, ChevronRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { UserRole } from "@prisma/client";
+
+// Define types based on Prisma schema
+interface UserPreferences {
+  categories: string[];
+  notifications: boolean;
+  location: string;
+}
+
+interface OnboardingData {
+  preferences: UserPreferences;
+  role: UserRole;
+}
 
 export default function CustomerOnboardingPage() {
   const { user, isLoading } = useAuth();
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [preferences, setPreferences] = useState({
+  const [preferences, setPreferences] = useState<UserPreferences>({
     categories: [],
     notifications: true,
     location: "",
@@ -38,7 +50,7 @@ export default function CustomerOnboardingPage() {
   ];
 
   // Toggle category selection
-  const toggleCategory = (categoryId) => {
+  const toggleCategory = (categoryId: string) => {
     setPreferences(prev => {
       const newCategories = prev.categories.includes(categoryId)
         ? prev.categories.filter(id => id !== categoryId)
@@ -49,7 +61,7 @@ export default function CustomerOnboardingPage() {
   };
 
   // Handle location change
-  const handleLocationChange = (e) => {
+  const handleLocationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setPreferences(prev => ({ ...prev, location: e.target.value }));
   };
 
@@ -74,15 +86,17 @@ export default function CustomerOnboardingPage() {
     
     try {
       // Save preferences to user profile
+      const onboardingData: OnboardingData = {
+        preferences,
+        role: "CUSTOMER" as UserRole,
+      };
+
       const response = await fetch("/api/user/onboarding", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          preferences,
-          role: "CUSTOMER",
-        }),
+        body: JSON.stringify(onboardingData),
       });
       
       if (response.ok) {
@@ -120,13 +134,13 @@ export default function CustomerOnboardingPage() {
             
             <div className="flex items-center space-x-2">
               {[1, 2, 3].map((step) => (
-                <div 
+                <div
                   key={step}
                   className={`w-8 h-1 rounded-full ${
-                    step === currentStep 
-                      ? 'bg-primary' 
-                      : step < currentStep 
-                        ? 'bg-primary/50' 
+                    step === currentStep
+                      ? 'bg-primary'
+                      : step < currentStep
+                        ? 'bg-primary/50'
                         : 'bg-gray-200'
                   }`}
                 />
@@ -279,7 +293,7 @@ export default function CustomerOnboardingPage() {
                       preferences.notifications ? 'bg-primary' : 'bg-gray-300'
                     } relative`}
                   >
-                    <span 
+                    <span
                       className={`absolute top-1 ${
                         preferences.notifications ? 'right-1' : 'left-1'
                       } w-4 h-4 rounded-full bg-white transition-all`}
@@ -294,7 +308,7 @@ export default function CustomerOnboardingPage() {
                     <p className="text-sm">
                       <span className="font-medium">Categories:</span>{" "}
                       {preferences.categories.length > 0
-                        ? preferences.categories.map(id => 
+                        ? preferences.categories.map(id =>
                             categories.find(c => c.id === id)?.name
                           ).join(", ")
                         : "None selected"}

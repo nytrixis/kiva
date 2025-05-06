@@ -1,9 +1,19 @@
 "use client";
-
 import { motion } from "framer-motion";
 import Image from "next/image";
 
-export default function CategoryHero({ category }) {
+interface Category {
+  name: string;
+  description?: string;
+  bannerImage?: string;
+  productCount?: number;
+}
+
+interface CategoryHeroProps {
+  category: Category;
+}
+
+export default function CategoryHero({ category }: CategoryHeroProps) {
   return (
     <div className="relative h-64 md:h-80 lg:h-96 overflow-hidden">
       {/* Background image */}

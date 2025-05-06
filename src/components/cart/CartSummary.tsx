@@ -1,7 +1,21 @@
 import { useState, useEffect } from "react";
 import { ArrowRight, Loader2 } from "lucide-react";
 
-export default function CartSummary({ items, onCheckout, isUpdating }) {
+interface CartItem {
+  product: {
+    price: number;
+    discountPercentage: number;
+  };
+  quantity: number;
+}
+
+interface CartSummaryProps {
+  items: CartItem[];
+  onCheckout: () => void;
+  isUpdating: boolean;
+}
+
+export default function CartSummary({ items, onCheckout, isUpdating }: CartSummaryProps) {
   const [summary, setSummary] = useState({
     subtotal: 0,
     discount: 0,
@@ -20,7 +34,10 @@ export default function CartSummary({ items, onCheckout, isUpdating }) {
 
       // Calculate discount amount
       const discountedSubtotal = items.reduce((sum, item) => {
-        const price = item.product.discountPrice || item.product.price;
+        // Calculate discounted price based on discountPercentage
+        const price = item.product.discountPercentage > 0 
+          ? item.product.price * (1 - item.product.discountPercentage / 100) 
+          : item.product.price;
         return sum + price * item.quantity;
       }, 0);
       

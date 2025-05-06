@@ -1,5 +1,4 @@
 "use client";
-
 import { useState } from "react";
 import { ChevronDown } from "lucide-react";
 import {
@@ -17,11 +16,16 @@ const sortOptions = [
   { value: "popularity", label: "Most Popular" },
 ];
 
-export default function ProductSort({ value, onChange }) {
+interface ProductSortProps {
+  value: string;
+  onChange: (value: string) => void;
+}
+
+export default function ProductSort({ value, onChange }: ProductSortProps) {
   const [open, setOpen] = useState(false);
-  
+ 
   const selectedOption = sortOptions.find(option => option.value === value) || sortOptions[0];
-  
+ 
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
       <DropdownMenuTrigger asChild>

@@ -1,6 +1,20 @@
 import { Minus, Plus } from "lucide-react";
 
-export default function QuantitySelector({ quantity, onUpdate, min = 1, max = 99, disabled = false }) {
+interface QuantitySelectorProps {
+  quantity: number;
+  onUpdate: (quantity: number) => void;
+  min?: number;
+  max?: number;
+  disabled?: boolean;
+}
+
+export default function QuantitySelector({ 
+  quantity, 
+  onUpdate, 
+  min = 1, 
+  max = 99, 
+  disabled = false 
+}: QuantitySelectorProps) {
   const handleIncrement = () => {
     if (quantity < max && !disabled) {
       onUpdate(quantity + 1);

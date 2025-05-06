@@ -1,5 +1,4 @@
 "use client";
-
 import { motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
@@ -7,7 +6,34 @@ import { Heart, ShoppingCart, Star, Check, AlertCircle } from "lucide-react";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 
-export default function ProductGrid({ products, loading }) {
+interface Seller {
+  name: string;
+}
+
+interface Category {
+  name: string;
+}
+
+interface Product {
+  id: string;
+  name: string;
+  price: number;
+  discountPercentage: number;
+  images: string[];
+  rating: number;
+  reviewCount: number;
+  category: Category;
+  seller: Seller;
+  isInWishlist?: boolean;
+  stock?: number;
+}
+
+interface ProductGridProps {
+  products: Product[];
+  loading: boolean;
+}
+
+export default function ProductGrid({ products, loading }: ProductGridProps) {
   // Placeholder for loading state
   if (loading) {
     return (
@@ -51,13 +77,23 @@ export default function ProductGrid({ products, loading }) {
   );
 }
 
-function ProductCard({ product, index }) {
+interface ProductCardProps {
+  product: Product;
+  index: number;
+}
+
+function ProductCard({ product, index }: ProductCardProps) {
   const [isWishlistHovered, setIsWishlistHovered] = useState(false);
   const [isAddingToCart, setIsAddingToCart] = useState(false);
   const [isInWishlist, setIsInWishlist] = useState(product.isInWishlist || false);
   const { toast } = useToast();
 
-  const addToCart = async (e) => {
+  // Calculate discounted price based on discountPercentage
+  const discountPrice = product.discountPercentage > 0 
+    ? product.price * (1 - product.discountPercentage / 100) 
+    : null;
+
+  const addToCart = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     
@@ -107,7 +143,7 @@ function ProductCard({ product, index }) {
     }
   };
 
-  const toggleWishlist = async (e) => {
+  const toggleWishlist = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     
@@ -133,7 +169,7 @@ function ProductCard({ product, index }) {
       // Show success toast notification
       toast({
         title: isInWishlist ? "Removed from Wishlist" : "Added to Wishlist",
-        description: isInWishlist 
+        description: isInWishlist
           ? `${product.name} has been removed from your wishlist.`
           : `${product.name} has been added to your wishlist.`,
         variant: "success",
@@ -195,12 +231,12 @@ function ProductCard({ product, index }) {
                 className="p-2 bg-white/90 backdrop-blur-sm rounded-full shadow-sm hover:bg-white transition-colors"
                 aria-label={isInWishlist ? "Remove from wishlist" : "Add to wishlist"}
               >
-                <Heart 
+                <Heart
                   className={`h-5 w-5 transition-all ${
-                    isWishlistHovered || isInWishlist 
-                      ? 'fill-primary text-primary' 
+                    isWishlistHovered || isInWishlist
+                      ? 'fill-primary text-primary'
                       : 'text-gray-600'
-                  }`} 
+                  }`}
                 />
               </button>
               
@@ -232,12 +268,12 @@ function ProductCard({ product, index }) {
             {/* Price */}
             <div className="flex items-center space-x-2">
               <span className="font-semibold text-gray-900">
-                ₹{product.discountPrice || product.price}
+                ₹{discountPrice !== null ? discountPrice.toFixed(2) : product.price.toFixed(2)}
               </span>
               
-              {product.discountPrice && (
+              {discountPrice !== null && (
                 <span className="text-sm text-gray-500 line-through">
-                  ₹{product.price}
+                  ₹{product.price.toFixed(2)}
                 </span>
               )}
             </div>

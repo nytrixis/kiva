@@ -38,7 +38,8 @@ export async function GET(request: Request) {
       },
     });
     
-    const isInWishlist = wishlist?.items.length > 0;
+    const isInWishlist = (wishlist?.items || []).length > 0;
+
     
     return NextResponse.json({ isInWishlist });
   } catch (error) {

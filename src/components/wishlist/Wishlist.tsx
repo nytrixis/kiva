@@ -1,6 +1,35 @@
 import WishlistItem from "./WishlistItem";
 
-export default function WishlistList({ items, onRemoveItem, onAddToCart, isUpdating }) {
+interface WishlistItemType {
+  id: string;
+  product: {
+    id: string;
+    name: string;
+    price: number;
+    discountPercentage: number;
+    images: string[];
+    category?: {
+      name: string;
+    };
+    seller?: {
+      name: string;
+    };
+  };
+}
+
+interface WishlistListProps {
+  items: WishlistItemType[];
+  onRemoveItem: (id: string) => void;
+  onAddToCart: (productId: string) => void;
+  isUpdating: boolean;
+}
+
+export default function WishlistList({ 
+  items, 
+  onRemoveItem, 
+  onAddToCart, 
+  isUpdating 
+}: WishlistListProps) {
   return (
     <div className="bg-white rounded-xl shadow-sm p-6">
       <h2 className="text-xl font-medium text-gray-800 mb-6">
