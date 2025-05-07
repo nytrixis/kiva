@@ -12,7 +12,7 @@ const artisans = [
   {
     id: 1,
     name: "Priya Sharma",
-    image: "/images/artisans/priya.jpg",
+    image: "/images/artisans/priya.png",
     category: "Textile Weaving",
     location: "Nagpur, Maharashtra",
     story: "A third-generation weaver, Priya has been creating handloom textiles for over 15 years, preserving traditional Maharashtrian patterns while introducing contemporary designs.",
@@ -21,16 +21,16 @@ const artisans = [
     reviewCount: 128,
     shopLink: "/artisans/priya-sharma",
     craftImages: [
-      "/images/crafts/textile1.jpg",
-      "/images/crafts/textile2.jpg",
-      "/images/crafts/textile3.jpg"
+      "/images/crafts/textile1.png",
+      "/images/crafts/textile2.png",
+      "/images/crafts/textile3.png"
     ],
     specialties: ["Hand-dyed Fabrics", "Traditional Patterns", "Sustainable Materials"]
   },
   {
     id: 2,
     name: "Rajesh Patel",
-    image: "/images/artisans/rajesh.jpg",
+    image: "/images/artisans/rajesh.png",
     category: "Pottery & Ceramics",
     location: "Bhuj, Gujarat",
     story: "Rajesh learned pottery from his grandfather at the age of 8. After the 2001 earthquake destroyed his family workshop, he rebuilt it and now trains young artisans in traditional Kutch pottery techniques.",
@@ -39,16 +39,16 @@ const artisans = [
     reviewCount: 94,
     shopLink: "/artisans/rajesh-patel",
     craftImages: [
-      "/images/crafts/pottery1.jpg",
-      "/images/crafts/pottery2.jpg",
-      "/images/crafts/pottery3.jpg"
+      "/images/crafts/pottery1.png",
+      "/images/crafts/pottery2.png",
+      "/images/crafts/pottery3.png"
     ],
     specialties: ["Terracotta Pottery", "Glazed Ceramics", "Traditional Designs"]
   },
   {
     id: 3,
     name: "Lakshmi Devi",
-    image: "/images/artisans/lakshmi.jpg",
+    image: "/images/artisans/lakshmi.png",
     category: "Brass Metalwork",
     location: "Moradabad, Uttar Pradesh",
     story: "Coming from a family of traditional metalworkers, Lakshmi has revolutionized the craft by combining ancient techniques with modern sustainable practices, creating eco-friendly brass products.",
@@ -57,9 +57,9 @@ const artisans = [
     reviewCount: 156,
     shopLink: "/artisans/lakshmi-devi",
     craftImages: [
-      "/images/crafts/metal1.jpg",
-      "/images/crafts/metal2.jpg",
-      "/images/crafts/metal3.jpg"
+      "/images/crafts/metal1.png",
+      "/images/crafts/metal2.png",
+      "/images/crafts/metal3.png"
     ],
     specialties: ["Eco-friendly Methods", "Decorative Pieces", "Functional Art"]
   }

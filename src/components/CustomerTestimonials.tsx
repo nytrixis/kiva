@@ -11,7 +11,7 @@ const testimonials = [
     id: 1,
     name: "Priya Sharma",
     location: "Mumbai, India",
-    avatar: "/images/testimonials/avatar-1.jpg",
+    avatar: "/images/testimonials/avatar-1.png",
     rating: 5,
     text: "The handcrafted jewelry I purchased is absolutely stunning. The attention to detail and quality is exceptional, and I love knowing that my purchase supports local artisans.",
     product: "Silver Filigree Earrings"
@@ -20,7 +20,7 @@ const testimonials = [
     id: 2,
     name: "Raj Patel",
     location: "Ahmedabad, Gujarat",
-    avatar: "/images/testimonials/avatar-2.jpg",
+    avatar: "/images/testimonials/avatar-2.png",
     rating: 5,
     text: "I've been searching for authentic, traditional home decor items for years. Kiva has connected me with incredible craftspeople whose work transforms my living space.",
     product: "Hand-painted Ceramic Vase"
@@ -29,7 +29,7 @@ const testimonials = [
     id: 3,
     name: "Ananya Desai",
     location: "Bangalore, Karnataka",
-    avatar: "/images/testimonials/avatar-3.jpg",
+    avatar: "/images/testimonials/avatar-3.png",
     rating: 4,
     text: "The sustainable clothing options are not only eco-friendly but also incredibly stylish. I receive compliments every time I wear my Kiva purchases!",
     product: "Organic Cotton Dress"
@@ -38,7 +38,7 @@ const testimonials = [
     id: 4,
     name: "Vikram Singh",
     location: "Jaipur, Rajasthan",
-    avatar: "/images/testimonials/avatar-4.jpg",
+    avatar: "/images/testimonials/avatar-4.png",
     rating: 5,
     text: "As someone who values heritage and tradition, I'm impressed by how Kiva preserves cultural craftsmanship while making it accessible to modern consumers.",
     product: "Traditional Block Print Scarf"
@@ -47,7 +47,7 @@ const testimonials = [
     id: 5,
     name: "Meera Kapoor",
     location: "Delhi, India",
-    avatar: "/images/testimonials/avatar-5.jpg",
+    avatar: "/images/testimonials/avatar-5.png",
     rating: 5,
     text: "The wellness products I ordered exceeded my expectations. Made with natural ingredients and traditional knowledge, they've become essential in my daily routine.",
     product: "Ayurvedic Skincare Set"
@@ -56,7 +56,7 @@ const testimonials = [
     id: 6,
     name: "Arjun Mehta",
     location: "Kolkata, West Bengal",
-    avatar: "/images/testimonials/avatar-6.jpg",
+    avatar: "/images/testimonials/avatar-6.png",
     rating: 5,
     text: "I purchased several items as gifts, and my family was blown away by the quality and uniqueness. The packaging was also beautiful and eco-friendly!",
     product: "Handwoven Textile Wall Hanging"
