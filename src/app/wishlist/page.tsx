@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Heart, ArrowLeft, Loader2, ShoppingCart } from "lucide-react";
-import WishlistList from "@/components/wishlist/WishlistList";
+import WishlistList from "@/components/wishlist/Wishlist";
 import { useToast } from "@/hooks/use-toast";
 
 export default function WishlistPage() {
