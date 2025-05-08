@@ -19,7 +19,7 @@ export default async function SellerDetailsPage({
   const session = await getServerSession(authOptions);
   
   if (!session?.user || session.user.role !== UserRole.ADMIN) {
-    redirect("/login?callbackUrl=/admin/sellers");
+    redirect("/sign-in?callbackUrl=/admin/sellers");
   }
   
   const { id } = params;
