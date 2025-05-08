@@ -101,35 +101,26 @@ model User {
   role          UserRole        @default(CUSTOMER)
   createdAt     DateTime        @default(now())
   updatedAt     DateTime        @updatedAt
-  preferences   UserPreference?
-
-  // Profile information
-  bio      String? @db.Text
-  phone    String?
-  location String?
-
-  // Role-specific fields
-  isOnboarded Boolean @default(false)
+  bio           String?         @db.Text
+  phone         String?
+  location      String?
+  isOnboarded   Boolean         @default(false)
 
   // Relations
-  accounts Account[]
-  sessions Session[]
-
-  // Seller-specific relations
-  products Product[] @relation("SellerProducts")
-
-  // Customer-specific relations
-  orders    Order[]
-  wishlist  Wishlist?
-  cartItems CartItem[]
-
-  // Common relations
-  reviews Review[]
+  accounts      Account[]
+  sessions      Session[]
+  orders        Order[]
+  products      Product[]       @relation("SellerProducts")
+  reviews       Review[]
+  wishlist      Wishlist?
+  cartItems     CartItem[]
+  preferences   UserPreference?
+  sellerProfile SellerProfile?
 }
 
 model Product {
   id                 String         @id @default(cuid())
-  name               String         // Fixed typo "Strinyg" to "String"
+  name               String
   description        String?        @db.Text
   price              Float
   discountPercentage Float          @default(0)
@@ -142,6 +133,7 @@ model Product {
   categoryId         String
   createdAt          DateTime       @default(now())
   updatedAt          DateTime       @updatedAt
+  cloudinaryPublicId String?        // Added for Cloudinary integration
 
   seller        User           @relation("SellerProducts", fields: [sellerId], references: [id])
   category      Category       @relation(fields: [categoryId], references: [id])
@@ -202,4 +194,51 @@ model Wishlist {
 
   user  User           @relation(fields: [userId], references: [id], onDelete: Cascade)
   items WishlistItem[]
+}
+
+// New model for seller onboarding
+enum SellerStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  SUSPENDED
+}
+
+model SellerProfile {
+  id              String       @id @default(cuid())
+  userId          String       @unique
+  businessName    String
+  businessType    String       // e.g., Individual, LLC, Corporation
+  description     String?      @db.Text
+  bannerImage     String?
+  logoImage       String?
+  address         String
+  city            String
+  state           String
+  postalCode      String
+  country         String
+  taxId           String?
+  website         String?
+  phoneNumber     String
+  categories      String[]     // Categories the seller operates in
+  
+  // KYC and verification fields
+  identityDocument String?
+  businessDocument String?
+  isVerified      Boolean      @default(false)
+  verifiedAt      DateTime?
+  verifiedBy      String?      // Admin user ID who verified
+  
+  // Cloudinary public IDs for documents
+  identityDocumentPublicId String?
+  businessDocumentPublicId String?
+  bannerImagePublicId     String?
+  logoImagePublicId       String?
+  
+  // Status tracking
+  status          SellerStatus @default(PENDING)
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  user            User         @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

@@ -21,7 +21,7 @@ export const metadata = {
   description: 'Be the Brand.',
 }
 
-export default function RootLayout({ children }) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${montserrat.variable} ${giaza.variable}`}>
       <head>
