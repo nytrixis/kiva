@@ -41,6 +41,17 @@ const carouselData = [
       { value: "90%", label: "Recycled" },
       { value: "Zero", label: "Carbon Footprint" }
     ]
+  },
+  {
+    id: 4,
+    heading: "Trusted Recommendations",
+    description: "Shop with confidence through authentic reviews and recommendations from trusted local influencers. ",
+    image: "/images/model4.png",
+    stats: [
+      { value: "Verified", label: "Reviews" },
+      { value: "100+", label: "Local Influencers" },
+      { value: "Real", label: "Experiences" }
+    ]
   }
 ];
 
