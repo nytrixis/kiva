@@ -14,7 +14,7 @@ export default async function AdminSellersPage() {
   const session = await getServerSession(authOptions);
   
   if (!session?.user || session.user.role !== UserRole.ADMIN) {
-    redirect("/login?callbackUrl=/admin/sellers");
+    redirect("/sign-in?callbackUrl=/admin/sellers");
   }
   
   // Fetch all sellers with their profiles
