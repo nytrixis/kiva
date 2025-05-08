@@ -1,35 +1,37 @@
 
-# 🚀 Kiva — Community-Powered Marketplace Platform
+#  Kiva — Community-Powered Marketplace Platform
 
 **Kiva** is a next-generation, role-based commerce platform that bridges sellers, customers, and influencers into a unified ecosystem. Built with scalability and user experience in mind, Kiva enables seamless onboarding, personalized dashboards, and media-rich product discovery powered by a modern tech stack.
 
+The project is currently in pre-launch phase with active development toward a commercial rollout. Partners, early adopters, and contributors are welcome to engage via the Issues tab or through direct contact.
+
 ---
 
-## 🔗 Live Demo
+## Live Demo
 
 > Coming Soon  
 > _Stay tuned for the official launch._
 
 ---
 
-## 📌 Key Highlights
+## Key Highlights
 
-- ✅ **Role-Based Onboarding**
+- **Role-Based Onboarding**
   - Dedicated sign-up flows for Sellers, Customers, and Influencers.
-- 🛒 **Dynamic Marketplace**
+- **Dynamic Marketplace**
   - Browse and discover products by category with media-rich carousels.
-- 🎥 **Influencer-Driven Reels**
+- **Influencer-Driven Reels**
   - A short-video based product discovery experience.
-- 📍 **Hyperlocal Discovery**
+- **Hyperlocal Discovery**
   - Geo-based item exploration and influencer reach.
-- 📈 **Personalized Dashboards**
+- **Personalized Dashboards**
   - Role-specific dashboards with smart UI/UX components.
-- ☁️ **Secure File Uploads**
+- **Secure File Uploads**
   - Media handling via Cloudinary for optimized performance.
 
 ---
 
-## 🧱 Tech Stack
+## Tech Stack
 
 | Layer             | Technology               |
 |------------------|--------------------------|
@@ -45,7 +47,7 @@
 
 ---
 
-## ⚙️ Getting Started
+## Getting Started
 
 ### 1. Clone the Repository
 
@@ -85,7 +87,7 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 
 
-## 🤝 Contributing
+## Contributing
 
 We welcome community contributions! To get started:
 
@@ -99,12 +101,12 @@ For major changes, please open an issue first to discuss what you’d like to ch
 
 ---
 
-## 📄 License
+## License
 
 This project is licensed under the [MIT License](LICENSE).
 
 ---
 
-## 📬 Contact
+## Contact
 
 **Creator**: [@nytrixis](https://github.com/nytrixis)  
