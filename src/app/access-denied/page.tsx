@@ -1,24 +1,18 @@
-import { Metadata } from "next";
 import Link from "next/link";
 import { Shield } from "lucide-react";
 
-export const metadata: Metadata = {
+export const metadata = {
   title: "Access Denied | Kiva",
   description: "You don't have permission to access this page",
 };
 
-// Use the correct type for Next.js App Router page components
-type Props = {
-  params: Record<string, string>;
-  searchParams: { [key: string]: string | string[] | undefined };
-};
-
-export default function AccessDeniedPage(props: Props) {
-  // Extract message from searchParams safely
-  const message = 
-    typeof props.searchParams.message === 'string' 
-      ? props.searchParams.message 
-      : "You don't have permission to access this page";
+// The simplest approach - no type annotations at all
+export default function AccessDeniedPage({ 
+  searchParams = {} 
+}: { 
+  searchParams?: { message?: string } 
+}) {
+  const message = searchParams.message || "You don't have permission to access this page";
   
   return (
     <div className="container mx-auto px-4 py-16 flex flex-col items-center justify-center min-h-[70vh]">
