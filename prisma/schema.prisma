@@ -116,6 +116,7 @@ model User {
   cartItems     CartItem[]
   preferences   UserPreference?
   sellerProfile SellerProfile?
+  addresses     Address[]
 }
 
 model Product {
@@ -140,22 +141,10 @@ model Product {
   reviews       Review[]
   cartItems     CartItem[]
   wishlistItems WishlistItem[]
+  orderItems    OrderItem[]
 
   @@index([sellerId])
   @@index([categoryId])
-}
-
-model Order {
-  id        String   @id @default(cuid())
-  userId    String
-  status    String
-  total     Float
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  user User @relation(fields: [userId], references: [id])
-
-  @@index([userId])
 }
 
 model Review {
@@ -241,4 +230,66 @@ model SellerProfile {
   updatedAt       DateTime     @updatedAt
 
   user            User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// Add these models to your schema
+model Address {
+  id         String   @id @default(cuid())
+  userId     String
+  name       String
+  line1      String
+  line2      String?
+  city       String
+  state      String
+  postalCode String
+  country    String
+  phone      String
+  isDefault  Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  orders Order[]
+
+  @@index([userId])
+}
+
+model Order {
+  id              String    @id @default(cuid())
+  userId          String
+  addressId       String
+  status          String    // PENDING, PAID, PROCESSING, SHIPPED, DELIVERED, CANCELLED
+  subtotal        Float
+  discount        Float     @default(0)
+  tax             Float     @default(0)
+  shipping        Float     @default(0)
+  total           Float
+  paymentIntentId String?   @unique
+  paidAt          DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  user    User         @relation(fields: [userId], references: [id])
+  address Address      @relation(fields: [addressId], references: [id])
+  items   OrderItem[]
+
+  @@index([userId])
+  @@index([addressId])
+}
+
+model OrderItem {
+  id                 String   @id @default(cuid())
+  orderId            String
+  productId          String
+  quantity           Int
+  price              Float
+  discountPercentage Float    @default(0)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  order   Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id])
+
+  @@index([orderId])
+  @@index([productId])
 }
