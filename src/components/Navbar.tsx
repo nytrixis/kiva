@@ -18,8 +18,28 @@ interface CategoryResponse {
   categories: Array<{id: string, name: string, slug: string}>;
 }
 
+interface Language {
+  code: string;
+  name: string;
+}
+
+// Define Google Translate interface
+interface GoogleTranslate {
+  TranslateElement: (options: {
+    pageLanguage: string;
+    includedLanguages: string;
+    autoDisplay: boolean;
+  }, elementId: string) => void;
+}
+
+interface GoogleWindow extends Window {
+  google?: {
+    translate: GoogleTranslate;
+  };
+}
+
 // Indian languages for the dropdown
-const languages = [
+const languages: Language[] = [
   { code: "en", name: "English" },
   { code: "hi", name: "हिन्दी (Hindi)" },
   { code: "bn", name: "বাংলা (Bengali)" },
@@ -43,7 +63,6 @@ export default function Navbar() {
   const [categories, setCategories] = useState<Array<{id: string, name: string, slug: string}>>([]);
   const [mobileCategories] = useState<string[]>([]);
   const [isMobileCategoriesOpen, setIsMobileCategoriesOpen] = useState(false);
-
   const [wishlistCount, setWishlistCount] = useState(0);
   const [cartCount, setCartCount] = useState(0);
   
@@ -100,11 +119,13 @@ export default function Navbar() {
   
   // Function to change language using Google Translate
   const changeLanguage = (languageCode: string) => {
-    if (typeof window !== 'undefined' && (window as any).google && (window as any).google.translate) {
+    if (typeof window !== 'undefined' && 
+        (window as GoogleWindow).google && 
+        (window as GoogleWindow).google?.translate) {
       const selectedLang = languages.find(lang => lang.code === languageCode);
       if (selectedLang) {
         setSelectedLanguage(selectedLang);
-        (window as any).google.translate.TranslateElement({
+        (window as GoogleWindow).google?.translate.TranslateElement({
           pageLanguage: 'en',
           includedLanguages: languageCode,
           autoDisplay: false
@@ -119,7 +140,7 @@ export default function Navbar() {
     // For now, just log the search query
     console.log("Search query:", searchQuery);
     
-    /* 
+    /*
     // Uncomment this when you have backend integration
     const searchProducts = async () => {
       try {
@@ -132,9 +153,11 @@ export default function Navbar() {
     };
     searchProducts();
     */
-  };  
+  };
+  
   return (
     <header className="sticky top-0 z-50 shadow-sm">
+      {/* Rest of the component remains unchanged */}
       {/* 60-40 division with background colors */}
       <div className="relative">
         <div className="absolute inset-0 flex">
@@ -217,8 +240,8 @@ export default function Navbar() {
                     onBlur={() => setIsSearchFocused(false)}
                     className="py-2 pl-4 pr-2 w-48 focus:w-64 transition-all duration-300 bg-transparent outline-none text-sm text-foreground placeholder:text-gray-400"
                   />
-                  <button 
-                    type="submit" 
+                  <button
+                    type="submit"
                     className={`${isSearchFocused ? 'absolute right-2' : ''} p-2 text-gray-500 hover:text-primary transition-colors`}
                     aria-label="Search"
                   >
@@ -227,7 +250,6 @@ export default function Navbar() {
                 </div>
               </form>
             </div>
-
             {/* Right section (40%) - Icons */}
             <div className="w-[40%] flex items-center justify-end space-x-6">
               {/* Authentication Buttons - Show when not authenticated */}
@@ -271,15 +293,15 @@ export default function Navbar() {
               
               {/* Wishlist Button */}
               <Link href="/wishlist">
-                <Button 
-                  variant="ghost" 
-                  size="icon" 
+                <Button
+                  variant="ghost"
+                  size="icon"
                   className="relative"
                   onMouseEnter={() => setIsWishlistHovered(true)}
                   onMouseLeave={() => setIsWishlistHovered(false)}
                 >
-                  <Heart 
-                    className={`h-5 w-5 transition-all ${isWishlistHovered ? 'fill-primary text-primary' : 'text-gray-600'}`} 
+                  <Heart
+                    className={`h-5 w-5 transition-all ${isWishlistHovered ? 'fill-primary text-primary' : 'text-gray-600'}`}
                   />
                   {wishlistCount > 0 && (
                     <span className="absolute -top-1 -right-1 bg-primary text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
@@ -312,7 +334,7 @@ export default function Navbar() {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-48">
                   {languages.map((language) => (
-                    <DropdownMenuItem 
+                    <DropdownMenuItem
                       key={language.code}
                       className="cursor-pointer"
                       onClick={() => changeLanguage(language.code)}
@@ -324,9 +346,9 @@ export default function Navbar() {
               </DropdownMenu>
               
               {/* Mobile Menu Button */}
-              <Button 
-                variant="ghost" 
-                size="icon" 
+              <Button
+                variant="ghost"
+                size="icon"
                 className="md:hidden"
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
               >
@@ -337,9 +359,9 @@ export default function Navbar() {
         </div>
       </div>
       
-      {/* Mobile Menu */}
+            {/* Mobile Menu */}
       {isMenuOpen && (
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, height: 0 }}
           animate={{ opacity: 1, height: "auto" }}
           exit={{ opacity: 0, height: 0 }}
@@ -355,8 +377,9 @@ export default function Navbar() {
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="py-2 pl-4 pr-2 w-full bg-transparent outline-none text-sm text-foreground placeholder:text-gray-400"
                 />
-                                <button 
-                  type="submit" 
+                
+                <button
+                  type="submit"
                   className="p-2 text-gray-500 hover:text-primary transition-colors"
                   aria-label="Search"
                 >
@@ -368,8 +391,9 @@ export default function Navbar() {
           <div className="container mx-auto px-4 py-4 space-y-4">
             {/* Mobile Categories Dropdown */}
             <div className="relative">
-              <button 
-                onClick={() => setIsMobileCategoriesOpen(!isMobileCategoriesOpen)}                className="flex items-center justify-between w-full text-gray-600 hover:text-primary"
+              <button
+                onClick={() => setIsMobileCategoriesOpen(!isMobileCategoriesOpen)}
+                className="flex items-center justify-between w-full text-gray-600 hover:text-primary"
               >
                 <span className="flex items-center">
                   <Grid className="mr-2 h-4 w-4" />
@@ -382,8 +406,8 @@ export default function Navbar() {
                 <div className="mt-2 pl-6 space-y-2">
                   {categories.length > 0 ? (
                     categories.map((category) => (
-                      <Link 
-                        key={category.id} 
+                      <Link
+                        key={category.id}
                         href={`/categories/${category.slug}`}
                         className="block text-gray-600 hover:text-primary py-1"
                       >
@@ -437,7 +461,7 @@ export default function Navbar() {
                   <Link href="/cart" className="block text-gray-600 hover:text-primary py-2">
                     Cart
                   </Link>
-                  <button 
+                  <button
                     onClick={logout}
                     className="block w-full text-left text-gray-600 hover:text-primary py-2"
                   >

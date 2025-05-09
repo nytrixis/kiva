@@ -2,7 +2,6 @@
 
 import React, { createContext, useContext, useState } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { useRouter } from "next/navigation";
 
 interface CheckoutContextType {
   isLoading: boolean;

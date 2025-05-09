@@ -29,7 +29,7 @@ interface CartItem {
     name: string;
     price: number;
     discountPercentage: number;
-    images: string[] | any;
+    images: string[] | Record<string, unknown>;
     stock: number;
     category?: {
       name: string;
@@ -92,7 +92,7 @@ function CheckoutContent({
           <div className="bg-white rounded-lg shadow-sm p-6">
             <CheckoutStepContent
               cartItems={cartItems}
-              addresses={addresses as any} // Type assertion to fix type mismatch
+              addresses={addresses as Address[]} // Type assertion to fix type mismatch
               selectedItems={selectedItems}
               setSelectedItems={setSelectedItems}
             />

@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
+import Image from "next/image";
 import {
   User,
   Package,
@@ -59,9 +60,11 @@ export function Sidebar() {
           {!isCollapsed && (
             <Link href="/dashboard/seller" className="flex items-center">
               <div className="relative h-8 w-8 overflow-hidden">
-                <img
+                <Image
                   src="/images/logob.png"
                   alt="Kiva Logo"
+                  width={32}
+                  height={32}
                   className="object-cover"
                 />
               </div>

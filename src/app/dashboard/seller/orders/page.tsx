@@ -18,6 +18,8 @@ interface Order {
   status: string;
 }
 
+type OrderStatus = "pending" | "processing" | "shipped" | "delivered" | "cancelled";
+
 // Helper function to format orders data for the chart
 function formatOrdersDataForChart(orders: Order[], type: "revenue" | "orders") {
   interface MonthData {
@@ -36,7 +38,7 @@ function formatOrdersDataForChart(orders: Order[], type: "revenue" | "orders") {
       month: month,
       name: format(month, 'MMM'),
       value: 0,
-      target: type === "revenue" 
+      target: type === "revenue"
         ? Math.floor(Math.random() * 15000) // Random target revenue
         : Math.floor(Math.random() * 70)    // Random target orders count
     });
@@ -61,6 +63,7 @@ function formatOrdersDataForChart(orders: Order[], type: "revenue" | "orders") {
 
   return months;
 }
+
 export default async function SellerOrdersPage() {
   const session = await getServerSession(authOptions);
   
@@ -68,33 +71,30 @@ export default async function SellerOrdersPage() {
     redirect("/sign-in?callbackUrl=/dashboard/seller/orders");
   }
   
-  const userId = session.user.id;
+  // Get the seller's ID but use it in the commented code when ready
+  const _userId = session.user.id;
   
-  // // First, get all products by this seller
-  // const sellerProducts = await prisma.product.findMany({
-  //   where: { sellerId: userId },
-  //   select: { id: true }
-  // });
+  // Fetch orders with items that contain seller's products
+  // Note: This is a placeholder implementation. When you're ready to use the seller's products,
+  // uncomment the code below and use _userId (remove the underscore)
   
-  // const productIds = sellerProducts.map(product => product.id);
+  /*
+  // First, get all products by this seller
+  const sellerProducts = await prisma.product.findMany({
+    where: { sellerId: _userId },
+    select: { id: true }
+  });
   
-  // Now, we need to find orders that contain these products
-  // Since the schema doesn't directly link orders to products,
-  // we'll need to modify this based on your actual schema
-  
-  // For this example, let's assume we have an OrderItem model that links orders to products
-  // This is a placeholder implementation - adjust according to your actual schema
+  const productIds = sellerProducts.map(product => product.id);
   
   // Fetch orders with items that contain seller's products
   const orders = await prisma.order.findMany({
     where: {
-      // This is a placeholder - you'll need to adjust based on your schema
-      // For example, if you have OrderItems:
-      // items: {
-      //   some: {
-      //     productId: { in: productIds }
-      //   }
-      // }
+      items: {
+        some: {
+          productId: { in: productIds }
+        }
+      }
     },
     include: {
       user: {
@@ -103,19 +103,32 @@ export default async function SellerOrdersPage() {
           email: true
         }
       },
-      // Include order items if you have them
-      // items: {
-      //   include: {
-      //     product: true
-      //   }
-      // }
+      items: {
+        include: {
+          product: true
+        }
+      }
     },
     orderBy: {
       createdAt: 'desc'
     }
   });
-
-  type OrderStatus = "pending" | "processing" | "shipped" | "delivered" | "cancelled";
+  */
+  
+  // For now, fetch all orders (replace this with the commented code above when ready)
+  const orders = await prisma.order.findMany({
+    include: {
+      user: {
+        select: {
+          name: true,
+          email: true
+        }
+      }
+    },
+    orderBy: {
+      createdAt: 'desc'
+    }
+  });
   
   // Format orders for the OrdersTable component
   const formattedOrders = orders.map(order => ({

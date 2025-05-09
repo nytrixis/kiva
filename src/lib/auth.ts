@@ -6,7 +6,7 @@ import { prisma } from "@/lib/db";
 import { UserRole } from "@prisma/client";
 
 // Define types for JWT and Session
-interface ExtendedUser {
+type ExtendedUser = {
   id: string;
   email?: string | null;
   name?: string | null;

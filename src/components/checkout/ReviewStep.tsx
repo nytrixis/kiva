@@ -13,7 +13,7 @@ interface CartItem {
     name: string;
     price: number;
     discountPercentage: number;
-    images: string[] | any;
+    images: string[] | Record<string, unknown>;
     stock: number;
     category?: {
       name: string;
@@ -87,7 +87,7 @@ export default function ReviewStep({
                           <div className="flex items-center">
                             <div className="flex-shrink-0 h-16 w-16 relative rounded overflow-hidden">
                               <Image
-                                src={Array.isArray(item.product.images) ? item.product.images[0] : item.product.images}
+                                src={typeof item.product.images === 'string' ? item.product.images : Array.isArray(item.product.images) ? item.product.images[0] : ''}
                                 alt={item.product.name}
                                 fill
                                 className="object-cover"
@@ -127,8 +127,7 @@ export default function ReviewStep({
                         </td>
                       </tr>
                     );
-                  })}
-                </tbody>
+                  })}                </tbody>
               </table>
             </div>
             

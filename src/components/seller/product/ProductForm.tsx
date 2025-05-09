@@ -21,6 +21,14 @@ interface Category {
   name: string;
 }
 
+interface ProductResponse {
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  // Add other properties as needed
+}
+
 export default function ProductForm({ categories }: { categories: Category[] }) {
   const router = useRouter();
   const { toast } = useToast();
@@ -255,9 +263,7 @@ export default function ProductForm({ categories }: { categories: Category[] }) 
         throw new Error(errorData.error || "Failed to create product");
       }
       
-      // const product = 
-      await response.json();
-      
+const product = await response.json() as ProductResponse;      
       // Show success message and redirect
       toast({
         title: "Product Created",

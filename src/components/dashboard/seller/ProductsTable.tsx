@@ -3,7 +3,6 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
 import { 
   Edit, 
@@ -25,7 +24,7 @@ interface Product {
   viewCount: number;
   reviewCount: number;
   rating: number;
-  images: string[] | any;
+  images: string[] | Record<string, unknown>;
   createdAt: Date;
   category: {
     name: string;

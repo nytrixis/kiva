@@ -47,8 +47,26 @@ interface OrdersChartProps {
   };
 }
 
+interface ChartDataPoint {
+  name: string;
+  value: number;
+  target: number;
+}
+
+interface TooltipProps {
+  active?: boolean;
+  payload?: Array<{
+    value: number;
+    name: string;
+    dataKey: string;
+    color: string;
+  }>;
+  label?: string;
+}
+
+
 export function OrdersChart({ data, type, colors }: OrdersChartProps) {
-  const [chartData, setChartData] = useState<any[]>([]);
+  const [chartData, setChartData] = useState<ChartDataPoint[]>([]);
   const [chartType, setChartType] = useState<"bar" | "line">("bar");
   
   useEffect(() => {
@@ -67,7 +85,8 @@ export function OrdersChart({ data, type, colors }: OrdersChartProps) {
     return value.toString();
   };
   
-  const CustomTooltip = ({ active, payload, label }: any) => {
+  
+const CustomTooltip = ({ active, payload, label }: TooltipProps) => {
     if (active && payload && payload.length) {
       return (
         <div className="bg-white p-3 border border-gray-200 shadow-sm rounded-md">

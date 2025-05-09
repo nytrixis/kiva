@@ -9,7 +9,6 @@ interface Category {
   name: string;
 }
 
-type FilterValue = string | number | null | undefined;
 
 interface ProductFiltersProps {
   categories: Category[];
@@ -17,7 +16,7 @@ interface ProductFiltersProps {
   minPrice: string | null;
   maxPrice: string | null;
   
-  onFilterChange: (filters: { [key: string]: any }) => void;
+  onFilterChange: (filters: { [key: string]: string | number | null | undefined }) => void;
 }
 
 export default function ProductFilters({

@@ -8,9 +8,26 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
+interface CloudinaryUploadResult {
+  secure_url: string;
+  public_id: string;
+  asset_id?: string;
+  version?: number;
+  width?: number;
+  height?: number;
+  format?: string;
+  resource_type?: string;
+  url?: string;
+  bytes?: number;
+  etag?: string;
+  placeholder?: boolean;
+  original_filename?: string;
+}
+
+
 // Helper function to upload buffer to Cloudinary
 export async function uploadToCloudinary(buffer: Buffer, folder = 'kiva/products') {
-  return new Promise<any>((resolve, reject) => {
+  return new Promise<CloudinaryUploadResult>((resolve, reject) => {
     const uploadStream = cloudinary.uploader.upload_stream(
       {
         folder,
@@ -22,9 +39,9 @@ export async function uploadToCloudinary(buffer: Buffer, folder = 'kiva/products
       },
       (error, result) => {
         if (error) return reject(error);
-        resolve(result);
-      }
-    );
+        if (!result) return reject(new Error('No result from Cloudinary'));
+        resolve(result as CloudinaryUploadResult);
+      }    );
 
     // Convert buffer to stream and pipe to cloudinary
     // Use the imported Readable instead of require()

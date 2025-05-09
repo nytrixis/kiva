@@ -47,7 +47,7 @@ export function truncateText(text: string, maxLength: number): string {
 /**
  * Get image URL or placeholder
  */
-export function getImageUrl(images: any, index = 0): string {
+export function getImageUrl(images: string[] | Record<string, unknown> | null, index = 0): string {
   if (Array.isArray(images) && images.length > index) {
     return images[index];
   }

@@ -1,3 +1,4 @@
+// src/app/dashboard/seller/products/page.tsx
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
@@ -10,18 +11,54 @@ export const metadata = {
   description: "Manage your products in the Kiva marketplace",
 };
 
+// Define a type that matches what ProductsTable expects
+interface Product {
+  id: string;
+  name: string;
+  price: number;
+  discountPercentage: number;
+  stock: number;
+  images: string[] | Record<string, unknown>;
+  createdAt: Date;
+  viewCount: number;
+  reviewCount: number;
+  rating: number;
+  category: {
+    name: string;
+  };
+}
+
 export default async function SellerProductsPage() {
   const session = await getServerSession(authOptions);
   const userId = session?.user?.id;
   
   // Fetch seller's products
-  const products = await prisma.product.findMany({
+  const prismaProducts = await prisma.product.findMany({
     where: { sellerId: userId as string },
     include: {
       category: true,
     },
     orderBy: { createdAt: "desc" },
   });
+  
+  // Transform the products to match the expected type
+  const products: Product[] = prismaProducts.map(product => ({
+    id: product.id,
+    name: product.name,
+    price: product.price,
+    discountPercentage: product.discountPercentage,
+    stock: product.stock,
+    images: Array.isArray(product.images)
+      ? product.images.filter((img): img is string => typeof img === 'string')
+      : product.images as Record<string, unknown>,
+    createdAt: product.createdAt,
+    viewCount: product.viewCount,
+    reviewCount: product.reviewCount,
+    rating: product.rating,
+    category: {
+      name: product.category.name
+    }
+  }));
   
   return (
     <div>

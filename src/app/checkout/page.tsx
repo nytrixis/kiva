@@ -49,15 +49,16 @@ export default async function CheckoutPage() {
   }
 
   const validCartItems = cartItems.map(item => ({
-  ...item,
-  product: {
-    ...item.product,
-    seller: {
-      id: item.product.seller?.id || "",
-      name: item.product.seller?.name || "Unknown Seller"
+    ...item,
+    product: {
+      ...item.product,
+      images: item.product.images as string[],
+      seller: {
+        id: item.product.seller?.id || "",
+        name: item.product.seller?.name || "Unknown Seller"
+      }
     }
-  }
-}));
+  }));
   
   return <CheckoutClient cartItems={validCartItems} addresses={addresses} />;
 }

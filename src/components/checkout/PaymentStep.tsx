@@ -21,12 +21,7 @@ export default function PaymentStep() {
     setStep(2);
   };
   
-  useEffect(() => {
-    // Load payment details when component mounts
-    if (orderId) {
-      loadPaymentDetails();
-    }
-  }, [orderId]);
+  
   
   const loadPaymentDetails = async () => {
     try {
@@ -45,19 +40,64 @@ export default function PaymentStep() {
       const data = await response.json();
       
       if (data.success) {
-        initializeRazorpay(data.order);
+        initializeRazorpay(data.order as PaymentOrderData);
       }
     } catch (error) {
       console.error("Error loading payment details:", error);
       setPaymentError("Failed to load payment details. Please try again.");
     }
   };
+
+  useEffect(() => {
+    // Load payment details when component mounts
+    if (orderId) {
+    loadPaymentDetails();
+  }
+}, [orderId, loadPaymentDetails]);
+
+interface PaymentOrderData {
+  amount: number;
+  currency: string;
+  razorpayOrderId: string;
+  name: string;
+  email: string;
+  phone: string;
+}
+
+interface RazorpayOptions {
+  key: string;
+  amount: number;
+  currency: string;
+  name: string;
+  description: string;
+  order_id: string;
+  prefill: {
+    name: string;
+    email: string;
+    contact: string;
+  };
+  handler: (response: RazorpayResponse) => void;
+  modal: {
+    ondismiss: () => void;
+  };
+}
+
+interface RazorpayResponse {
+  razorpay_payment_id: string;
+  razorpay_order_id: string;
+  razorpay_signature: string;
+}
+
   
   const initializeRazorpay = async (orderData: any) => {
     try {
       const Razorpay = await loadRazorpay();
       
-      const options = {
+      if (!process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID) {
+        throw new Error("Razorpay key is not configured");
+      }
+      
+      const options: RazorpayOptions = {
         key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
         amount: orderData.amount * 100, // Amount in paisa
         currency: orderData.currency,
@@ -70,14 +110,14 @@ export default function PaymentStep() {
           contact: orderData.phone,
         },
         handler: function(response: any) {
-          handlePaymentSuccess(response);
+          handlePaymentSuccess(response as RazorpayResponse);
         },
         modal: {
           ondismiss: function() {
             handlePaymentCancel();
           },
         },
-      };
+      } as const;
       
       const razorpayInstance = new Razorpay(options);
       razorpayInstance.open();
@@ -85,8 +125,7 @@ export default function PaymentStep() {
       console.error("Razorpay initialization error:", error);
       setPaymentError("Failed to initialize payment. Please try again.");
     }
-  };
-  
+  };  
   const handlePaymentSuccess = async (response: any) => {
     try {
       const result = await fetch("/api/payment/success", {

@@ -13,7 +13,7 @@ interface WishlistItem {
     name: string;
     price: number;
     discountPercentage: number;
-    images: string[] | any; // Using any for flexibility with JSON field
+    images: string[] | Record<string, unknown>; // Using any for flexibility with JSON field
     stock?: number;
     rating?: number;
     reviewCount?: number;
