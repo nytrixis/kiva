@@ -191,13 +191,13 @@ export default function Navbar() {
                   Reels
                 </Link>
                 
-                <Link href="/new" className="text-gray-600 hover:text-primary transition-colors">
-                  About
+                <Link href="/shops" className="text-gray-600 hover:text-primary transition-colors">
+                  Shops
                 </Link>
                 
-                {/* <Link href="/sales" className="text-gray-600 hover:text-primary transition-colors">
-                  Sales
-                </Link> */}
+                <Link href="/about" className="text-gray-600 hover:text-primary transition-colors">
+                  Reels
+                </Link>
               </nav>
             </div>
             

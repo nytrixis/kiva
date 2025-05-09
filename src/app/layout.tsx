@@ -4,6 +4,8 @@ import './globals.css'
 import Script from 'next/script'
 import { AuthProvider } from '@/providers/auth-provider'
 import { ToastProvider } from '@/hooks/use-toast'
+import Navbar from '@/components/Navbar'
+import Footer from '@/components/Footer'
 
 const montserrat = Montserrat({
   subsets: ['latin'],
@@ -30,9 +32,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="bg-background text-foreground">
         <AuthProvider>
           <ToastProvider>
+            <Navbar />
         {/* This div is needed for Google Translate - moved to body */}
         <div id="google_translate_element" className="hidden"></div>
         {children}
+        <Footer />
         
         {/* Add Google Translate script properly using Next.js Script component */}
         <Script
