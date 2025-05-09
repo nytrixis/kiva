@@ -54,7 +54,9 @@ export async function GET(
     }
     
     // Update the seller profile
-    const updatedProfile = await prisma.sellerProfile.update({
+    //removed this part 
+    //const sellerProfile =
+    await prisma.sellerProfile.update({
       where: { userId: id },
       data: {
         status: newStatus,

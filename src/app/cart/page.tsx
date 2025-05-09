@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ShoppingBag, ArrowLeft, Loader2, Check, AlertCircle } from "lucide-react";
+import { ShoppingBag, ArrowLeft, Check, AlertCircle } from "lucide-react";
 import CartList from "@/components/cart/CartList";
 import CartSummary from "@/components/cart/CartSummary";
 import { useToast, ToastVariant } from "@/hooks/use-toast";
@@ -17,7 +17,7 @@ interface CartItem {
     name: string;
     price: number;
     discountPercentage: number;
-    images: string[] | any;
+    images: string[] ;
     stock: number;
     category?: {
       name: string;
@@ -183,7 +183,7 @@ export default function CartPage() {
               <ShoppingBag className="h-12 w-12 text-gray-400" />
             </div>
             <h2 className="text-2xl font-medium text-gray-700 mb-2">Your cart is empty</h2>
-            <p className="text-gray-500 mb-8">Looks like you haven't added any items to your cart yet.</p>
+            <p className="text-gray-500 mb-8">Looks like you haven&apos;t added any items to your cart yet.</p>
             <Link
               href="/collections"
               className="bg-primary hover:bg-primary/90 text-white px-6 py-3 rounded-full inline-block transition-colors"

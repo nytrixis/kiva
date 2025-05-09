@@ -32,7 +32,7 @@ export default function WishlistItem({
   isUpdating 
 }: WishlistItemProps) {
   const { product, id } = item;
-  const [isHovered, setIsHovered] = useState(false);
+  const [ setIsHovered] = useState(false);
  
   // Calculate the price to display (based on discount percentage)
   const displayPrice = product.discountPercentage > 0 

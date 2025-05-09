@@ -78,7 +78,7 @@ export default function ProductCard({ product }: ProductCardProps) {
         description: "Product has been added to your wishlist",
         variant: "success",
       });
-    } catch (error) {
+    } catch {
       toast({
         title: "Error",
         description: "Failed to add product to wishlist",
@@ -119,7 +119,7 @@ export default function ProductCard({ product }: ProductCardProps) {
         description: "Product has been added to your cart",
         variant: "success",
       });
-    } catch (error) {
+    } catch  {
         toast({
           title: "Error",
           description: "Failed to add product to cart",

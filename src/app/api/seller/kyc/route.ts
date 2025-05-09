@@ -2,8 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
-import { uploadToCloudinary, deleteFromCloudinary, extractPublicIdFromUrl } from "@/lib/cloudinary";
+import { uploadToCloudinary, deleteFromCloudinary } from "@/lib/cloudinary";//removed  extractPublicIdFromUrl
 import { PrismaClient } from "@prisma/client";
+
+
 
 // Extend the PrismaClient type to include sellerProfile
 interface ExtendedPrismaClient extends PrismaClient {
@@ -116,7 +118,7 @@ export async function POST(req: NextRequest) {
 }
 
 // API route to get the current KYC documents
-export async function GET(req: NextRequest) {
+export async function GET() {//removed 
   try {
     const session = await getServerSession(authOptions);
     

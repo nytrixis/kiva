@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
+import Image from "next/image";
 
 export default function CategoryImageUpload() {
   const [file, setFile] = useState<File | null>(null);
@@ -96,7 +97,7 @@ export default function CategoryImageUpload() {
           <div className="mt-4">
             <h3 className="text-md font-medium mb-2">Preview:</h3>
             <div className="border border-gray-200 rounded-md overflow-hidden">
-              <img src={uploadedUrl} alt="Uploaded banner" className="w-full" />
+              <Image src={uploadedUrl} alt="Uploaded banner" className="w-full" />
             </div>
           </div>
         </div>

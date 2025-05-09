@@ -1,9 +1,9 @@
-import { NextRequest, NextResponse } from "next/server";
+import {  NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 
-export async function GET(req: NextRequest) {
+export async function GET() {
   try {
     const session = await getServerSession(authOptions);
     
@@ -14,7 +14,7 @@ export async function GET(req: NextRequest) {
     const userId = session.user.id;
     
     // First check if user has a wishlist
-    let wishlist = await prisma.wishlist.findUnique({
+    const wishlist = await prisma.wishlist.findUnique({
       where: { userId },
       include: { items: true },
     });

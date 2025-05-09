@@ -1,7 +1,7 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";//removed NextRequest
 import { prisma } from "@/lib/db";
 
-export async function GET(req: NextRequest) {
+export async function GET() {//removed req: NextRequest
   try {
     const categories = await prisma.category.findMany({
       orderBy: {

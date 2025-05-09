@@ -37,7 +37,7 @@ export default function Navbar() {
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const { user, isAuthenticated, logout } = useAuth();
   const [categories, setCategories] = useState<Array<{id: string, name: string, slug: string}>>([]);
-  const [mobileCategories, setMobileCategories] = useState<string[]>([]);
+  const [mobileCategories] = useState<string[]>([]);
   const [isMobileCategoriesOpen, setIsMobileCategoriesOpen] = useState(false);
 
   const [wishlistCount, setWishlistCount] = useState(0);

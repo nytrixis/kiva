@@ -11,7 +11,7 @@ function getPublicIdFromUrl(url: string): string | null {
     const regex = /\/v\d+\/(.+)\.\w+$/;
     const match = url.match(regex);
     return match ? match[1] : null;
-  } catch (error) {
+  } catch {
     return null;
   }
 }
@@ -81,7 +81,7 @@ export async function PUT(
     
     // Upload new images
     const imageFiles = formData.getAll("images") as File[];
-    let newImageUrls: string[] = [];
+    const newImageUrls: string[] = [];
     
     if (imageFiles.length > 0) {
       // Process each image file

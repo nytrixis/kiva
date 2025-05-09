@@ -5,6 +5,7 @@ import { prisma } from "@/lib/db";
 import { UserRole } from "@prisma/client";
 import Link from "next/link";
 import { formatDistanceToNow } from "date-fns";
+import Image from "next/image";
 
 export const metadata = {
   title: "Manage Sellers | Admin Dashboard | Kiva",
@@ -89,7 +90,7 @@ export default async function AdminSellersPage() {
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
                       <div className="flex-shrink-0 h-10 w-10">
-                        <img 
+                        <Image 
                           className="h-10 w-10 rounded-full" 
                           src={seller.image || "https://via.placeholder.com/40"} 
                           alt={seller.name || "Seller"} 

@@ -41,7 +41,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-12">
         <h1 className="font-heading text-3xl md:text-4xl text-foreground mb-4">
-          Search Results for <span className="text-primary">"{query}"</span>
+          Search Results for <span className="text-primary">&quot;{query}&quot;</span>
         </h1>
         
         <ProductCatalog

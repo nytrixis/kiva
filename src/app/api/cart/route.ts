@@ -3,7 +3,7 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 
-export async function GET(request: Request) {
+export async function GET() {//removed request: Request
   try {
     const session = await getServerSession(authOptions);
     
@@ -41,7 +41,7 @@ export async function GET(request: Request) {
     const processedCartItems = cartItems.map(item => {
       const product = item.product;
       let discountPrice = null;
-      let discountPercentage = product.discountPercentage || 0;
+      const discountPercentage = product.discountPercentage || 0;//changed from let to const
       
       if (discountPercentage > 0) {
         discountPrice = parseFloat((product.price * (1 - discountPercentage / 100)).toFixed(2));

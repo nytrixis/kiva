@@ -18,7 +18,9 @@ export async function GET(
     const { id } = params;
     
     // Reset seller profile status to PENDING
-    const sellerProfile = await prisma.sellerProfile.update({
+    ///removed this part
+    //const sellerProfile = 
+    await prisma.sellerProfile.update({
       where: { userId: id },
       data: {
         status: "PENDING",

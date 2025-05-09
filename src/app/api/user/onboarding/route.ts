@@ -15,7 +15,7 @@ export async function POST(req: Request) {
       );
     }
     
-    const { preferences, role } = await req.json();
+    const { preferences} = await req.json();
     
     // Validate input
     if (!preferences) {
@@ -61,7 +61,7 @@ export async function POST(req: Request) {
     });
     
     // Remove sensitive data
-    const { password, ...userWithoutPassword } = result.updatedUser;
+    const { ...userWithoutPassword } = result.updatedUser;
     
     return NextResponse.json(
       { 

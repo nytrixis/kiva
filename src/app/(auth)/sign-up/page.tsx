@@ -39,7 +39,7 @@ export default function SignUpPage() {
               </div>
               <div>
                 <h3 className="text-white font-medium">Discover Unique Products</h3>
-                <p className="text-white/80 text-sm">Find handcrafted items you won't see anywhere else</p>
+                <p className="text-white/80 text-sm">Find handcrafted items you won&apos;t see anywhere else</p>
               </div>
             </div>
             <div className="flex items-start">

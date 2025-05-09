@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
 import { motion } from "framer-motion";
-import { Check, Loader2, ArrowLeft, ArrowRight, Upload, X, Plus, Image as ImageIcon } from "lucide-react";
+import { Check, Loader2, ArrowLeft, ArrowRight, X, Image as ImageIcon } from "lucide-react";
 import Image from "next/image";
 
 // Form steps
@@ -255,7 +255,8 @@ export default function ProductForm({ categories }: { categories: Category[] }) 
         throw new Error(errorData.error || "Failed to create product");
       }
       
-      const product = await response.json();
+      // const product = 
+      await response.json();
       
       // Show success message and redirect
       toast({

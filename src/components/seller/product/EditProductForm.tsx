@@ -1,9 +1,9 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
 import { motion } from "framer-motion";
-import { Check, Loader2, ArrowLeft, ArrowRight, Upload, X, Image as ImageIcon } from "lucide-react";
+import { Check, Loader2, ArrowLeft, ArrowRight, X, Image as ImageIcon } from "lucide-react";
 import Image from "next/image";
 
 // Form steps
@@ -267,7 +267,8 @@ export default function EditProductForm({ product, categories }: EditProductForm
         throw new Error(errorData.error || "Failed to update product");
       }
       
-      const updatedProduct = await response.json();
+      // const updatedProduct = 
+      await response.json();
       
       // Show success message and redirect
       toast({

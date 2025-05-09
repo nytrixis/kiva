@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { v2 as cloudinary } from 'cloudinary';
+import { Readable } from 'stream';
 
 // Configure Cloudinary
 cloudinary.config({
@@ -30,8 +31,7 @@ async function uploadToCloudinary(buffer: Buffer, folder = 'kiva/products') {
     );
 
     // Convert buffer to stream and pipe to cloudinary
-    const { Readable } = require('stream');
-    const readableStream = new Readable();
+     const readableStream = new Readable();
     readableStream.push(buffer);
     readableStream.push(null);
     readableStream.pipe(uploadStream);
@@ -63,16 +63,16 @@ async function processImages(formData: FormData): Promise<string[]> {
 }
 
 // Helper function to extract public ID from Cloudinary URL
-function getPublicIdFromUrl(url: string): string | null {
-  try {
-    // Example URL: https://res.cloudinary.com/demo/image/upload/v1612447684/kiva/products/sample.jpg
-    const regex = /\/v\d+\/(.+)$/;
-    const match = url.match(regex);
-    return match ? match[1].split('.')[0] : null;
-  } catch (error) {
-    return null;
-  }
-}
+// function getPublicIdFromUrl(url: string): string | null {
+//   try {
+//     // Example URL: https://res.cloudinary.com/demo/image/upload/v1612447684/kiva/products/sample.jpg
+//     const regex = /\/v\d+\/(.+)$/;
+//     const match = url.match(regex);
+//     return match ? match[1].split('.')[0] : null;
+//   } catch (error) {
+//     return null;
+//   }
+// }
 
 // Helper function to delete image from Cloudinary
 async function deleteFromCloudinary(publicId: string) {

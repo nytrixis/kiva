@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { ChevronLeft, ChevronRight, Clock } from "lucide-react";
+import { ChevronLeft, ChevronRight} from "lucide-react";
 
 // Mock recently viewed products data
 // In a real app, this would come from localStorage or user session
@@ -118,7 +118,7 @@ export default function RecentlyViewed() {
             Recently <span className="text-primary">Viewed</span>
           </h2>
           <p className="text-gray-600 max-w-2xl mx-auto">
-            Continue exploring products you've viewed and discover more items you'll love
+            Continue exploring products you&apos;ve viewed and discover more items you'll love
           </p>
         </motion.div>
         

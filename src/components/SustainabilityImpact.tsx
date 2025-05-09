@@ -130,7 +130,7 @@ export default function SustainabilityImpact() {
             Our <span className="text-primary">Sustainability</span> Impact
           </h2>
           <p className="text-gray-600 max-w-2xl mx-auto">
-            Together with our artisans and customers, we're making a measurable difference for our planet and communities
+            Together with our artisans and customers, we&apos;Sre making a measurable difference for our planet and communities
           </p>
         </motion.div>
         

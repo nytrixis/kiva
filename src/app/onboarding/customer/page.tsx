@@ -164,7 +164,7 @@ export default function CustomerOnboardingPage() {
                 Welcome to Kiva, {user?.name}!
               </h1>
               <p className="text-gray-600 max-w-md mx-auto">
-                Let's personalize your experience to help you discover unique local products you'll love.
+                Let&apos;s personalize your experience to help you discover unique local products you&apos;ll love.
               </p>
             </div>
             
@@ -235,7 +235,7 @@ export default function CustomerOnboardingPage() {
                   className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                 />
                 <p className="text-sm text-gray-500">
-                  We'll use this to show you local artisans and events near you.
+                  We&apos;ll use this to show you local artisans and events near you.
                 </p>
               </div>
             </div>

@@ -5,7 +5,7 @@ import { useAuth } from "@/hooks/use-auth";
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import type { AuthUser } from "@/hooks/use-auth";
+// import type { AuthUser } from "@/hooks/use-auth";
 import {
   ShoppingBag,
   Heart,
@@ -19,28 +19,26 @@ import {
   Star,
   Calendar,
   MapPin,
-  Tag,
-  Truck,
-  MessageSquare
+  
 } from "lucide-react";
-import { UserRole } from "@prisma/client";
+// import { UserRole } from "@prisma/client";
 
 // Define types based on Prisma schema
-interface UserWithProfile {
-  id: string;
-  name?: string | null;
-  email?: string | null;
-  emailVerified?: Date | null;
-  password?: string | null;
-  image?: string | null;
-  role: UserRole;
-  createdAt?: Date;
-  updatedAt?: Date;
-  isOnboarded: boolean;
-  bio?: string | null;
-  phone?: string | null;
-  location?: string | null;
-}
+// interface UserWithProfile {
+//   id: string;
+//   name?: string | null;
+//   email?: string | null;
+//   emailVerified?: Date | null;
+//   password?: string | null;
+//   image?: string | null;
+//   role: UserRole;
+//   createdAt?: Date;
+//   updatedAt?: Date;
+//   isOnboarded: boolean;
+//   bio?: string | null;
+//   phone?: string | null;
+//   location?: string | null;
+// }
 
 interface UserPreferences {
   id: string;
@@ -119,9 +117,31 @@ const recommended: Product[] = [
   },
 ];
 
-// Mock data for orders
-const orders: any[] = [];
+// Define an Order interface
+interface Order {
+  id: string;
+  date: string;
+  status: string;
+  total: number;
+  items: {
+    id: string;
+    name: string;
+    quantity: number;
+    price: number;
+  }[];
+}
 
+interface ExtendedUser {
+  id: string;
+  name?: string | null;
+  email?: string | null;
+  phone?: string | null;
+  location?: string | null;
+  // Add other properties as needed
+}
+
+// Mock data for orders
+const orders: Order[] = [];
 // Mock data for upcoming events
 const upcomingEvents: Event[] = [
   {
@@ -144,7 +164,7 @@ export default function DashboardPage() {
   const { user, isLoading, logout } = useAuth();
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<string>("overview");
-  const [userPreferences, setUserPreferences] = useState<UserPreferences | null>(null);
+  const [setUserPreferences] = useState<UserPreferences | null>(null);
   
   // Redirect if not authenticated
   useEffect(() => {
@@ -312,7 +332,7 @@ export default function DashboardPage() {
                     Welcome back, {user.name}!
                   </h1>
                   <p className="text-gray-600">
-                    Here's what's happening with your account today.
+                    Here&apos;s what&apos;s happening with your account today.
                   </p>
                 </div>
                 
@@ -658,7 +678,7 @@ export default function DashboardPage() {
                           </label>
                           <input
                             type="tel"
-                            defaultValue={(user as any)?.phone ?? ""}
+                            defaultValue={(user as ExtendedUser)?.phone ?? ""}
                             className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                           />
                         </div>
@@ -668,7 +688,7 @@ export default function DashboardPage() {
                           </label>
                           <input
                             type="text"
-                            defaultValue={(user as any)?.location ?? ""}
+                            defaultValue={(user as ExtendedUser)?.location ?? ""}
                             className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                           />
                         </div>

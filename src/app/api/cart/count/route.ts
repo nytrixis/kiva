@@ -1,9 +1,10 @@
-import { NextRequest, NextResponse } from "next/server";
+
+import { NextResponse } from "next/server";//removed NextRequest 
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 
-export async function GET(req: NextRequest) {
+export async function GET() {//(removed req:NextRequest )
   try {
     const session = await getServerSession(authOptions);
     

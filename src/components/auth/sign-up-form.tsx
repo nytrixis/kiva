@@ -78,7 +78,7 @@ export function SignUpForm() {
       // Redirect to onboarding based on role
       router.push(`/onboarding/${data.role.toLowerCase()}`);
       router.refresh();
-    } catch (error) {
+    } catch {
       setError("An unexpected error occurred. Please try again.");
       setIsLoading(false);
     }

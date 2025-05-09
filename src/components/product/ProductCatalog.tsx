@@ -12,9 +12,9 @@ interface Category {
   name: string;
 }
 
-interface Seller {
-  name: string;
-}
+// interface Seller {
+//   name: string;
+// }
 
 interface Product {
   id: string;

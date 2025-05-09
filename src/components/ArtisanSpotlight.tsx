@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import Link from "next/link";
+// import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight, MapPin, Quote, Star, Gem, Award, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -165,11 +165,11 @@ export default function ArtisanSpotlight() {
                 <p className="text-gray-700 mb-6">{artisan.story}</p>
                 <div className="border-l-4 border-primary pl-4 italic text-gray-600">
                   <Quote className="h-5 w-5 text-primary mb-2 opacity-50" />
-                  "{artisan.quote}"
+                  &quot;{artisan.quote}&quot;
                 </div>
                 <div className="mt-6">
                   <Button className="bg-primary hover:bg-primary/90 text-white rounded-full">
-                    Visit {artisan.name.split(' ')[0]}'s Shop
+                    Visit {artisan.name.split(' ')[0]}&apos;s Shop
                   </Button>
                 </div>
               </motion.div>
@@ -276,7 +276,7 @@ export default function ArtisanSpotlight() {
                   </div>
                 </div>
                 <p className="text-sm text-gray-600 mt-2">
-                  {artisan.name.split(' ')[0]}'s work has been featured in national exhibitions and recognized for preserving cultural heritage through craft.
+                  {artisan.name.split(' ')[0]}&apos;s work has been featured in national exhibitions and recognized for preserving cultural heritage through craft.
                 </p>
               </motion.div>
             </motion.div>

@@ -1,4 +1,5 @@
 import { v2 as cloudinary } from 'cloudinary';
+import { Readable } from 'stream'; // Add this import at the top of the file
 
 // Configure Cloudinary
 cloudinary.config({
@@ -26,7 +27,7 @@ export async function uploadToCloudinary(buffer: Buffer, folder = 'kiva/products
     );
 
     // Convert buffer to stream and pipe to cloudinary
-    const { Readable } = require('stream');
+    // Use the imported Readable instead of require()
     const readableStream = new Readable();
     readableStream.push(buffer);
     readableStream.push(null);

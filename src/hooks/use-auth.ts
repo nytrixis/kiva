@@ -2,7 +2,7 @@
 
 import { useSession, signIn, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { User, UserRole } from "@prisma/client";
+import {  UserRole } from "@prisma/client";
 
 export type AuthUser = {
   id: string;

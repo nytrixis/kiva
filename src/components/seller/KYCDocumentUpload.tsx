@@ -172,7 +172,7 @@ export default function KYCDocumentUpload() {
           
           <div className="space-y-2">
             <label className="block text-sm font-medium">
-              Identity Document (Government ID, Passport, Driver's License)
+              Identity Document (Government ID, Passport, Driver&apos;s License)
             </label>
             
             {currentDocuments.identityDocument ? (
@@ -335,7 +335,7 @@ export default function KYCDocumentUpload() {
           
           {currentDocuments.status === "PENDING" && currentDocuments.identityDocument && currentDocuments.businessDocument && (
             <p className="mt-2 text-sm text-center text-gray-500">
-              Your documents are currently under review. You'll be notified once the verification is complete.
+              Your documents are currently under review. You&apos;ll be notified once the verification is complete.
             </p>
           )}
         </div>

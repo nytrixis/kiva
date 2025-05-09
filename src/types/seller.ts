@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client'
+// import { PrismaClient } from '@prisma/client'
 
 // Define the enum manually to match your schema
 export enum SellerStatus {

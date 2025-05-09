@@ -200,7 +200,7 @@ export default function CustomerTestimonials() {
                   </div>
                   
                   <p className="text-gray-700 mb-4 relative z-10">
-                    "{testimonial.text}"
+                    &quot;{testimonial.text}&quot;
                   </p>
                   
                   <div className="text-sm text-primary font-medium">

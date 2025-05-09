@@ -53,7 +53,7 @@ export function SignInForm() {
       
       router.push("/dashboard");
       router.refresh();
-    } catch (error) {
+    } catch {
       setError("An unexpected error occurred. Please try again.");
       setIsLoading(false);
     }
@@ -154,7 +154,7 @@ export function SignInForm() {
         {/* Social login buttons can be added here later */}
         
         <p className="text-center text-sm text-gray-600">
-          Don't have an account?{" "}
+          Don&apos;t have an account?{" "}
           <Link 
             href="/sign-up" 
             className="font-medium text-primary hover:text-primary/80 transition-colors"

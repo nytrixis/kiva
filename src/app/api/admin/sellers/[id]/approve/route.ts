@@ -18,7 +18,9 @@ export async function GET(
     const { id } = params;
     
     // Update seller profile status to APPROVED
-    const sellerProfile = await prisma.sellerProfile.update({
+    //removed this part 
+    //const sellerProfile = 
+    await prisma.sellerProfile.update({
       where: { userId: id },
       data: {
         status: "APPROVED",
