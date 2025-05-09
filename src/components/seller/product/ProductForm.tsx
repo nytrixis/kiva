@@ -27,7 +27,7 @@ interface ProductResponse {
   description: string;
   price: number;
   discountPercentage: number;
-  images: string[] | any; // Array of image URLs
+  images: string[]; // Array of image URLs
   stock: number;
   rating: number;
   reviewCount: number;

@@ -46,7 +46,7 @@ export default function PaymentStep() {
     console.error("Error loading payment details:", error);
     setPaymentError("Failed to load payment details. Please try again.");
   }
-}, [orderId]);
+}, [orderId, initializeRazorpay]);
 
 
   useEffect(() => {
