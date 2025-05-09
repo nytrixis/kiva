@@ -1,68 +1,86 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import Link from "next/link";
-import { Heart, ArrowLeft, Loader2, ShoppingCart } from "lucide-react";
-import WishlistList from "@/components/wishlist/WishlistList";
+import { useRouter } from "next/navigation";
+import WishlistList from "@/components/wishlist/Wishlist";
+import { useState, useEffect, useCallback } from "react";
 import { useToast } from "@/hooks/use-toast";
 
 export default function WishlistPage() {
   const [wishlistItems, setWishlistItems] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
   const [isUpdating, setIsUpdating] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
+  const router = useRouter();
+
+  // Use useCallback to memoize the fetchWishlist function
+  const fetchWishlist = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      const response = await fetch('/api/wishlist');
+      
+      if (response.status === 401) {
+        // Redirect to login if unauthorized
+        router.push('/sign-in?callbackUrl=/wishlist');
+        return;
+      }
+      
+      if (response.ok) {
+        const data = await response.json();
+        // Transform the data to ensure images is always an array
+        const transformedItems = data.items.map((item: { product: { images: any[] } }) => ({
+          ...item,
+          product: {
+            ...item.product,
+            images: Array.isArray(item.product.images) 
+              ? item.product.images 
+              : []
+          }
+        }));
+        setWishlistItems(transformedItems);
+      } else {
+        throw new Error('Failed to fetch wishlist');
+      }
+    } catch (error) {
+      console.error('Error fetching wishlist:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load your wishlist. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  }, [router]); // Only depend on router, not toast
 
   useEffect(() => {
-    const fetchWishlist = async () => {
-      try {
-        setIsLoading(true);
-        const response = await fetch("/api/wishlist");
-        
-        if (!response.ok) {
-          throw new Error("Failed to fetch wishlist");
-        }
-        
-        const data = await response.json();
-        setWishlistItems(data.wishlist?.items || []);
-      } catch (error) {
-        console.error("Error fetching wishlist:", error);
-        toast({
-          title: "Error",
-          description: "Failed to load your wishlist. Please try again.",
-          variant: "destructive",
-        });
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
     fetchWishlist();
-  }, [toast]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Empty dependency array - only run once on mount
 
-  const removeFromWishlist = async (itemId) => {
+  const handleRemoveItem = async (id: string) => {
+    setIsUpdating(true);
     try {
-      setIsUpdating(true);
-      
-      const response = await fetch(`/api/wishlist?id=${itemId}`, {
-        method: "DELETE",
+      const response = await fetch(`/api/wishlist?id=${id}`, {
+        method: 'DELETE',
       });
-      
+
       if (!response.ok) {
-        throw new Error("Failed to remove item");
+        throw new Error('Failed to remove item from wishlist');
       }
-      
-      // Update the local state
-      setWishlistItems(wishlistItems.filter(item => item.id !== itemId));
+
+      // Update local state
+      setWishlistItems(prev => prev.filter((item: { id: string }) => item.id !== id));
       
       toast({
         title: "Item removed",
-        description: "The item has been removed from your wishlist.",
+        description: "Item has been removed from your wishlist",
+        variant: "success",
       });
     } catch (error) {
-      console.error("Error removing item:", error);
+      console.error('Error removing item from wishlist:', error);
       toast({
         title: "Error",
-        description: "Failed to remove the item. Please try again.",
+        description: "Failed to remove item. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -70,34 +88,34 @@ export default function WishlistPage() {
     }
   };
 
-  const addToCart = async (productId) => {
+  const handleAddToCart = async (productId: string) => {
+    setIsUpdating(true);
     try {
-      setIsUpdating(true);
-      
-      const response = await fetch("/api/cart", {
-        method: "POST",
+      const response = await fetch('/api/cart', {
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           productId,
           quantity: 1,
         }),
       });
-      
+
       if (!response.ok) {
-        throw new Error("Failed to add to cart");
+        throw new Error('Failed to add item to cart');
       }
-      
+
       toast({
         title: "Added to cart",
-        description: "The item has been added to your cart.",
+        description: "Item has been added to your cart",
+        variant: "success",
       });
     } catch (error) {
-      console.error("Error adding to cart:", error);
+      console.error('Error adding item to cart:', error);
       toast({
         title: "Error",
-        description: "Failed to add the item to your cart. Please try again.",
+        description: "Failed to add item to cart. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -107,54 +125,44 @@ export default function WishlistPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+      <div className="container mx-auto py-8 px-4">
+        <h1 className="text-3xl font-heading text-primary mb-2">My Wishlist</h1>
+        <p className="text-gray-600 mb-8">Loading your wishlist...</p>
+        <div className="flex justify-center items-center py-12">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 py-12">
-        <div className="flex items-center justify-between mb-8">
-          <h1 className="font-heading text-3xl md:text-4xl text-foreground flex items-center">
-            <Heart className="mr-3 h-8 w-8 text-primary fill-primary" />
-            Your Wishlist
-          </h1>
-          <Link 
-            href="/collections" 
-            className="text-primary hover:text-primary/80 flex items-center transition-colors"
+    <div className="container mx-auto py-8 px-4">
+      <h1 className="text-3xl font-heading text-primary mb-2">My Wishlist</h1>
+      <p className="text-gray-600 mb-8">
+        Items you've saved for later
+      </p>
+      
+      {wishlistItems.length > 0 ? (
+        <WishlistList 
+          items={wishlistItems} 
+          onRemoveItem={handleRemoveItem} 
+          onAddToCart={handleAddToCart} 
+          isUpdating={isUpdating}
+        />
+      ) : (
+        <div className="text-center py-12 bg-white rounded-lg shadow-sm">
+          <h2 className="text-xl font-medium text-gray-800 mb-2">Your wishlist is empty</h2>
+          <p className="text-gray-500 mb-6">
+            Save items you like by clicking the heart icon on products
+          </p>
+          <a 
+            href="/marketplace" 
+            className="inline-block px-6 py-3 bg-primary text-white rounded-full hover:bg-primary/90 transition-colors"
           >
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Continue Shopping
-          </Link>
+            Explore Products
+          </a>
         </div>
-
-        {wishlistItems.length === 0 ? (
-          <div className="text-center py-16 bg-white rounded-xl shadow-sm">
-            <div className="mx-auto w-24 h-24 bg-muted rounded-full flex items-center justify-center mb-6">
-              <Heart className="h-12 w-12 text-gray-400" />
-            </div>
-            <h2 className="text-2xl font-medium text-gray-700 mb-2">Your wishlist is empty</h2>
-            <p className="text-gray-500 mb-8">Save items you love for later by adding them to your wishlist.</p>
-            <Link 
-              href="/collections" 
-              className="bg-primary hover:bg-primary/90 text-white px-6 py-3 rounded-full inline-block transition-colors"
-            >
-              Discover Products
-            </Link>
-          </div>
-        ) : (
-          <div>
-            <WishlistList 
-              items={wishlistItems} 
-              onRemoveItem={removeFromWishlist} 
-              onAddToCart={addToCart}
-              isUpdating={isUpdating}
-            />
-          </div>
-        )}
-      </div>
+      )}
     </div>
   );
 }

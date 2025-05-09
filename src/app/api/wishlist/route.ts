@@ -89,11 +89,8 @@ export async function GET(request: Request) {
     });
     
     return NextResponse.json({
-      wishlist: {
-        ...wishlist,
         items: processedItems,
-      },
-      itemCount: processedItems.length,
+        itemCount: processedItems.length,
     });
   } catch (error) {
     console.error("Error fetching wishlist:", error);

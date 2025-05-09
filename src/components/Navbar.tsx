@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { ShoppingCart, Heart, Menu, X, Globe, ChevronDown, Search, User } from "lucide-react";
+import { ShoppingCart, Heart, Menu, X, Globe, ChevronDown, Search, User, Grid } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
 import {
@@ -36,6 +36,63 @@ export default function Navbar() {
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const { user, isAuthenticated, logout } = useAuth();
+  const [categories, setCategories] = useState<Array<{id: string, name: string, slug: string}>>([]);
+  const [mobileCategories, setMobileCategories] = useState<string[]>([]);
+  const [isMobileCategoriesOpen, setIsMobileCategoriesOpen] = useState(false);
+
+  const [wishlistCount, setWishlistCount] = useState(0);
+  const [cartCount, setCartCount] = useState(0);
+  
+  // Fetch categories for the dropdown
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await fetch('/api/categories');
+        if (response.ok) {
+          const data = await response.json();
+          setCategories(data.categories);
+        }
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+      }
+    };
+    
+    fetchCategories();
+  }, []);
+  
+  // Fetch wishlist and cart counts
+  useEffect(() => {
+    if (isAuthenticated) {
+      // Fetch wishlist count
+      const fetchWishlistCount = async () => {
+        try {
+          const response = await fetch('/api/wishlist/count');
+          if (response.ok) {
+            const data = await response.json();
+            setWishlistCount(data.count);
+          }
+        } catch (error) {
+          console.error("Error fetching wishlist count:", error);
+        }
+      };
+      
+      // Fetch cart count
+      const fetchCartCount = async () => {
+        try {
+          const response = await fetch('/api/cart/count');
+          if (response.ok) {
+            const data = await response.json();
+            setCartCount(data.count);
+          }
+        } catch (error) {
+          console.error("Error fetching cart count:", error);
+        }
+      };
+      
+      fetchWishlistCount();
+      fetchCartCount();
+    }
+  }, [isAuthenticated]);
   
   // Function to change language using Google Translate
   const changeLanguage = (languageCode: string) => {
@@ -100,19 +157,47 @@ export default function Navbar() {
               </Link>
               
               {/* Desktop Navigation - positioned in the left section */}
-              <nav className="hidden md:flex items-center space-x-12 ml-10">
-                <Link href="/collections" className="text-gray-600 hover:text-primary transition-colors">
-                  Collections
+              <nav className="hidden md:flex items-center space-x-8 ml-10">
+                {/* Categories Dropdown */}
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button className="flex items-center text-gray-600 hover:text-primary transition-colors">
+                      Categories
+                      <ChevronDown className="ml-1 h-4 w-4" />
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="start" className="w-56">
+                    {categories.length > 0 ? (
+                      categories.map((category) => (
+                        <DropdownMenuItem key={category.id} asChild>
+                          <Link href={`/categories/${category.slug}`} className="w-full">
+                            {category.name}
+                          </Link>
+                        </DropdownMenuItem>
+                      ))
+                    ) : (
+                      <DropdownMenuItem disabled>No categories found</DropdownMenuItem>
+                    )}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+                
+                {/* Marketplace Link */}
+                <Link href="/marketplace" className="text-gray-600 hover:text-primary transition-colors flex items-center">
+                  <Grid className="mr-1 h-4 w-4" />
+                  Xplore
                 </Link>
+                
                 <Link href="/brands" className="text-gray-600 hover:text-primary transition-colors">
-                  Brands
+                  Reels
                 </Link>
+                
                 <Link href="/new" className="text-gray-600 hover:text-primary transition-colors">
-                  New
+                  About
                 </Link>
-                <Link href="/sales" className="text-gray-600 hover:text-primary transition-colors">
+                
+                {/* <Link href="/sales" className="text-gray-600 hover:text-primary transition-colors">
                   Sales
-                </Link>
+                </Link> */}
               </nav>
             </div>
             
@@ -181,25 +266,36 @@ export default function Navbar() {
               )}
               
               {/* Wishlist Button */}
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                className="relative"
-                onMouseEnter={() => setIsWishlistHovered(true)}
-                onMouseLeave={() => setIsWishlistHovered(false)}
-              >
-                <Heart 
-                  className={`h-5 w-5 transition-all ${isWishlistHovered ? 'fill-primary text-primary' : 'text-gray-600'}`} 
-                />
-              </Button>
+              <Link href="/wishlist">
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="relative"
+                  onMouseEnter={() => setIsWishlistHovered(true)}
+                  onMouseLeave={() => setIsWishlistHovered(false)}
+                >
+                  <Heart 
+                    className={`h-5 w-5 transition-all ${isWishlistHovered ? 'fill-primary text-primary' : 'text-gray-600'}`} 
+                  />
+                  {wishlistCount > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-primary text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
+                      {wishlistCount}
+                    </span>
+                  )}
+                </Button>
+              </Link>
               
               {/* Cart Button */}
-              <Button variant="ghost" size="icon" className="relative">
-                <ShoppingCart className="h-5 w-5 text-gray-600" />
-                <span className="absolute -top-1 -right-1 bg-primary text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
-                  0
-                </span>
-              </Button>
+              <Link href="/cart">
+                <Button variant="ghost" size="icon" className="relative">
+                  <ShoppingCart className="h-5 w-5 text-gray-600" />
+                  {cartCount > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-primary text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
+                      {cartCount}
+                    </span>
+                  )}
+                </Button>
+              </Link>
               
               {/* Language Selector Dropdown */}
               <DropdownMenu>
@@ -255,7 +351,7 @@ export default function Navbar() {
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="py-2 pl-4 pr-2 w-full bg-transparent outline-none text-sm text-foreground placeholder:text-gray-400"
                 />
-                <button 
+                                <button 
                   type="submit" 
                   className="p-2 text-gray-500 hover:text-primary transition-colors"
                   aria-label="Search"
@@ -266,18 +362,51 @@ export default function Navbar() {
             </form>
           </div>
           <div className="container mx-auto px-4 py-4 space-y-4">
-            <Link href="/collections" className="block text-gray-600 hover:text-primary">
-              Collections
+            {/* Mobile Categories Dropdown */}
+            <div className="relative">
+              <button 
+                onClick={() => setIsMobileCategoriesOpen(!isMobileCategoriesOpen)}                className="flex items-center justify-between w-full text-gray-600 hover:text-primary"
+              >
+                <span className="flex items-center">
+                  <Grid className="mr-2 h-4 w-4" />
+                  Categories
+                </span>
+                <ChevronDown className={`h-4 w-4 transition-transform ${mobileCategories ? 'rotate-180' : ''}`} />
+              </button>
+              
+              {isMobileCategoriesOpen && (
+                <div className="mt-2 pl-6 space-y-2">
+                  {categories.length > 0 ? (
+                    categories.map((category) => (
+                      <Link 
+                        key={category.id} 
+                        href={`/categories/${category.slug}`}
+                        className="block text-gray-600 hover:text-primary py-1"
+                      >
+                        {category.name}
+                      </Link>
+                    ))
+                  ) : (
+                    <p className="text-sm text-gray-500">No categories found</p>
+                  )}
+                </div>
+              )}
+            </div>
+            
+            <Link href="/marketplace" className="flex items-center text-gray-600 hover:text-primary">
+              <Grid className="mr-2 h-4 w-4" />
+              Xplore
             </Link>
+            
             <Link href="/brands" className="block text-gray-600 hover:text-primary">
-              Brands
+              Reels
             </Link>
             <Link href="/new" className="block text-gray-600 hover:text-primary">
-              New
+              About
             </Link>
-            <Link href="/sales" className="block text-gray-600 hover:text-primary">
+            {/* <Link href="/sales" className="block text-gray-600 hover:text-primary">
               Sales
-            </Link>
+            </Link> */}
             
             {/* Authentication Links for Mobile */}
             <div className="pt-4 border-t border-gray-100">
@@ -297,6 +426,12 @@ export default function Navbar() {
                   </Link>
                   <Link href="/profile" className="block text-gray-600 hover:text-primary py-2">
                     Profile
+                  </Link>
+                  <Link href="/wishlist" className="block text-gray-600 hover:text-primary py-2">
+                    Wishlist
+                  </Link>
+                  <Link href="/cart" className="block text-gray-600 hover:text-primary py-2">
+                    Cart
                   </Link>
                   <button 
                     onClick={logout}

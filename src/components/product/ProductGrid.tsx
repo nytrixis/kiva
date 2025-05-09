@@ -7,7 +7,7 @@ import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 
 interface Seller {
-  name: string;
+  name: string | null;
 }
 
 interface Category {
@@ -19,7 +19,7 @@ interface Product {
   name: string;
   price: number;
   discountPercentage: number;
-  images: string[];
+  images: any;
   rating: number;
   reviewCount: number;
   category: Category;
@@ -33,7 +33,7 @@ interface ProductGridProps {
   loading: boolean;
 }
 
-export default function ProductGrid({ products, loading }: ProductGridProps) {
+export default function ProductGrid({ products, loading = false }: ProductGridProps) {
   // Placeholder for loading state
   if (loading) {
     return (
@@ -263,7 +263,7 @@ function ProductCard({ product, index }: ProductCardProps) {
             <h3 className="font-medium text-gray-800 mb-1 line-clamp-1 group-hover:text-primary transition-colors duration-200">
               {product.name}
             </h3>
-            <div className="text-xs text-gray-500 mb-2">{product.seller.name}</div>
+            <div className="text-xs text-gray-500 mb-2">{product.seller.name || 'Unknown Seller'}</div>
             
             {/* Price */}
             <div className="flex items-center space-x-2">
