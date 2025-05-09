@@ -3,9 +3,6 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { UserRole } from "@prisma/client";
-import { extendedPrisma } from '@/lib/prisma-extended';
-
-
 
 export async function POST(req: NextRequest) {
   try {
@@ -25,7 +22,7 @@ export async function POST(req: NextRequest) {
     const data = await req.json();
     
     // Create or update seller profile
-    const sellerProfile = await extendedPrisma.sellerProfile.upsert({
+    const sellerProfile = await prisma.sellerProfile.upsert({
       where: { userId },
       update: {
         businessName: data.businessName,
@@ -40,6 +37,11 @@ export async function POST(req: NextRequest) {
         website: data.website,
         phoneNumber: data.phoneNumber,
         categories: data.categories,
+        // Add image fields
+        logoImage: data.logoImage,
+        bannerImage: data.bannerImage,
+        logoImagePublicId: data.logoImagePublicId,
+        bannerImagePublicId: data.bannerImagePublicId,
       },
       create: {
         userId,
@@ -55,6 +57,11 @@ export async function POST(req: NextRequest) {
         website: data.website,
         phoneNumber: data.phoneNumber,
         categories: data.categories,
+        // Add image fields
+        logoImage: data.logoImage,
+        bannerImage: data.bannerImage,
+        logoImagePublicId: data.logoImagePublicId,
+        bannerImagePublicId: data.bannerImagePublicId,
         status: "PENDING",
       },
     });
@@ -87,7 +94,7 @@ export async function GET() {
     
     const userId = session.user.id;
     
-    const sellerProfile = await extendedPrisma.sellerProfile.findUnique({
+    const sellerProfile = await prisma.sellerProfile.findUnique({
       where: { userId },
     });
     
