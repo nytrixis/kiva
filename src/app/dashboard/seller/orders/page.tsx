@@ -11,8 +11,15 @@ export const metadata = {
   description: "Manage your orders and track your sales",
 };
 
+interface Order {
+  id: string;
+  createdAt: Date | string;
+  total: number;
+  status: string;
+}
+
 // Helper function to format orders data for the chart
-function formatOrdersDataForChart(orders: any[], type: "revenue" | "orders") {
+function formatOrdersDataForChart(orders: Order[], type: "revenue" | "orders") {
   interface MonthData {
     month: Date;
     name: string;
@@ -63,11 +70,11 @@ export default async function SellerOrdersPage() {
   
   const userId = session.user.id;
   
-  // First, get all products by this seller
-  const sellerProducts = await prisma.product.findMany({
-    where: { sellerId: userId },
-    select: { id: true }
-  });
+  // // First, get all products by this seller
+  // const sellerProducts = await prisma.product.findMany({
+  //   where: { sellerId: userId },
+  //   select: { id: true }
+  // });
   
   // const productIds = sellerProducts.map(product => product.id);
   
@@ -107,6 +114,8 @@ export default async function SellerOrdersPage() {
       createdAt: 'desc'
     }
   });
+
+  type OrderStatus = "pending" | "processing" | "shipped" | "delivered" | "cancelled";
   
   // Format orders for the OrdersTable component
   const formattedOrders = orders.map(order => ({
@@ -115,7 +124,7 @@ export default async function SellerOrdersPage() {
     customerName: order.user?.name || 'Anonymous',
     date: order.createdAt,
     total: order.total,
-    status: order.status.toLowerCase() as any,
+    status: (order.status.toLowerCase() === 'paid' ? 'processing' : order.status.toLowerCase()) as OrderStatus,
     items: [] // You would populate this from order items if available
   }));
   

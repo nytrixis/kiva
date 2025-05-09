@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/auth";
 // import { prisma } from "@/lib/db";
 import { UserRole } from "@prisma/client";
 import { extendedPrisma } from '@/lib/prisma-extended';
+import { SellerStatus } from "@prisma/client";
 
 export async function GET(req: NextRequest) {
   try {
@@ -21,7 +22,7 @@ export async function GET(req: NextRequest) {
     const sellers = await extendedPrisma.user.findMany({
       where: {
         role: UserRole.SELLER,
-        sellerProfile: status ? { status: status as any } : undefined,
+        sellerProfile: status ? { status: status as SellerStatus } : undefined,
       },
       include: {
         sellerProfile: true,

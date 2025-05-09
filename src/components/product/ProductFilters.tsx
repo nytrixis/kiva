@@ -9,11 +9,14 @@ interface Category {
   name: string;
 }
 
+type FilterValue = string | number | null | undefined;
+
 interface ProductFiltersProps {
   categories: Category[];
   selectedCategory: string | null;
   minPrice: string | null;
   maxPrice: string | null;
+  
   onFilterChange: (filters: { [key: string]: any }) => void;
 }
 

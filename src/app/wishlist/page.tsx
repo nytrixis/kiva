@@ -28,7 +28,7 @@ export default function WishlistPage() {
     if (response.ok) {
       const data = await response.json();
       // Transform the data to ensure images is always an array
-      const transformedItems = data.items.map((item: { product: { images: any[] } }) => ({
+      const transformedItems = data.items.map((item: { product: { images: unknown[] } }) => ({
         ...item,
         product: {
           ...item.product,
@@ -37,6 +37,7 @@ export default function WishlistPage() {
             : []
         }
       }));
+
       setWishlistItems(transformedItems);
     } else {
       throw new Error('Failed to fetch wishlist');
@@ -56,7 +57,7 @@ export default function WishlistPage() {
 
   useEffect(() => {
     fetchWishlist();
-  }, []); // Empty dependency array - only run once on mount
+  }, [fetchWishlist]); // Empty dependency array - only run once on mount
 
   const handleRemoveItem = async (id: string) => {
     setIsUpdating(true);

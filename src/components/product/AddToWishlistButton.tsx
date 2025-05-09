@@ -10,6 +10,13 @@ interface AddToWishlistButtonProps {
   productId: string;
 }
 
+interface WishlistItem {
+  id: string;
+  product: {
+    id: string;
+  };
+}
+
 export default function AddToWishlistButton({ productId }: AddToWishlistButtonProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [isInWishlist, setIsInWishlist] = useState(false);
@@ -58,8 +65,9 @@ export default function AddToWishlistButton({ productId }: AddToWishlistButtonPr
           throw new Error("Failed to fetch wishlist");
         }
         
+        
         const wishlistItem = wishlistData.data.items.find(
-          (item: any) => item.product.id === productId
+          (item: WishlistItem) => item.product.id === productId
         );
         
         if (!wishlistItem) {

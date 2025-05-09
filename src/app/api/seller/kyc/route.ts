@@ -3,17 +3,17 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { uploadToCloudinary, deleteFromCloudinary } from "@/lib/cloudinary";//removed  extractPublicIdFromUrl
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, Prisma } from "@prisma/client";
 
 
 
 // Extend the PrismaClient type to include sellerProfile
 interface ExtendedPrismaClient extends PrismaClient {
-  sellerProfile: any;
+  sellerProfile: Prisma.SellerProfileDelegate;
 }
 
 // Cast the prisma client to the extended type
-const extendedPrisma = prisma as any as ExtendedPrismaClient;
+const extendedPrisma = prisma as unknown as ExtendedPrismaClient;
 
 export async function POST(req: NextRequest) {
   try {
@@ -33,6 +33,7 @@ export async function POST(req: NextRequest) {
         businessDocument: true,
         identityDocumentPublicId: true,
         businessDocumentPublicId: true,
+        status: true
       },
     });
     
@@ -116,7 +117,6 @@ export async function POST(req: NextRequest) {
     );
   }
 }
-
 // API route to get the current KYC documents
 export async function GET() {//removed 
   try {

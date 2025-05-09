@@ -14,6 +14,10 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
+interface CategoryResponse {
+  categories: Array<{id: string, name: string, slug: string}>;
+}
+
 // Indian languages for the dropdown
 const languages = [
   { code: "en", name: "English" },
@@ -49,7 +53,7 @@ export default function Navbar() {
       try {
         const response = await fetch('/api/categories');
         if (response.ok) {
-          const data = await response.json();
+          const data = await response.json() as CategoryResponse;
           setCategories(data.categories);
         }
       } catch (error) {

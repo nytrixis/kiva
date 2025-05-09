@@ -118,7 +118,7 @@ export default function RecentlyViewed() {
             Recently <span className="text-primary">Viewed</span>
           </h2>
           <p className="text-gray-600 max-w-2xl mx-auto">
-            Continue exploring products you have viewed and discover more items you'll love
+            Continue exploring products you have viewed and discover more items you will love
           </p>
         </motion.div>
         

@@ -11,7 +11,7 @@ interface WishlistItemProps {
       name: string;
       price: number;
       discountPercentage: number;
-      images: string[] | any;
+      images: string[] | Record<string, unknown>;
       category?: {
         name: string;
       };
@@ -32,7 +32,6 @@ export default function WishlistItem({
   isUpdating 
 }: WishlistItemProps) {
   const { product, id } = item;
-  const [ setIsHovered] = useState(false);
  
   // Calculate the price to display (based on discount percentage)
   const displayPrice = product.discountPercentage > 0 

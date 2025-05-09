@@ -15,7 +15,7 @@ interface ProductCardProps {
     name: string;
     price: number;
     discountPercentage: number;
-    images: any;
+    images: string[] | Record<string, unknown>;
     stock: number;
     category: {
       name: string;

@@ -101,7 +101,9 @@ export default function ProductCatalog({
   }, [categoryParam, minPrice, maxPrice, sortBy, page, searchQuery]);
  
   // Update URL with filters
-  const updateFilters = (filters: { [key: string]: any }) => {
+  type FilterValue = string | number | null | undefined;
+
+  const updateFilters = (filters: { [key: string]: FilterValue }) => {
     const params = new URLSearchParams(searchParams.toString());
     
     // Update params based on filters

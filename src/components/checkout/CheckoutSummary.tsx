@@ -11,7 +11,7 @@ interface CartItem {
     name: string;
     price: number;
     discountPercentage: number;
-    images: string[] | any;
+    images: string[] | Record<string, unknown>;
     stock: number;
     category?: {
       name: string;

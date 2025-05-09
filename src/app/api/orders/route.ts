@@ -3,6 +3,10 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 
+interface CartItemRequest {
+  id: string;
+}
+
 export async function POST(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
@@ -25,7 +29,7 @@ export async function POST(req: NextRequest) {
     const cartItems = await prisma.cartItem.findMany({
       where: {
         userId,
-        id: { in: items.map((item: any) => item.id) }
+        id: { in: items.map((item: CartItemRequest) => item.id) }
       },
       include: {
         product: true
@@ -79,10 +83,10 @@ export async function POST(req: NextRequest) {
     await prisma.cartItem.deleteMany({
       where: {
         userId,
-        id: { in: items.map((item: any) => item.id) }
+        id: { in: items.map((item: CartItemRequest) => item.id) }
       }
     });
-    
+        
     return NextResponse.json({
       success: true,
       orderId: order.id
