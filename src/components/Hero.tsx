@@ -33,13 +33,13 @@ const carouselData = [
   },
   {
     id: 3,
-    heading: "Sustainable Fashion",
-    description: "Eco-friendly clothing that looks good and feels good for the planet.",
-    image: "/images/model3.png",
+    heading: "Personalized Gifts & Decor",
+    description: "Discover unique customizable items handcrafted by local artisans to create the perfect gift or home accent.",
+    image: "/images/model5.png", // Image showing personalized gifts or home decor items
     stats: [
-      { value: "30%", label: "Less Water" },
-      { value: "90%", label: "Recycled" },
-      { value: "Zero", label: "Carbon Footprint" }
+      { value: "100%", label: "Customizable" },
+      { value: "3-5 Days", label: "Turnaround Time" },
+      { value: "Unique", label: "Handcrafted Items" }
     ]
   },
   {
@@ -51,6 +51,17 @@ const carouselData = [
       { value: "Verified", label: "Reviews" },
       { value: "100+", label: "Local Influencers" },
       { value: "Real", label: "Experiences" }
+    ]
+  },
+  {
+    id: 5,
+    heading: "Sustainable Fashion",
+    description: "Eco-friendly clothing that looks good and feels good for the planet.",
+    image: "/images/model333.png",
+    stats: [
+      { value: "30%", label: "Less Water" },
+      { value: "90%", label: "Recycled" },
+      { value: "Zero", label: "Carbon Footprint" }
     ]
   }
 ];

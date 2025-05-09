@@ -1,8 +1,9 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import { Heart, ArrowLeft, Loader2, ShoppingCart } from "lucide-react";
 import WishlistList from "@/components/wishlist/Wishlist";
-import { useState, useEffect, useCallback } from "react";
 import { useToast } from "@/hooks/use-toast";
 
 export default function WishlistPage() {
