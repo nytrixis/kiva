@@ -1,11 +1,20 @@
+import { Metadata } from "next";
 import Link from "next/link";
 import { Shield } from "lucide-react";
 
+export const metadata: Metadata = {
+  title: "Access Denied | Kiva",
+  description: "You don't have permission to access this page",
+};
+
+interface AccessDeniedPageProps {
+  params: {};
+  searchParams: { message?: string };
+}
+
 export default function AccessDeniedPage({
   searchParams,
-}: {
-  searchParams: { message?: string };
-}) {
+}: AccessDeniedPageProps) {
   const message = searchParams.message || "You don't have permission to access this page";
   
   return (
