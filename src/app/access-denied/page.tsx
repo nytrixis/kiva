@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 };
 
 interface AccessDeniedPageProps {
-  params: {};
+  params: Record<string, never>;
   searchParams: { message?: string };
 }
 
