@@ -39,7 +39,7 @@ const generatePlaceholderData = (type: "revenue" | "orders") => {
 };
 
 interface OrdersChartProps {
-  data: any[]; // Replace with actual order data type
+  data: ChartDataPoint[]; // Replace with actual order data type
   type: "revenue" | "orders";
   colors: {
     primary: string;

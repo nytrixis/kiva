@@ -26,8 +26,28 @@ interface ProductResponse {
   name: string;
   description: string;
   price: number;
-  // Add other properties as needed
+  discountPercentage: number;
+  images: string[] | any; // Array of image URLs
+  stock: number;
+  rating: number;
+  reviewCount: number;
+  viewCount: number;
+  sellerId: string;
+  categoryId: string;
+  createdAt: string;
+  updatedAt: string;
+  cloudinaryPublicId?: string; // Optional field for Cloudinary integration
+  category?: {
+    id: string;
+    name: string;
+    slug: string;
+  };
+  seller?: {
+    id: string;
+    name: string;
+  };
 }
+
 
 export default function ProductForm({ categories }: { categories: Category[] }) {
   const router = useRouter();
@@ -228,64 +248,65 @@ export default function ProductForm({ categories }: { categories: Category[] }) 
   
   // Submit the form
   const handleSubmit = async () => {
-    if (!validateStep()) return;
+  if (!validateStep()) return;
+  
+  setIsSubmitting(true);
+  
+  try {
+    // Create FormData object for the API request
+    const productData = new FormData();
     
-    setIsSubmitting(true);
+    // Add text fields
+    productData.append("name", formData.name);
+    productData.append("description", formData.description);
+    productData.append("categoryId", formData.categoryId);
+    productData.append("price", formData.price.toString());
+    productData.append("discountPercentage", formData.discountPercentage.toString());
+    productData.append("stock", formData.stock.toString());
     
-    try {
-      // Create FormData object for the API request
-      const productData = new FormData();
-      
-      // Add text fields
-      productData.append("name", formData.name);
-      productData.append("description", formData.description);
-      productData.append("categoryId", formData.categoryId);
-      productData.append("price", formData.price.toString());
-      productData.append("discountPercentage", formData.discountPercentage.toString());
-      productData.append("stock", formData.stock.toString());
-      
-      // Append each image file
-      formData.images.forEach(file => {
-        productData.append("images", file);
-      });
-      
-      console.log("Submitting product with category ID:", formData.categoryId);
-      
-      // Send the request to the API
-      const response = await fetch("/api/seller/products", {
-        method: "POST",
-        body: productData,
-        // Don't set Content-Type header, let the browser set it with the boundary
-      });
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to create product");
-      }
-      
-// const product = await response.json() as ProductResponse;      
-      // Show success message and redirect
-      toast({
-        title: "Product Created",
-        description: "Your product has been created successfully.",
-        variant: "success",
-        icon: <Check className="h-4 w-4" />,
-      });
-      
-      router.push(`/seller/products`);
-      router.refresh();
-    } catch (error: unknown) {
-      console.error("Error creating product:", error);
-      
-      toast({
-        title: "Error",
-        description: error instanceof Error ? error.message : "Failed to create product. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsSubmitting(false);
+    // Append each image file
+    formData.images.forEach(file => {
+      productData.append("images", file);
+    });
+    
+    console.log("Submitting product with category ID:", formData.categoryId);
+    
+    // Send the request to the API
+    const response = await fetch("/api/seller/products", {
+      method: "POST",
+      body: productData,
+      // Don't set Content-Type header, let the browser set it with the boundary
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || "Failed to create product");
     }
-  };
+    
+    const product = await response.json() as ProductResponse;
+    
+    // Show success message and redirect
+    toast({
+      title: "Product Created",
+      description: `Your product "${product.name}" has been created successfully.`,
+      variant: "success",
+      icon: <Check className="h-4 w-4" />,
+    });
+    
+    router.push(`/seller/products`);
+    router.refresh();
+  } catch (error: unknown) {
+    console.error("Error creating product:", error);
+    
+    toast({
+      title: "Error",
+      description: error instanceof Error ? error.message : "Failed to create product. Please try again.",
+      variant: "destructive",
+    });
+  } finally {
+    setIsSubmitting(false);
+  }
+};
 
   // Render form steps
   const renderFormStep = () => {

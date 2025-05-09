@@ -267,31 +267,31 @@ export default function EditProductForm({ product, categories }: EditProductForm
         throw new Error(errorData.error || "Failed to update product");
       }
       
-      interface UpdatedProductResponse {
-        success: boolean;
-        data?: {
-          id: string;
-          name: string;
-          description: string;
-          price: number;
-          discountPercentage: number;
-          stock: number;
-          images: string[];
-          categoryId: string;
-          sellerId?: string;
-          createdAt?: string;
-          updatedAt?: string;
-          cloudinaryPublicId?: string;
-          category?: {
-            id: string;
-            name: string;
-          };
-          reviewCount?: number;
-          rating?: number;
-          viewCount?: number;
-        };
-        error?: string;
-      }
+      // interface UpdatedProductResponse {
+      //   success: boolean;
+      //   data?: {
+      //     id: string;
+      //     name: string;
+      //     description: string;
+      //     price: number;
+      //     discountPercentage: number;
+      //     stock: number;
+      //     images: string[];
+      //     categoryId: string;
+      //     sellerId?: string;
+      //     createdAt?: string;
+      //     updatedAt?: string;
+      //     cloudinaryPublicId?: string;
+      //     category?: {
+      //       id: string;
+      //       name: string;
+      //     };
+      //     reviewCount?: number;
+      //     rating?: number;
+      //     viewCount?: number;
+      //   };
+      //   error?: string;
+      // }
 
 
       // const updatedProduct = await response.json() as UpdatedProductResponse;

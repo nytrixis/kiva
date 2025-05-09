@@ -32,10 +32,11 @@ interface RazorpayOptions {
 }
 
 interface RazorpayInstance {
-  on: (event: string, handler: (response: any) => void) => void;
+  on: (event: string, handler: (response: RazorpayResponse) => void) => void;
   open: () => void;
   close: () => void;
 }
+
 
 interface RazorpayResponse {
   razorpay_payment_id: string;

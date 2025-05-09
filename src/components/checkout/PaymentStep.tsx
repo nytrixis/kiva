@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useCheckout } from "@/contexts/checkout-context";
 import { Button } from "@/components/ui/button";
@@ -23,30 +23,31 @@ export default function PaymentStep() {
   
   
   
-  const loadPaymentDetails = async () => {
-    try {
-      const response = await fetch("/api/checkout", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ orderId }),
-      });
-      
-      if (!response.ok) {
-        throw new Error("Failed to load payment details");
-      }
-      
-      const data = await response.json();
-      
-      if (data.success) {
-        initializeRazorpay(data.order as PaymentOrderData);
-      }
-    } catch (error) {
-      console.error("Error loading payment details:", error);
-      setPaymentError("Failed to load payment details. Please try again.");
+  const loadPaymentDetails = useCallback(async () => {
+  try {
+    const response = await fetch("/api/checkout", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ orderId }),
+    });
+    
+    if (!response.ok) {
+      throw new Error("Failed to load payment details");
     }
-  };
+    
+    const data = await response.json();
+    
+    if (data.success) {
+      initializeRazorpay(data.order as PaymentOrderData);
+    }
+  } catch (error) {
+    console.error("Error loading payment details:", error);
+    setPaymentError("Failed to load payment details. Please try again.");
+  }
+}, [orderId]);
+
 
   useEffect(() => {
     // Load payment details when component mounts
@@ -88,97 +89,99 @@ interface RazorpayResponse {
   razorpay_signature: string;
 }
 
-  
-  const initializeRazorpay = async (orderData: any) => {
-    try {
-      const Razorpay = await loadRazorpay();
-      
-      if (!process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID) {
-        throw new Error("Razorpay key is not configured");
-      }
-      
-      const options: RazorpayOptions = {
-        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
-        amount: orderData.amount * 100, // Amount in paisa
-        currency: orderData.currency,
-        name: "Kiva Marketplace",
-        description: "Purchase from Kiva",
-        order_id: orderData.razorpayOrderId,
-        prefill: {
-          name: orderData.name,
-          email: orderData.email,
-          contact: orderData.phone,
-        },
-        handler: function(response: any) {
-          handlePaymentSuccess(response as RazorpayResponse);
-        },
-        modal: {
-          ondismiss: function() {
-            handlePaymentCancel();
-          },
-        },
-      } as const;
-      
-      const razorpayInstance = new Razorpay(options);
-      razorpayInstance.open();
-    } catch (error) {
-      console.error("Razorpay initialization error:", error);
-      setPaymentError("Failed to initialize payment. Please try again.");
-    }
-  };  
-  const handlePaymentSuccess = async (response: any) => {
-    try {
-      const result = await fetch("/api/payment/success", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          orderId,
-          paymentIntentId: response.razorpay_payment_id,
-          razorpay_order_id: response.razorpay_order_id,
-          razorpay_signature: response.razorpay_signature,
-        }),
-      });
-      
-      if (result.ok) {
-        setPaymentSuccess(true);
-        toast({
-          title: "Payment Successful",
-          description: "Your order has been placed successfully!",
-          variant: "success",
-        });
-        
-        // Redirect to success page
-        router.push(`/checkout/success?orderId=${orderId}`);
-      } else {
-        throw new Error("Payment verification failed");
-      }
-    } catch (error) {
-      console.error("Payment success handling error:", error);
-      setPaymentError("Payment verification failed. Please contact support.");
-    }
-  };
-  
-  const handlePaymentCancel = async () => {
-    try {
-      await fetch("/api/payment/cancel", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ orderId }),
-      });
-      
+const handlePaymentSuccess = useCallback(async (response: RazorpayResponse) => {
+  try {
+    const result = await fetch("/api/payment/success", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        orderId,
+        paymentIntentId: response.razorpay_payment_id,
+        razorpay_order_id: response.razorpay_order_id,
+        razorpay_signature: response.razorpay_signature,
+      }),
+    });
+    
+    if (result.ok) {
+      setPaymentSuccess(true);
       toast({
-        title: "Payment Cancelled",
-        description: "Your payment was cancelled. You can try again.",
-        variant: "default",
+        title: "Payment Successful",
+        description: "Your order has been placed successfully!",
+        variant: "success",
       });
-    } catch (error) {
-      console.error("Payment cancellation error:", error);
+      
+      // Redirect to success page
+      router.push(`/checkout/success?orderId=${orderId}`);
+    } else {
+      throw new Error("Payment verification failed");
     }
-  };
+  } catch (error) {
+    console.error("Payment success handling error:", error);
+    setPaymentError("Payment verification failed. Please contact support.");
+  }
+}, [orderId, router, toast]);
+
+const handlePaymentCancel = useCallback(async () => {
+  try {
+    await fetch("/api/payment/cancel", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ orderId }),
+    });
+    
+    toast({
+      title: "Payment Cancelled",
+      description: "Your payment was cancelled. You can try again.",
+      variant: "default",
+    });
+  } catch (error) {
+    console.error("Payment cancellation error:", error);
+  }
+}, [orderId, toast]);
+
+  
+  const initializeRazorpay = useCallback(async (orderData: PaymentOrderData) => {
+  try {
+    const Razorpay = await loadRazorpay();
+    
+    if (!process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID) {
+      throw new Error("Razorpay key is not configured");
+    }
+    
+    const options: RazorpayOptions = {
+      key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+      amount: orderData.amount * 100, // Amount in paisa
+      currency: orderData.currency,
+      name: "Kiva Marketplace",
+      description: "Purchase from Kiva",
+      order_id: orderData.razorpayOrderId,
+      prefill: {
+        name: orderData.name,
+        email: orderData.email,
+        contact: orderData.phone,
+      },
+      handler: function(response: RazorpayResponse) {
+        handlePaymentSuccess(response);
+      },
+      modal: {
+        ondismiss: function() {
+          handlePaymentCancel();
+        },
+      },
+    } as const;
+    
+    const razorpayInstance = new Razorpay(options);
+    razorpayInstance.open();
+  } catch (error) {
+    console.error("Razorpay initialization error:", error);
+    setPaymentError("Failed to initialize payment. Please try again.");
+  }
+}, [handlePaymentSuccess, handlePaymentCancel]);
+ 
   
   if (paymentSuccess) {
     return (

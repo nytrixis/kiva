@@ -97,6 +97,43 @@ export default async function ShopPage({ params, searchParams }: ShopPageProps) 
       customers: Math.floor(Math.random() * 20) + 10,
     };
   }).reverse();
+
+  const formattedProducts = shop.user.products.map(product => {
+  // Handle images conversion more explicitly
+  let processedImages: string[] = [];
+  
+  if (product.images) {
+    if (Array.isArray(product.images)) {
+      // If it's already an array, map each item to string if possible
+      processedImages = product.images.map(img => 
+        typeof img === 'string' ? img : ''
+      ).filter(Boolean);
+    } else if (typeof product.images === 'object') {
+      // If it's an object, try to extract values as strings
+      processedImages = Object.values(product.images)
+        .map(img => typeof img === 'string' ? img : '')
+        .filter(Boolean);
+    }
+  }
+  
+  return {
+    id: product.id,
+    name: product.name,
+    price: product.price,
+    discountPercentage: product.discountPercentage,
+    images: processedImages, // Now it's explicitly a string[]
+    rating: product.rating,
+    reviewCount: product.reviewCount,
+    category: {
+      name: product.category.name
+    },
+    seller: {
+      name: product.seller.name
+    },
+    stock: product.stock
+  };
+});
+
   
   return (
     <div className="container mx-auto py-8 px-4">
@@ -295,7 +332,8 @@ export default async function ShopPage({ params, searchParams }: ShopPageProps) 
             
             <div className="p-6">
               {shop.user.products.length > 0 ? (
-                <ProductGrid products={shop.user.products} loading={false} />
+                <ProductGrid products={formattedProducts} loading={false} />
+
               ) : (
                 <div className="text-center py-12">
                   <Package className="h-12 w-12 text-gray-300 mx-auto mb-4" />
