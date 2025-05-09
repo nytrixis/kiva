@@ -7,14 +7,12 @@ export const metadata: Metadata = {
   description: "You don't have permission to access this page",
 };
 
-interface AccessDeniedPageProps {
-  params: Record<string, never>;
-  searchParams: { message?: string };
-}
-
+// Remove the custom interface and use the correct pattern for Next.js pages
 export default function AccessDeniedPage({
   searchParams,
-}: AccessDeniedPageProps) {
+}: {
+  searchParams: { message?: string };
+}) {
   const message = searchParams.message || "You don't have permission to access this page";
   
   return (
