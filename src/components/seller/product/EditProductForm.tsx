@@ -294,7 +294,7 @@ export default function EditProductForm({ product, categories }: EditProductForm
       }
 
 
-      const updatedProduct = await response.json() as UpdatedProductResponse;
+      // const updatedProduct = await response.json() as UpdatedProductResponse;
       
       // Show success message and redirect
       toast({
@@ -306,7 +306,7 @@ export default function EditProductForm({ product, categories }: EditProductForm
       
       router.push("/seller/products");
       router.refresh();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error updating product:", error);
       
       toast({

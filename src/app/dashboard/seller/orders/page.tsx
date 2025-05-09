@@ -72,7 +72,7 @@ export default async function SellerOrdersPage() {
   }
   
   // Get the seller's ID but use it in the commented code when ready
-  const _userId = session.user.id;
+  // const _userId = session.user.id;
   
   // Fetch orders with items that contain seller's products
   // Note: This is a placeholder implementation. When you're ready to use the seller's products,

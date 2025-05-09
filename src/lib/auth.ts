@@ -5,18 +5,15 @@ import { compare } from "bcrypt";
 import { prisma } from "@/lib/db";
 import { UserRole } from "@prisma/client";
 
-// Define types for JWT and Session
-type ExtendedUser = {
-  id: string;
-  email?: string | null;
-  name?: string | null;
-  role: UserRole;
-  image?: string | null;
-  isOnboarded: boolean;
-}
-
 declare module "next-auth" {
-  interface User extends ExtendedUser {}
+  interface User {
+    id: string;
+    email?: string | null;
+    name?: string | null;
+    role: UserRole;
+    image?: string | null;
+    isOnboarded: boolean;
+  }
   
   interface Session {
     user: {

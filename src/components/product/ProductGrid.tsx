@@ -19,7 +19,7 @@ interface Product {
   name: string;
   price: number;
   discountPercentage: number;
-  images: any;
+  images: string[] | Record<string, unknown>;
   rating: number;
   reviewCount: number;
   category: Category;
@@ -208,7 +208,12 @@ function ProductCard({ product, index }: ProductCardProps) {
           {/* Product image */}
           <div className="relative h-64 overflow-hidden">
             <Image
-              src={product.images[0]}
+              src={Array.isArray(product.images) 
+                ? product.images[0] 
+                : typeof product.images === 'object' && product.images.hasOwnProperty(0)
+                  ? String(product.images[0])
+                  : '/placeholder-image.jpg' // Provide a fallback image path
+              }
               alt={product.name}
               fill
               className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"

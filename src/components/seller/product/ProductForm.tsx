@@ -263,7 +263,7 @@ export default function ProductForm({ categories }: { categories: Category[] }) 
         throw new Error(errorData.error || "Failed to create product");
       }
       
-const product = await response.json() as ProductResponse;      
+// const product = await response.json() as ProductResponse;      
       // Show success message and redirect
       toast({
         title: "Product Created",
@@ -274,7 +274,7 @@ const product = await response.json() as ProductResponse;
       
       router.push(`/seller/products`);
       router.refresh();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error creating product:", error);
       
       toast({
