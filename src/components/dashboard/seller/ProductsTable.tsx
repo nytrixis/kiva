@@ -37,7 +37,6 @@ interface ProductsTableProps {
 }
 
 export function ProductsTable({ products: initialProducts }: ProductsTableProps) {
-  const router = useRouter();
   const { toast } = useToast();
   const [products, setProducts] = useState(initialProducts);
   const [searchQuery, setSearchQuery] = useState("");

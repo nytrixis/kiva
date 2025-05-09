@@ -1,5 +1,4 @@
 "use client";
-import { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
@@ -148,7 +147,7 @@ export default function AboutPage() {
                 
                 <div className="absolute -bottom-6 -right-6 bg-white rounded-lg shadow-lg p-4 max-w-xs">
                   <p className="text-gray-700 text-sm italic">
-                    "We created Kiva to celebrate the beauty of handcrafted goods and the stories behind them."
+                    We created Kiva to celebrate the beauty of handcrafted goods and the stories behind them.
                   </p>
                   <p className="text-right text-primary font-medium mt-2">— Nandini & Meraj</p>
                 </div>
@@ -175,7 +174,7 @@ export default function AboutPage() {
               Our Mission
             </h2>
             <p className="text-gray-700">
-              At Kiva, we're on a mission to transform how people discover and shop for unique, handcrafted products.
+              At Kiva, we are on a mission to transform how people discover and shop for unique, handcrafted products.
             </p>
           </motion.div>
           
@@ -456,7 +455,7 @@ export default function AboutPage() {
                 <div className="p-6">
                   <p className="text-gray-700 mb-4">{founder.bio}</p>
                   <blockquote className="italic text-primary border-l-4 border-primary pl-4 py-2">
-                    "{founder.quote}"
+                    {founder.quote}
                   </blockquote>
                 </div>
               </motion.div>
@@ -487,7 +486,7 @@ export default function AboutPage() {
             </h2>
             
             <p className="text-lg text-gray-700 mb-8">
-              Kiva is more than a marketplace—it's a community of creators and customers who believe in the value of handcrafted goods and the stories behind them.
+              Kiva is more than a marketplace—it is a community of creators and customers who believe in the value of handcrafted goods and the stories behind them.
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center">

@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import Image from "next/image";
 import { prisma } from "@/lib/db";
 import { format } from "date-fns";
-import { MapPin, Star, Package, Users, CheckCircle, Calendar, Search } from "lucide-react";
+import { MapPin, Star, Package, Calendar } from "lucide-react";
 import ProductGrid from "@/components/product/ProductGrid";
 import ShopStats from "@/components/shop/ShopStats";
 import ShopProductSearch from "@/components/shop/ShopProductSearch";

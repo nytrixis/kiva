@@ -69,7 +69,7 @@ export default async function SellerOrdersPage() {
     select: { id: true }
   });
   
-  const productIds = sellerProducts.map(product => product.id);
+  // const productIds = sellerProducts.map(product => product.id);
   
   // Now, we need to find orders that contain these products
   // Since the schema doesn't directly link orders to products,

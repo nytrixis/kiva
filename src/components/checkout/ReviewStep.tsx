@@ -1,11 +1,9 @@
 "use client";
 
-import { useState } from "react";
 import Image from "next/image";
 import { useCheckout } from "@/contexts/checkout-context";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import { ChevronLeft, Minus, Plus, Trash } from "lucide-react";
+import { ChevronLeft } from "lucide-react";
 
 interface CartItem {
   id: string;
@@ -39,13 +37,6 @@ export default function ReviewStep({
 }: ReviewStepProps) {
   const { setStep, processPayment, isLoading, selectedAddressId } = useCheckout();
   
-  const toggleItemSelection = (itemId: string) => {
-    setSelectedItems(
-      selectedItems.includes(itemId)
-        ? selectedItems.filter(id => id !== itemId)
-        : [...selectedItems, itemId]
-    );
-  };
   
   const handleBack = () => {
     setStep(1);

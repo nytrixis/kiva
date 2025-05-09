@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useCheckout } from "@/contexts/checkout-context";
 import { Button } from "@/components/ui/button";
-import { PlusCircle, MapPin, Check, Home, Building, Edit, Trash } from "lucide-react";
+import { PlusCircle, MapPin, Check, Home, Building, Edit } from "lucide-react";
 import AddressForm from "./AddressForm";
 
 export interface Address {

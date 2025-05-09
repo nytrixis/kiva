@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { Heart, ArrowLeft, Loader2, ShoppingCart } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import WishlistList from "@/components/wishlist/Wishlist";
 import { useToast } from "@/hooks/use-toast";
 
@@ -136,7 +136,7 @@ export default function WishlistPage() {
     <div className="container mx-auto py-8 px-4">
       <h1 className="text-3xl font-heading text-primary mb-2">My Wishlist</h1>
       <p className="text-gray-600 mb-8">
-        Items you've saved for later
+        Items you have saved for later
       </p>
       {wishlistItems.length > 0 ? (
         <WishlistList

@@ -47,8 +47,6 @@ export default function WishlistItem({
   return (
     <div
       className="flex flex-col sm:flex-row items-start sm:items-center py-6 border-b border-gray-200"
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
     >
       {/* Product Image */}
       <div className="relative h-24 w-24 sm:h-28 sm:w-28 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0 mb-4 sm:mb-0">

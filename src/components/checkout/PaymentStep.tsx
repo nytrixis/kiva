@@ -9,7 +9,7 @@ import { ChevronLeft, CreditCard, CheckCircle2 } from "lucide-react";
 import { loadRazorpay } from "@/lib/razorpay-client";
 
 export default function PaymentStep() {
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading] = useState(false);
   const [paymentError, setPaymentError] = useState<string | null>(null);
   const [paymentSuccess, setPaymentSuccess] = useState(false);
   
@@ -168,7 +168,7 @@ export default function PaymentStep() {
         </div>
         
         <p className="text-sm text-gray-600 mb-4">
-          Click the button below to proceed with payment. You will be redirected to Razorpay's secure payment page.
+          Click the button below to proceed with payment. You will be redirected to Razorpays secure payment page.
         </p>
         
         {paymentError && (

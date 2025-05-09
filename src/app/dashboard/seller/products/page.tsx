@@ -2,7 +2,6 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import Link from "next/link";
-import Image from "next/image";
 import { Plus } from "lucide-react";
 import { ProductsTable } from "@/components/dashboard/seller/ProductsTable";
 

@@ -35,7 +35,6 @@ export function CheckoutProvider({
   const [orderId, setOrderId] = useState<string | null>(null);
   
   const { toast } = useToast();
-  const router = useRouter();
   
   const processPayment = async () => {
     console.log("Processing payment with:", {

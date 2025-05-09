@@ -164,7 +164,7 @@ export default function DashboardPage() {
   const { user, isLoading, logout } = useAuth();
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<string>("overview");
-  const [setUserPreferences] = useState<UserPreferences | null>(null);
+  const [userPreferences, setUserPreferences] = useState<UserPreferences | null>(null);
   
   // Redirect if not authenticated
   useEffect(() => {

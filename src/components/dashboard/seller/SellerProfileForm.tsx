@@ -20,13 +20,13 @@ interface SellerProfileFormProps {
   };
 }
 
-export function SellerProfileForm({ initialData, userData }: SellerProfileFormProps) {
+export function SellerProfileForm({ initialData }: SellerProfileFormProps) {
   const router = useRouter();
   const { toast } = useToast();
   const [formData, setFormData] = useState(initialData);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [logoImageFile, setLogoImageFile] = useState<File | null>(null);
-  const [bannerImageFile, setBannerImageFile] = useState<File | null>(null);
+  const [, setLogoImageFile] = useState<File | null>(null);
+  const [, setBannerImageFile] = useState<File | null>(null);
   const [isUploadingLogo, setIsUploadingLogo] = useState(false);
   const [isUploadingBanner, setIsUploadingBanner] = useState(false);
   

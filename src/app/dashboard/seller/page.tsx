@@ -47,7 +47,7 @@ export default async function SellerDashboardPage() {
   
   // Fetch recent orders (placeholder - you'll need to implement this based on your schema)
   // This is a simplified example
-  const recentOrders = []; // You'll need to implement this based on your schema
+  // const recentOrders = []; // You'll need to implement this based on your schema
   
   // Calculate total products
   const totalProducts = await prisma.product.count({
@@ -311,7 +311,7 @@ export default async function SellerDashboardPage() {
                 <div className="ml-3">
                   <h3 className="text-sm font-medium text-yellow-800">Verification pending</h3>
                   <div className="mt-2 text-sm text-yellow-700">
-                    <p>Your store is under review. This usually takes 1-3 business days. You can still add products, but they won't be visible to customers until your store is approved.</p>
+                    <p>Your store is under review. This usually takes 1-3 business days. You can still add products, but they will not be visible to customers until your store is approved.</p>
                   </div>
                   <div className="mt-4">
                     <Link

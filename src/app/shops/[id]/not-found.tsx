@@ -12,7 +12,7 @@ export default function ShopNotFound() {
         <h1 className="text-3xl font-heading text-primary mb-4">Shop Not Found</h1>
         
         <p className="text-gray-600 mb-8">
-          The shop you're looking for doesn't exist or may have been removed.
+          The shop you are looking for does not exist or may have been removed.
         </p>
         
         <Link 
