@@ -4,30 +4,29 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 
 export async function GET(
-  req: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: { id: string } }
 ) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    
+
     const userId = session.user.id;
-    const { id } = params;
-    
+    const { id } = context.params;
+
     const address = await prisma.address.findUnique({
       where: { id, userId },
     });
-    
+
     if (!address) {
       return NextResponse.json(
         { error: "Address not found" },
         { status: 404 }
       );
     }
-    
+
     return NextResponse.json({ success: true, data: address });
   } catch (error) {
     console.error("Error fetching address:", error);
@@ -40,31 +39,31 @@ export async function GET(
 
 export async function PUT(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: { id: string } }
 ) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    
+
     const userId = session.user.id;
-    const { id } = params;
+    const { id } = context.params;
     const data = await req.json();
-    
+
     // Check if address exists and belongs to user
     const existingAddress = await prisma.address.findUnique({
       where: { id },
     });
-    
+
     if (!existingAddress || existingAddress.userId !== userId) {
       return NextResponse.json(
         { error: "Address not found" },
         { status: 404 }
       );
     }
-    
+
     // If this is set as default, unset any existing default
     if (data.isDefault && !existingAddress.isDefault) {
       await prisma.address.updateMany({
@@ -72,7 +71,7 @@ export async function PUT(
         data: { isDefault: false },
       });
     }
-    
+
     const address = await prisma.address.update({
       where: { id },
       data: {
@@ -87,7 +86,7 @@ export async function PUT(
         isDefault: data.isDefault,
       },
     });
-    
+
     return NextResponse.json({ success: true, data: address });
   } catch (error) {
     console.error("Error updating address:", error);
@@ -100,34 +99,34 @@ export async function PUT(
 
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: { id: string } }
 ) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    
+
     const userId = session.user.id;
-    const { id } = params;
-    
+    const { id } = context.params;
+
     // Check if address exists and belongs to user
     const existingAddress = await prisma.address.findUnique({
       where: { id },
     });
-    
+
     if (!existingAddress || existingAddress.userId !== userId) {
       return NextResponse.json(
         { error: "Address not found" },
         { status: 404 }
       );
     }
-    
+
     await prisma.address.delete({
       where: { id },
     });
-    
+
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Error deleting address:", error);
