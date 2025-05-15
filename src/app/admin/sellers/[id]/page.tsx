@@ -12,9 +12,6 @@ type Params = {
   id: string;
 };
 
-type Props = {
-  params: Params;
-};
 
 
 export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
