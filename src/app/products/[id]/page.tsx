@@ -9,14 +9,12 @@ import ProductImageGallery from "@/components/product/ProductImageGallery";
 import { Badge } from "@/components/ui/badge";
 import { formatCurrency } from "@/lib/utils";
 
-interface ProductPageProps {
-  params: {
-    id: string;
-  };
+interface ProductPageParams {
+  params: Promise<{ id: string }>;
 }
 
-export async function generateMetadata({ params }: ProductPageProps): Promise<Metadata> {
-  const { id } = params;
+export async function generateMetadata({ params }: ProductPageParams): Promise<Metadata> {
+  const { id } = await params;
   
   const product = await prisma.product.findUnique({
     where: { id },
@@ -37,8 +35,8 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
   };
 }
 
-export default async function ProductPage({ params }: ProductPageProps) {
-  const { id } = params;
+export default async function ProductPage({ params }: ProductPageParams) {
+  const { id } = await params;
   
   // Fetch product with related data
   const product = await prisma.product.findUnique({
@@ -162,4 +160,5 @@ export default async function ProductPage({ params }: ProductPageProps) {
         </div>
       </div>
     </div>
-  );}
+  );
+}
