@@ -6,9 +6,7 @@ import { redirect } from "next/navigation";
 import ReelsClient from "@/components/reels/ReelsClient";
 
 interface ReelPageProps {
-  params: {
-    id: string;
-  };
+  params: Promise<{ id: string }>;
 }
 interface Product {
   id: string;
@@ -16,9 +14,8 @@ interface Product {
   images: string[];
 }
 
-
 export async function generateMetadata({ params }: ReelPageProps): Promise<Metadata> {
-  const { id } = params;
+  const { id } = await params;
   
   // Fetch reel data for metadata
   const reel = await prisma.reel.findUnique({
@@ -56,7 +53,7 @@ export async function generateMetadata({ params }: ReelPageProps): Promise<Metad
 }
 
 export default async function ReelPage({ params }: ReelPageProps) {
-  const { id } = params;
+  const { id } = await params;
   const session = await getServerSession(authOptions);
   
   if (!session?.user) {
@@ -113,7 +110,6 @@ export default async function ReelPage({ params }: ReelPageProps) {
     redirect("/reels");
   }
   
-  
   // Fetch related reels
   const relatedReels = await prisma.reel.findMany({
     where: {
@@ -169,71 +165,71 @@ export default async function ReelPage({ params }: ReelPageProps) {
   });
   
   // Transform related reels
-const transformedReel = {
-  id: reel.id,
-  videoUrl: reel.videoUrl,
-  thumbnailUrl: reel.thumbnailUrl || undefined,
-  caption: reel.caption || undefined,
-  createdAt: reel.createdAt.toISOString(),
-  _count: {
-    likes: reel._count.likes,
-    comments: reel._count.comments,
-  },
-  isLiked: reel.likes.length > 0,
-  user: {
-    id: reel.user.id,
-    name: reel.user.name,
-    image: reel.user.image,
-    sellerProfile: reel.user.sellerProfile ? {
-      businessName: reel.user.sellerProfile.businessName,
-      logoImage: reel.user.sellerProfile.logoImage,
-    } : undefined,
-  },
-  product: reel.product ? {
-    id: reel.product.id,
-    name: reel.product.name,
-    price: reel.product.price,
-    images: Array.isArray(reel.product.images)
-      ? reel.product.images
-      : typeof reel.product.images === 'string'
-        ? JSON.parse(reel.product.images)
-        : [],
-    discountPercentage: reel.product.discountPercentage,
-  } : null,
-};
+  const transformedReel = {
+    id: reel.id,
+    videoUrl: reel.videoUrl,
+    thumbnailUrl: reel.thumbnailUrl || undefined,
+    caption: reel.caption || undefined,
+    createdAt: reel.createdAt.toISOString(),
+    _count: {
+      likes: reel._count.likes,
+      comments: reel._count.comments,
+    },
+    isLiked: reel.likes.length > 0,
+    user: {
+      id: reel.user.id,
+      name: reel.user.name,
+      image: reel.user.image,
+      sellerProfile: reel.user.sellerProfile ? {
+        businessName: reel.user.sellerProfile.businessName,
+        logoImage: reel.user.sellerProfile.logoImage,
+      } : undefined,
+    },
+    product: reel.product ? {
+      id: reel.product.id,
+      name: reel.product.name,
+      price: reel.product.price,
+      images: Array.isArray(reel.product.images)
+        ? reel.product.images
+        : typeof reel.product.images === 'string'
+          ? JSON.parse(reel.product.images)
+          : [],
+      discountPercentage: reel.product.discountPercentage,
+    } : null,
+  };
 
-const transformedRelatedReels = relatedReels.map(relatedReel => ({
-  id: relatedReel.id,
-  videoUrl: relatedReel.videoUrl,
-  thumbnailUrl: relatedReel.thumbnailUrl || undefined,
-  caption: relatedReel.caption || undefined,
-  createdAt: relatedReel.createdAt.toISOString(),
-  _count: {
-    likes: relatedReel._count.likes,
-    comments: relatedReel._count.comments,
-  },
-  isLiked: relatedReel.likes.length > 0,
-  user: {
-    id: relatedReel.user.id,
-    name: relatedReel.user.name,
-    image: relatedReel.user.image,
-    sellerProfile: relatedReel.user.sellerProfile ? {
-      businessName: relatedReel.user.sellerProfile.businessName,
-      logoImage: relatedReel.user.sellerProfile.logoImage,
-    } : undefined,
-  },
-  product: relatedReel.product ? {
-    id: relatedReel.product.id,
-    name: relatedReel.product.name,
-    price: relatedReel.product.price,
-    images: Array.isArray(relatedReel.product.images)
-      ? relatedReel.product.images
-      : typeof relatedReel.product.images === 'string'
-        ? JSON.parse(relatedReel.product.images)
-        : [],
-    discountPercentage: relatedReel.product.discountPercentage,
-  } : null,
-}));
+  const transformedRelatedReels = relatedReels.map(relatedReel => ({
+    id: relatedReel.id,
+    videoUrl: relatedReel.videoUrl,
+    thumbnailUrl: relatedReel.thumbnailUrl || undefined,
+    caption: relatedReel.caption || undefined,
+    createdAt: relatedReel.createdAt.toISOString(),
+    _count: {
+      likes: relatedReel._count.likes,
+      comments: relatedReel._count.comments,
+    },
+    isLiked: relatedReel.likes.length > 0,
+    user: {
+      id: relatedReel.user.id,
+      name: relatedReel.user.name,
+      image: relatedReel.user.image,
+      sellerProfile: relatedReel.user.sellerProfile ? {
+        businessName: relatedReel.user.sellerProfile.businessName,
+        logoImage: relatedReel.user.sellerProfile.logoImage,
+      } : undefined,
+    },
+    product: relatedReel.product ? {
+      id: relatedReel.product.id,
+      name: relatedReel.product.name,
+      price: relatedReel.product.price,
+      images: Array.isArray(relatedReel.product.images)
+        ? relatedReel.product.images
+        : typeof relatedReel.product.images === 'string'
+          ? JSON.parse(relatedReel.product.images)
+          : [],
+      discountPercentage: relatedReel.product.discountPercentage,
+    } : null,
+  }));
   
   // Combine the specific reel with related reels
   const allReels = [transformedReel, ...transformedRelatedReels];
