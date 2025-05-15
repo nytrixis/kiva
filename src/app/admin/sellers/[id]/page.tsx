@@ -9,9 +9,9 @@ import { format } from "date-fns";
 import { Metadata } from "next";
 
 export async function generateMetadata(
-  { params }: { params: { id: string } }
+  props: { params: Promise<{ id: string }> }
 ): Promise<Metadata> {
-  const { id } = await params;
+  const { id } = await props.params;
 
   // Fetch seller data for metadata
   const seller = await prisma.user.findUnique({
@@ -33,11 +33,11 @@ export async function generateMetadata(
   };
 }
 
-// Use inline typing for params here as well
+// Correct: params is a Promise, using props.params
 export default async function SellerDetailsPage(
-  { params }: { params: Promise<{ id: string }> }
+  props: { params: Promise<{ id: string }> }
 ) {
-  const { id } = await params;
+  const { id } = await props.params;
   const session = await getServerSession(authOptions);
 
   if (!session?.user || session.user.role !== UserRole.ADMIN) {
