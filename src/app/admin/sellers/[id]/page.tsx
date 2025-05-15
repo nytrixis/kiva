@@ -8,34 +8,35 @@ import Image from "next/image";
 import { format } from "date-fns";
 import { Metadata } from "next";
 
-interface Props {
-  params: { id: string };
-}
-
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
+export async function generateMetadata(
+  { params }: { params: { id: string } }
+): Promise<Metadata> {
   const { id } = params;
-  
+
   // Fetch seller data for metadata
   const seller = await prisma.user.findUnique({
     where: { id },
-    select: { 
-      name: true, 
-      sellerProfile: { 
-        select: { 
-          businessName: true 
-        } 
-      } 
+    select: {
+      name: true,
+      sellerProfile: {
+        select: {
+          businessName: true
+        }
+      }
     },
   });
-  
+
   const sellerName = seller?.sellerProfile?.businessName || seller?.name || "Seller";
-  
+
   return {
     title: `${sellerName} Details | Admin Dashboard | Kiva`,
   };
 }
 
-export default async function SellerDetailsPage({ params }: Props) {
+// Use inline typing for params here as well
+export default async function SellerDetailsPage(
+  { params }: { params: { id: string } }
+) {
   const session = await getServerSession(authOptions);
 
   if (!session?.user || session.user.role !== UserRole.ADMIN) {
@@ -43,7 +44,7 @@ export default async function SellerDetailsPage({ params }: Props) {
   }
 
   const { id } = params;
-  
+
   // Fetch seller with profile and products
   const seller = await prisma.user.findUnique({
     where: { id },
@@ -56,7 +57,7 @@ export default async function SellerDetailsPage({ params }: Props) {
       },
     },
   });
-  
+
   if (!seller) {
     redirect("/admin/sellers");
   }
