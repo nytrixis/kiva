@@ -5,26 +5,26 @@ import { prisma } from "@/lib/db";
 
 export async function POST(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    
-    const { id } = params;
-    
+
+    const { id } = await params;
+
     // Check if reel exists
     const reel = await prisma.reel.findUnique({
       where: { id },
     });
-    
+
     if (!reel) {
       return NextResponse.json({ error: "Reel not found" }, { status: 404 });
     }
-    
+
     // Check if user already liked the reel
     const existingLike = await prisma.reelLike.findFirst({
       where: {
@@ -32,13 +32,13 @@ export async function POST(
         userId: session.user.id,
       },
     });
-    
+
     if (existingLike) {
       // Unlike
       await prisma.reelLike.delete({
         where: { id: existingLike.id },
       });
-      
+
       return NextResponse.json({ liked: false });
     } else {
       // Like
@@ -48,7 +48,7 @@ export async function POST(
           userId: session.user.id,
         },
       });
-      
+
       return NextResponse.json({ liked: true });
     }
   } catch (error) {

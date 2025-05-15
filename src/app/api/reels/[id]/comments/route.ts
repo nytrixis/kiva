@@ -6,17 +6,17 @@ import { prisma } from "@/lib/db";
 // Get comments for a reel
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    
-    const { id } = params;
-    
+
+    const { id } = await params;
+
     const comments = await prisma.reelComment.findMany({
       where: { reelId: id },
       orderBy: { createdAt: "desc" },
@@ -27,16 +27,16 @@ export async function GET(
             name: true,
             image: true,
             sellerProfile: {
-          select: {
-            businessName: true,
-            logoImage: true,
-          },
-        },
+              select: {
+                businessName: true,
+                logoImage: true,
+              },
+            },
           },
         },
       },
     });
-    
+
     return NextResponse.json({ comments });
   } catch (error) {
     console.error("Error fetching comments:", error);
@@ -50,34 +50,34 @@ export async function GET(
 // Add a comment to a reel
 export async function POST(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    
-    const { id } = params;
+
+    const { id } = await params;
     const { content } = await req.json();
-    
+
     if (!content || content.trim() === "") {
       return NextResponse.json(
         { error: "Comment content is required" },
         { status: 400 }
       );
     }
-    
+
     // Check if reel exists
     const reel = await prisma.reel.findUnique({
       where: { id },
     });
-    
+
     if (!reel) {
       return NextResponse.json({ error: "Reel not found" }, { status: 404 });
     }
-    
+
     // Create comment
     const comment = await prisma.reelComment.create({
       data: {
@@ -92,16 +92,16 @@ export async function POST(
             name: true,
             image: true,
             sellerProfile: {
-          select: {
-            businessName: true,
-            logoImage: true,
-          },
-        },
+              select: {
+                businessName: true,
+                logoImage: true,
+              },
+            },
           },
         },
       },
     });
-    
+
     return NextResponse.json({ comment }, { status: 201 });
   } catch (error) {
     console.error("Error adding comment:", error);
