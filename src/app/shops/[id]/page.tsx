@@ -10,7 +10,7 @@ import ShopProductSearch from "@/components/shop/ShopProductSearch";
 
 interface ShopPageProps {
   params: Promise<{ id: string }>;
-  searchParams: { [key: string]: string | string[] | undefined };
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }
 
 export async function generateMetadata({ params }: ShopPageProps): Promise<Metadata> {
@@ -38,7 +38,8 @@ export async function generateMetadata({ params }: ShopPageProps): Promise<Metad
 
 export default async function ShopPage({ params, searchParams }: ShopPageProps) {
   const { id } = await params;
-  const searchQuery = typeof searchParams.q === 'string' ? searchParams.q : '';
+  const resolvedSearchParams = await searchParams;
+  const searchQuery = typeof resolvedSearchParams.q === 'string' ? resolvedSearchParams.q : '';
   
   const shop = await prisma.sellerProfile.findUnique({
     where: { id },
