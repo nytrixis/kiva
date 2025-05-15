@@ -60,7 +60,7 @@ export async function POST(req: NextRequest) {
       const buffer = Buffer.from(arrayBuffer);
       
       // Upload to Cloudinary
-      const uploadResult = await uploadToCloudinary(buffer, 'kiva/seller-documents');
+      const uploadResult = await uploadToCloudinary(buffer, 'image');
       
       identityDocument = uploadResult.secure_url;
       identityDocumentPublicId = uploadResult.public_id;
@@ -82,7 +82,7 @@ export async function POST(req: NextRequest) {
       const buffer = Buffer.from(arrayBuffer);
       
       // Upload to Cloudinary
-      const uploadResult = await uploadToCloudinary(buffer, 'kiva/seller-documents');
+      const uploadResult = await uploadToCloudinary(buffer, 'image');
       
       businessDocument = uploadResult.secure_url;
       businessDocumentPublicId = uploadResult.public_id;
@@ -116,8 +116,7 @@ export async function POST(req: NextRequest) {
       { status: 500 }
     );
   }
-}
-// API route to get the current KYC documents
+}// API route to get the current KYC documents
 export async function GET() {//removed 
   try {
     const session = await getServerSession(authOptions);

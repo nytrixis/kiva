@@ -11,11 +11,10 @@ export const metadata = {
   title: "Seller Details | Admin Dashboard | Kiva",
 };
 
-export default async function SellerDetailsPage({
-  params,
-}: {
+interface SellerDetailsPageProps {
   params: { id: string };
-}) {
+}
+export default async function SellerDetailsPage({ params }: SellerDetailsPageProps) {
   const session = await getServerSession(authOptions);
   
   if (!session?.user || session.user.role !== UserRole.ADMIN) {
