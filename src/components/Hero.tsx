@@ -6,6 +6,7 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import Link from "next/link";
 
 // Carousel data for multiple slides
 const carouselData = [
@@ -180,9 +181,11 @@ export default function Hero() {
               </p>
               
               <div className="flex flex-wrap md:flex-nowrap items-center gap-4 md:space-x-4">
+                <Link href="/marketplace">
                 <Button className="bg-primary hover:bg-primary/90 text-white px-6 md:px-8 py-5 md:py-6 rounded-full text-base md:text-lg w-full md:w-auto">
                   Shop Now
                 </Button>
+                </Link>
                 
                 <Badge className="bg-background border border-primary text-primary px-3 md:px-4 py-1 md:py-2 rounded-full text-sm whitespace-nowrap w-full md:w-auto text-center md:text-left">
                   24/7 free call services

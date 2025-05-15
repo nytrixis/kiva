@@ -193,10 +193,10 @@ export default function Navbar() {
                       <ChevronDown className="ml-1 h-4 w-4" />
                     </button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="start" className="w-56">
+                  <DropdownMenuContent align="start" className="w-56 bg-accent border-accent">
                     {categories.length > 0 ? (
                       categories.map((category) => (
-                        <DropdownMenuItem key={category.id} asChild>
+                        <DropdownMenuItem key={category.id} asChild className="hover:bg-white focus:bg-white">
                           <Link href={`/categories/${category.slug}`} className="w-full">
                             {category.name}
                           </Link>
@@ -223,7 +223,7 @@ export default function Navbar() {
                 </Link>
                 
                 <Link href="/about" className="text-gray-600 hover:text-primary transition-colors">
-                  Reels
+                  About
                 </Link>
               </nav>
             </div>
@@ -274,15 +274,15 @@ export default function Navbar() {
                       <User className="h-5 w-5 text-gray-600" />
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-48">
+                  <DropdownMenuContent align="end" className="w-48 bg-accent border-accent">
                     <DropdownMenuItem className="cursor-default font-medium">
                       {user?.name || 'User'}
                     </DropdownMenuItem>
                     <DropdownMenuItem>
-                      <Link href="/dashboard" className="w-full">Dashboard</Link>
+                      <Link href="/dashboard" className="w-full hover:bg-white focus:bg-white">Dashboard</Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem>
-                      <Link href="/profile" className="w-full">Profile</Link>
+                      <Link href="/profile" className="w-full hover:bg-white focus:bg-white">Profile</Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={logout}>
                       Sign Out

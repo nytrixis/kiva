@@ -106,7 +106,7 @@ export default function AboutPage() {
               
               <div className="mt-8 flex items-center space-x-6">
                 <div className="flex flex-col items-center">
-                  <div className="text-primary font-bold text-3xl">2023</div>
+                  <div className="text-primary font-bold text-3xl">2025</div>
                   <div className="text-sm text-gray-500">Founded</div>
                 </div>
                 
@@ -136,8 +136,8 @@ export default function AboutPage() {
               <div className="relative z-10">
                 <div className="relative w-full pb-[50%] rounded-tl-3xl rounded-br-3xl overflow-hidden shadow-lg">
                     <Image
-                        src="/images/founders.png"
-                        alt="Nandini and Meraj, Founders of Kiva"
+                        src="/images/founders1.png"
+                        alt="Founders of Kiva"
                         fill
                         className="object-cover"
                         sizes="(max-width: 768px) 100vw, 500px"

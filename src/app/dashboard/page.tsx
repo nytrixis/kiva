@@ -207,42 +207,7 @@ export default function DashboardPage() {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-30">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <Link href="/" className="flex items-center">
-              <div className="relative h-10 w-10 overflow-hidden border border-[#E6E6FA]">
-                <Image
-                  src="/images/logob.png"
-                  alt="Kiva Logo"
-                  fill
-                  className="object-cover"
-                  sizes="40px"
-                  priority
-                />
-              </div>
-            </Link>
-            
-            <div className="flex items-center space-x-4">
-              <button className="p-2 text-gray-600 hover:text-primary transition-colors relative">
-                <Bell className="h-5 w-5" />
-                <span className="absolute -top-1 -right-1 bg-primary text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
-                  3
-                </span>
-              </button>
-              
-              <div className="flex items-center space-x-2">
-                <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center text-primary font-medium">
-                  {user.name?.charAt(0) || "U"}
-                </div>
-                <span className="text-sm font-medium hidden md:block">
-                  {user.name || "User"}
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </header>
+      
       
       <div className="container mx-auto px-4 py-8">
         <div className="flex flex-col md:flex-row gap-8">
