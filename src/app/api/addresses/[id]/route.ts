@@ -1,13 +1,14 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 
 export async function GET(
-  _req: NextRequest,
-  context: { params: { id: string } }
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
 
     if (!session?.user) {
@@ -15,7 +16,6 @@ export async function GET(
     }
 
     const userId = session.user.id;
-    const { id } = context.params;
 
     const address = await prisma.address.findUnique({
       where: { id, userId },
@@ -39,10 +39,11 @@ export async function GET(
 }
 
 export async function PUT(
-  req: NextRequest,
-  context: { params: { id: string } }
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
 
     if (!session?.user) {
@@ -50,8 +51,7 @@ export async function PUT(
     }
 
     const userId = session.user.id;
-    const { id } = context.params;
-    const data = await req.json();
+    const data = await request.json();
 
     // Check if address exists and belongs to user
     const existingAddress = await prisma.address.findUnique({
@@ -99,10 +99,11 @@ export async function PUT(
 }
 
 export async function DELETE(
-  req: NextRequest,
-  context: { params: { id: string } }
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
 
     if (!session?.user) {
@@ -110,7 +111,6 @@ export async function DELETE(
     }
 
     const userId = session.user.id;
-    const { id } = context.params;
 
     // Check if address exists and belongs to user
     const existingAddress = await prisma.address.findUnique({
