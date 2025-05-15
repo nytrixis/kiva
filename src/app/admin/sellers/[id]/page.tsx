@@ -8,9 +8,17 @@ import Image from "next/image";
 import { format } from "date-fns";
 import { Metadata } from "next";
 
+type Params = {
+  id: string;
+};
 
-export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
-  const { id } = params;
+type Props = {
+  params: Params;
+};
+
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { id } = params;
   
   // Fetch seller data for metadata
   const seller = await prisma.user.findUnique({
@@ -32,13 +40,13 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
   };
 }
 
-export default async function SellerDetailsPage({ params }: { params: { id: string } }) {
+export default async function SellerDetailsPage({ params }: Props) {
   const session = await getServerSession(authOptions);
-  
+
   if (!session?.user || session.user.role !== UserRole.ADMIN) {
     redirect("/sign-in?callbackUrl=/admin/sellers");
   }
-  
+
   const { id } = params;
   
   // Fetch seller with profile and products
