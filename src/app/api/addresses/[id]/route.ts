@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 
 export async function GET(
+  _req: NextRequest,
   context: { params: { id: string } }
 ) {
   try {
