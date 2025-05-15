@@ -14,24 +14,26 @@ export const metadata = {
 export default async function SellerProductsPage({
   searchParams,
 }: {
-  searchParams: { page?: string; limit?: string };
+  searchParams: Promise<{ page?: string; limit?: string }>;
 }) {
+  const { page: pageParam, limit: limitParam } = await searchParams;
+
   // Check if user is authenticated and is a seller
   const session = await getServerSession(authOptions);
-  
+
   if (!session?.user) {
     redirect("/signin?callbackUrl=/seller/products");
   }
-  
+
   if (session.user.role !== "SELLER") {
     redirect("/access-denied?message=You need a seller account to access this page");
   }
   
   // Pagination
-  const page = parseInt(searchParams.page || "1");
-  const limit = parseInt(searchParams.limit || "10");
+  const page = parseInt(pageParam || "1");
+  const limit = parseInt(limitParam || "10");
   const skip = (page - 1) * limit;
-  
+
   // Fetch seller's products
   const products = await prisma.product.findMany({
     where: {
