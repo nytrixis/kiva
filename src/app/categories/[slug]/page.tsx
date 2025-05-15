@@ -4,26 +4,24 @@ import ProductCatalog from "@/components/product/ProductCatalog";
 import CategoryHero from "@/components/category/CategoryHero";
 import { prisma } from "@/lib/db";
 
-// Import the Category type from CategoryHero to ensure compatibility
+// For Next.js 15 dynamic route params
 type CategoryPageParams = {
-  params: {
-    slug: string;
-  };
+  params: Promise<{ slug: string }>;
 };
 
 export async function generateMetadata({ params }: CategoryPageParams): Promise<Metadata> {
-  const { slug } = params;
-  
+  const { slug } = await params;
+
   const category = await prisma.category.findUnique({
     where: { slug },
   });
-  
+
   if (!category) {
     return {
       title: "Category Not Found | Kiva",
     };
   }
-  
+
   return {
     title: `${category.name} | Kiva`,
     description: category.description || undefined,
@@ -31,8 +29,8 @@ export async function generateMetadata({ params }: CategoryPageParams): Promise<
 }
 
 export default async function CategoryPage({ params }: CategoryPageParams) {
-  const { slug } = params;
-  
+  const { slug } = await params;
+
   // Get the category with product count
   const category = await prisma.category.findUnique({
     where: { slug },
@@ -42,19 +40,19 @@ export default async function CategoryPage({ params }: CategoryPageParams) {
       }
     }
   });
-  
+
   if (!category) {
     notFound();
   }
-  
+
   // Transform the category to match the expected interface in CategoryHero
   const categoryForHero = {
     name: category.name,
-    description: category.description || undefined, // Convert null to undefined
-    bannerImage: category.bannerImage || undefined, // Convert null to undefined
+    description: category.description || undefined,
+    bannerImage: category.bannerImage || undefined,
     productCount: category._count.products
   };
-  
+
   // Fetch all categories for filters
   const allCategories = await prisma.category.findMany({
     orderBy: {
@@ -65,11 +63,11 @@ export default async function CategoryPage({ params }: CategoryPageParams) {
       name: true
     }
   });
-  
+
   return (
     <div className="min-h-screen bg-background">
       <CategoryHero category={categoryForHero} />
-      
+
       <div className="container mx-auto px-4 py-12">
         <ProductCatalog
           categories={allCategories}
