@@ -11,7 +11,7 @@ import { Metadata } from "next";
 export async function generateMetadata(
   { params }: { params: { id: string } }
 ): Promise<Metadata> {
-  const { id } = params;
+  const { id } = await params;
 
   // Fetch seller data for metadata
   const seller = await prisma.user.findUnique({
@@ -35,15 +35,14 @@ export async function generateMetadata(
 
 // Use inline typing for params here as well
 export default async function SellerDetailsPage(
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params;
   const session = await getServerSession(authOptions);
 
   if (!session?.user || session.user.role !== UserRole.ADMIN) {
     redirect("/sign-in?callbackUrl=/admin/sellers");
   }
-
-  const { id } = params;
 
   // Fetch seller with profile and products
   const seller = await prisma.user.findUnique({
@@ -61,7 +60,7 @@ export default async function SellerDetailsPage(
   if (!seller) {
     redirect("/admin/sellers");
   }
-  
+
   return (
     <div className="container mx-auto py-8 px-4">
       <div className="flex items-center justify-between mb-6">
