@@ -1,14 +1,13 @@
 "use client";
 
 import { useState, useRef } from "react";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { X, Upload, Film, Check } from "lucide-react";
+import { X, Film, Check } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
+
 
 interface Product {
   id: string;

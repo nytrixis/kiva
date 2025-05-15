@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { useRouter } from "next/navigation";
 import { useSwipeable } from "react-swipeable";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
@@ -174,7 +173,7 @@ export default function ReelsViewer({
   }, [activeIndex, reels.length]);
   
   // Handle like action
-  const handleLike = async (reelId: string) => {
+  const handleLike = async () => {
     if (!isAuthenticated) {
       toast({
         title: "Please sign in",

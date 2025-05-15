@@ -5,40 +5,40 @@ import ReelsViewer from "@/components/reels/ReelsViewer";
 import ReelUpload from "@/components/reels/ReelUpload";
 import { useEffect } from "react";
 
-interface Reel {
-  id: string;
-  videoUrl: string;
-  thumbnailUrl?: string;
-  caption?: string;
-  createdAt: string;
-  _count: {
-    likes: number;
-    comments: number;
-  };
-  isLiked: boolean;
-  user: {
-    id: string;
-    name: string;
-    image: string;
-    sellerProfile?: {
-      businessName: string;
-      logoImage: string;
-    };
-  };
-  product?: {
-    id: string;
-    name: string;
-    price: number;
-    images: string[];
-    discountPercentage: number;
-  };
-}
+// interface Reel {
+//   id: string;
+//   videoUrl: string;
+//   thumbnailUrl?: string;
+//   caption?: string;
+//   createdAt: string;
+//   _count: {
+//     likes: number;
+//     comments: number;
+//   };
+//   isLiked: boolean;
+//   user: {
+//     id: string;
+//     name: string;
+//     image: string;
+//     sellerProfile?: {
+//       businessName: string;
+//       logoImage: string;
+//     };
+//   };
+//   product?: {
+//     id: string;
+//     name: string;
+//     price: number;
+//     images: string[];
+//     discountPercentage: number;
+//   };
+// }
 
-interface SellerProduct {
-  id: string;
-  name: string;
-  images: string[];
-}
+// interface SellerProduct {
+//   id: string;
+//   name: string;
+//   images: string[];
+// }
 
 
 interface ReelsClientProps {
