@@ -5,46 +5,47 @@ import ReelsViewer from "@/components/reels/ReelsViewer";
 import ReelUpload from "@/components/reels/ReelUpload";
 import { useEffect } from "react";
 
-// interface Reel {
-//   id: string;
-//   videoUrl: string;
-//   thumbnailUrl?: string;
-//   caption?: string;
-//   createdAt: string;
-//   _count: {
-//     likes: number;
-//     comments: number;
-//   };
-//   isLiked: boolean;
-//   user: {
-//     id: string;
-//     name: string;
-//     image: string;
-//     sellerProfile?: {
-//       businessName: string;
-//       logoImage: string;
-//     };
-//   };
-//   product?: {
-//     id: string;
-//     name: string;
-//     price: number;
-//     images: string[];
-//     discountPercentage: number;
-//   };
-// }
+interface Reel {
+  id: string;
+  videoUrl: string;
+  thumbnailUrl?: string | null;
+  caption?: string | null;
+  createdAt: string;
+  _count: {
+    likes: number;
+    comments: number;
+  };
+  isLiked: boolean;
+  user: {
+    id: string;
+    name: string | null;
+    image: string | null;
+    sellerProfile?: {
+      businessName: string;
+      logoImage: string | null;
+    } | null;
+  };
+  product?: {
+    id: string;
+    name: string;
+    price: number;
+    images: string[];
+    discountPercentage: number;
+  } | null;
+}
 
-// interface SellerProduct {
-//   id: string;
-//   name: string;
-//   images: string[];
-// }
+
+interface SellerProduct {
+  id: string;
+  name: string;
+  images: string[];
+}
 
 
 interface ReelsClientProps {
-  initialReels: any[];
+  initialReels: Reel[];
   isSeller: boolean;
-  sellerProducts: any[];
+  sellerProducts: SellerProduct[];
 }
 
 

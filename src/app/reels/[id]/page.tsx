@@ -113,13 +113,6 @@ export default async function ReelPage({ params }: ReelPageProps) {
     redirect("/reels");
   }
   
-  // Transform reel to include isLiked
-  const transformedReel = {
-    ...reel,
-    isLiked: reel.likes.length > 0,
-    likes: undefined, // Remove the likes array
-    thumbnailUrl: reel.thumbnailUrl ?? undefined, // Convert null to undefined
-  };
   
   // Fetch related reels
   const relatedReels = await prisma.reel.findMany({
@@ -176,11 +169,71 @@ export default async function ReelPage({ params }: ReelPageProps) {
   });
   
   // Transform related reels
-  const transformedRelatedReels = relatedReels.map(relatedReel => ({
-    ...relatedReel,
-    isLiked: relatedReel.likes.length > 0,
-    likes: undefined,
-  }));
+const transformedReel = {
+  id: reel.id,
+  videoUrl: reel.videoUrl,
+  thumbnailUrl: reel.thumbnailUrl || undefined,
+  caption: reel.caption || undefined,
+  createdAt: reel.createdAt.toISOString(),
+  _count: {
+    likes: reel._count.likes,
+    comments: reel._count.comments,
+  },
+  isLiked: reel.likes.length > 0,
+  user: {
+    id: reel.user.id,
+    name: reel.user.name,
+    image: reel.user.image,
+    sellerProfile: reel.user.sellerProfile ? {
+      businessName: reel.user.sellerProfile.businessName,
+      logoImage: reel.user.sellerProfile.logoImage,
+    } : undefined,
+  },
+  product: reel.product ? {
+    id: reel.product.id,
+    name: reel.product.name,
+    price: reel.product.price,
+    images: Array.isArray(reel.product.images)
+      ? reel.product.images
+      : typeof reel.product.images === 'string'
+        ? JSON.parse(reel.product.images)
+        : [],
+    discountPercentage: reel.product.discountPercentage,
+  } : null,
+};
+
+const transformedRelatedReels = relatedReels.map(relatedReel => ({
+  id: relatedReel.id,
+  videoUrl: relatedReel.videoUrl,
+  thumbnailUrl: relatedReel.thumbnailUrl || undefined,
+  caption: relatedReel.caption || undefined,
+  createdAt: relatedReel.createdAt.toISOString(),
+  _count: {
+    likes: relatedReel._count.likes,
+    comments: relatedReel._count.comments,
+  },
+  isLiked: relatedReel.likes.length > 0,
+  user: {
+    id: relatedReel.user.id,
+    name: relatedReel.user.name,
+    image: relatedReel.user.image,
+    sellerProfile: relatedReel.user.sellerProfile ? {
+      businessName: relatedReel.user.sellerProfile.businessName,
+      logoImage: relatedReel.user.sellerProfile.logoImage,
+    } : undefined,
+  },
+  product: relatedReel.product ? {
+    id: relatedReel.product.id,
+    name: relatedReel.product.name,
+    price: relatedReel.product.price,
+    images: Array.isArray(relatedReel.product.images)
+      ? relatedReel.product.images
+      : typeof relatedReel.product.images === 'string'
+        ? JSON.parse(relatedReel.product.images)
+        : [],
+    discountPercentage: relatedReel.product.discountPercentage,
+  } : null,
+}));
   
   // Combine the specific reel with related reels
   const allReels = [transformedReel, ...transformedRelatedReels];
@@ -211,14 +264,14 @@ export default async function ReelPage({ params }: ReelPageProps) {
   }
   
   return (
-  <div className="fixed inset-0 bg-black flex items-center justify-center overflow-hidden">
-    <div className="w-full max-w-[calc(100vh*9/16)] h-[calc(100vh-120px)] my-[60px]">
-      <ReelsClient
-        initialReels={allReels}
-        isSeller={isSeller}
-        sellerProducts={sellerProducts}
-      />
+    <div className="fixed inset-0 bg-black flex items-center justify-center overflow-hidden">
+      <div className="w-full max-w-[calc(100vh*9/16)] h-[calc(100vh-120px)] my-[60px]">
+        <ReelsClient
+          initialReels={allReels}
+          isSeller={isSeller}
+          sellerProducts={sellerProducts}
+        />
+      </div>
     </div>
-  </div>
-);
+  );
 }

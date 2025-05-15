@@ -14,8 +14,8 @@ interface ReelCardProps {
   reel: {
     id: string;
     videoUrl: string;
-    thumbnailUrl?: string;
-    caption?: string;
+    thumbnailUrl?: string | null;
+    caption?: string | null;
     createdAt: string;
     _count: {
       likes: number;
@@ -24,12 +24,12 @@ interface ReelCardProps {
     isLiked: boolean;
     user: {
       id: string;
-      name: string;
-      image: string;
+      name: string | null;
+      image: string | null;
       sellerProfile?: {
         businessName: string;
-        logoImage: string;
-      };
+        logoImage: string | null;
+      } | null;
     };
     product?: {
       id: string;
@@ -37,13 +37,14 @@ interface ReelCardProps {
       price: number;
       images: string[];
       discountPercentage: number;
-    };
+    } | null;
   };
-  onLike: (reelId: string) => void;
+  onLike: () => void;
   onComment: (reelId: string) => void;
   onShare: (reelId: string) => void;
   isActive: boolean;
 }
+
 
 export default function ReelCard({
   reel,
@@ -98,7 +99,7 @@ export default function ReelCard({
       setLikesCount(prev => data.liked ? prev + 1 : prev - 1);
       
       // Call parent handler
-      onLike(reel.id);
+      onLike();
     } catch (error) {
       console.error("Error liking reel:", error);
       toast({
@@ -107,8 +108,7 @@ export default function ReelCard({
         variant: "destructive",
       });
     }
-  };
-  
+  };  
   // Format the price with discount if applicable
   const formatPrice = () => {
     if (!reel.product) return null;
@@ -155,7 +155,7 @@ export default function ReelCard({
           loop
           playsInline
           muted={isMuted}
-          poster={reel.thumbnailUrl}
+          poster={reel.thumbnailUrl || undefined}
         />
       </div>
       

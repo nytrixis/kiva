@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useSwipeable } from "react-swipeable";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
@@ -12,8 +12,8 @@ import { Button } from "@/components/ui/button";
 interface Reel {
   id: string;
   videoUrl: string;
-  thumbnailUrl?: string;
-  caption?: string;
+  thumbnailUrl?: string | null;
+  caption?: string | null;
   createdAt: string;
   _count: {
     likes: number;
@@ -22,20 +22,20 @@ interface Reel {
   isLiked: boolean;
   user: {
     id: string;
-    name: string;
-    image: string;
+    name: string | null;
+    image: string | null;
     sellerProfile?: {
       businessName: string;
-      logoImage: string;
-    };
+      logoImage: string | null;
+    } | null;
   };
   product?: {
     id: string;
     name: string;
     price: number;
-    images: any;
+    images: string[];
     discountPercentage: number;
-  };
+  } | null;
 }
 
 interface ReelsViewerProps {
@@ -57,12 +57,8 @@ export default function ReelsViewer({
   const containerRef = useRef<HTMLDivElement>(null);
   const { isAuthenticated } = useAuth();
   const { toast } = useToast();
-  
-  // Fetch initial reels if not provided
-  
-  
-  // Fetch reels from API
-  const fetchReels = async (cursor?: string) => {
+
+  const fetchReels = useCallback(async (cursor?: string) => {
     setIsLoading(true);
     
     try {
@@ -97,28 +93,28 @@ export default function ReelsViewer({
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [toast]);
 
   useEffect(() => {
     if (initialReels.length === 0) {
       fetchReels();
     }
   }, [initialReels, fetchReels]);
-  
+
   // Load more reels when reaching the end
-  const loadMoreReels = () => {
+  const loadMoreReels = useCallback(() => {
     if (nextCursor && !isLoading) {
       fetchReels(nextCursor);
     }
-  };
-  
+  }, [nextCursor, isLoading, fetchReels]);
+
   // Check if we need to load more reels
   useEffect(() => {
     if (activeIndex >= reels.length - 2 && nextCursor && !isLoading) {
       loadMoreReels();
     }
   }, [activeIndex, reels.length, nextCursor, isLoading, loadMoreReels]);
-  
+
   // Handle navigation
   const goToReel = (index: number) => {
     if (index >= 0 && index < reels.length) {
@@ -134,7 +130,7 @@ export default function ReelsViewer({
       }
     }
   };
-  
+
   // Swipe handlers
   const swipeHandlers = useSwipeable({
     onSwipedUp: () => goToReel(activeIndex + 1),
@@ -142,7 +138,7 @@ export default function ReelsViewer({
     preventScrollOnSwipe: true,
     trackMouse: false
   });
-  
+
   // Handle scroll events to determine active reel
   useEffect(() => {
     const handleScroll = () => {
@@ -171,7 +167,7 @@ export default function ReelsViewer({
       }
     };
   }, [activeIndex, reels.length]);
-  
+
   // Handle like action
   const handleLike = async () => {
     if (!isAuthenticated) {
@@ -185,7 +181,7 @@ export default function ReelsViewer({
     
     // Update is handled in the ReelCard component
   };
-  
+
   // Handle comment action
   const handleComment = (reelId: string) => {
     if (!isAuthenticated) {
@@ -199,7 +195,7 @@ export default function ReelsViewer({
     
     setCommentReelId(reelId);
   };
-  
+
   // Handle share action
   const handleShare = async (reelId: string) => {
     try {
@@ -221,7 +217,7 @@ export default function ReelsViewer({
       console.error("Error sharing:", error);
     }
   };
-  
+
   return (
     <div className="relative h-full w-full">
       {/* Reels container */}

@@ -12,7 +12,7 @@ import { Label } from "@/components/ui/label";
 interface Product {
   id: string;
   name: string;
-  images: any;
+  images: string[];
 }
 
 interface ReelUploadProps {

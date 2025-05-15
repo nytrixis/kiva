@@ -75,12 +75,43 @@ export default async function ReelsPage() {
   });
   
   // Transform reels to include isLiked
-  const transformedReels = initialReels.map(reel => ({
-    ...reel,
+const transformedReels = initialReels.map(reel => {
+  // Create a properly typed object
+  const transformedReel = {
+    id: reel.id,
+    videoUrl: reel.videoUrl,
+    thumbnailUrl: reel.thumbnailUrl || undefined,
+    caption: reel.caption || undefined,
+    createdAt: reel.createdAt.toISOString(),
+    _count: {
+      likes: reel._count.likes,
+      comments: reel._count.comments,
+    },
     isLiked: reel.likes.length > 0,
-    likes: undefined, // Remove the likes array
-    thumbnailUrl: reel.thumbnailUrl || undefined, // Convert null to undefined
-  }));
+    user: {
+      id: reel.user.id,
+      name: reel.user.name,
+      image: reel.user.image,
+      sellerProfile: reel.user.sellerProfile ? {
+        businessName: reel.user.sellerProfile.businessName,
+        logoImage: reel.user.sellerProfile.logoImage,
+      } : undefined,
+    },
+    product: reel.product ? {
+      id: reel.product.id,
+      name: reel.product.name,
+      price: reel.product.price,
+      images: Array.isArray(reel.product.images) 
+        ? reel.product.images 
+        : typeof reel.product.images === 'string' 
+          ? JSON.parse(reel.product.images) 
+          : [],
+      discountPercentage: reel.product.discountPercentage,
+    } : null,
+  };
+  
+  return transformedReel;
+});
   
   // If user is a seller, fetch their products for the upload form
   let sellerProducts: Product[] = [];
