@@ -214,8 +214,8 @@ export default function Navbar() {
                   Xplore
                 </Link>
                 
-                <Link href="/brands" className="text-gray-600 hover:text-primary transition-colors">
-                  Reels
+                <Link href="/reels" className="text-gray-600 hover:text-primary transition-colors">
+                  Peeks
                 </Link>
                 
                 <Link href="/shops" className="text-gray-600 hover:text-primary transition-colors">
@@ -426,10 +426,10 @@ export default function Navbar() {
               Xplore
             </Link>
             
-            <Link href="/brands" className="block text-gray-600 hover:text-primary">
-              Reels
+            <Link href="/reels" className="block text-gray-600 hover:text-primary">
+              Peeks
             </Link>
-            <Link href="/new" className="block text-gray-600 hover:text-primary">
+            <Link href="/about" className="block text-gray-600 hover:text-primary">
               About
             </Link>
             {/* <Link href="/sales" className="block text-gray-600 hover:text-primary">

@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
     const buffer = Buffer.from(await file.arrayBuffer());
     
     // Upload to Cloudinary
-    const result = await uploadToCloudinary(buffer, "kiva/categories");
+    const result = await uploadToCloudinary(buffer, "image");
     
     return NextResponse.json({
       success: true,

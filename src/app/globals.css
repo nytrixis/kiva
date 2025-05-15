@@ -11,6 +11,20 @@ body {
   font-family: 'Montserrat', sans-serif;
 }
 
+body.reels-view {
+  overflow: hidden !important;
+}
+
+.reels-view::-webkit-scrollbar {
+  display: none;
+}
+
+.reels-view {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+
 @font-face {
   font-family: 'Giaza';
   src: url('/fonts/Giaza.otf') format('opentype');
@@ -21,4 +35,13 @@ body {
 :root {
   --font-giaza: 'Giaza', serif;
   --font-montserrat: 'Montserrat', sans-serif;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
 }

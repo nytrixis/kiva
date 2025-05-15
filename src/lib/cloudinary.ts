@@ -1,5 +1,5 @@
 import { v2 as cloudinary } from 'cloudinary';
-import { Readable } from 'stream'; // Add this import at the top of the file
+import { Readable } from 'stream';
 
 // Configure Cloudinary
 cloudinary.config({
@@ -8,43 +8,30 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-interface CloudinaryUploadResult {
-  secure_url: string;
-  public_id: string;
-  asset_id?: string;
-  version?: number;
-  width?: number;
-  height?: number;
-  format?: string;
-  resource_type?: string;
-  url?: string;
-  bytes?: number;
-  etag?: string;
-  placeholder?: boolean;
-  original_filename?: string;
-}
+// Upload buffer to Cloudinary
+export async function uploadToCloudinary(
+  buffer: Buffer, 
+  resourceType: "image" | "video" = "image", 
+  folder = "kiva/products"
+) {
+  return new Promise<any>((resolve, reject) => {
+    const uploadOptions = {
+      folder,
+      resource_type: resourceType,
+      transformation: resourceType === "video" 
+        ? [{ width: 720, crop: "limit" }, { quality: "auto" }]
+        : [{ width: 1000, crop: "limit" }, { quality: "auto:good" }],
+    };
 
-
-// Helper function to upload buffer to Cloudinary
-export async function uploadToCloudinary(buffer: Buffer, folder = 'kiva/products') {
-  return new Promise<CloudinaryUploadResult>((resolve, reject) => {
     const uploadStream = cloudinary.uploader.upload_stream(
-      {
-        folder,
-        resource_type: 'auto',
-        transformation: [
-          { width: 1000, crop: 'limit' }, // Resize to max width 1000px
-          { quality: 'auto:good' }, // Optimize quality
-        ],
-      },
+      uploadOptions,
       (error, result) => {
         if (error) return reject(error);
-        if (!result) return reject(new Error('No result from Cloudinary'));
-        resolve(result as CloudinaryUploadResult);
-      }    );
+        resolve(result);
+      }
+    );
 
     // Convert buffer to stream and pipe to cloudinary
-    // Use the imported Readable instead of require()
     const readableStream = new Readable();
     readableStream.push(buffer);
     readableStream.push(null);
@@ -52,12 +39,49 @@ export async function uploadToCloudinary(buffer: Buffer, folder = 'kiva/products
   });
 }
 
-// Helper function to delete image from Cloudinary
-export async function deleteFromCloudinary(publicId: string) {
-  return cloudinary.uploader.destroy(publicId);
+// Delete file from Cloudinary
+export async function deleteFromCloudinary(publicId: string, resourceType: "image" | "video" = "image") {
+  try {
+    const result = await cloudinary.uploader.destroy(publicId, {
+      resource_type: resourceType
+    });
+    return result;
+  } catch (error) {
+    console.error("Error deleting from Cloudinary:", error);
+    throw error;
+  }
 }
 
-// Helper function to extract public ID from Cloudinary URL
+// Create thumbnail from video
+export async function createThumbnailFromVideo(videoUrl: string) {
+  try {
+    const publicId = extractPublicIdFromUrl(videoUrl);
+    if (!publicId) throw new Error("Could not extract public ID from video URL");
+    
+    return await cloudinary.uploader.explicit(
+      publicId,
+      {
+        type: "upload",
+        resource_type: "video",
+        eager: [
+          { 
+            format: "jpg", 
+            transformation: [
+              { width: 720, height: 1280, crop: "fill" },
+              { quality: "auto" }
+            ]
+          }
+        ],
+        eager_async: false,
+      }
+    );
+  } catch (error) {
+    console.error("Error creating thumbnail:", error);
+    return null;
+  }
+}
+
+// Extract public ID from Cloudinary URL
 export function extractPublicIdFromUrl(url: string): string | null {
   try {
     // Example URL: https://res.cloudinary.com/cloud-name/image/upload/v1612345678/folder/image-id.jpg
