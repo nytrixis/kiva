@@ -11,19 +11,20 @@ export const metadata: Metadata = {
 export default async function ShopsPage({
   searchParams,
 }: {
-  searchParams: { [key: string]: string | string[] | undefined };
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
+  const resolvedSearchParams = await searchParams;
+
   // Parse filter parameters
-  const categories = searchParams.categories 
-    ? Array.isArray(searchParams.categories) 
-      ? searchParams.categories 
-      : [searchParams.categories]
+  const categories = resolvedSearchParams.categories 
+    ? Array.isArray(resolvedSearchParams.categories) 
+      ? resolvedSearchParams.categories 
+      : [resolvedSearchParams.categories]
     : undefined;
     
-  const minRating = searchParams.minRating 
-    ? parseFloat(searchParams.minRating as string) 
+  const minRating = resolvedSearchParams.minRating 
+    ? parseFloat(resolvedSearchParams.minRating as string) 
     : undefined;
-    
   // Fetch all seller profiles that are approved
   const sellerProfiles = await prisma.sellerProfile.findMany({
     where: {
