@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 export default async function MarketplacePage() {
   // Fetch products from verified sellers
   
-  const products = await prisma.product.findMany({
+  const productsRaw = await prisma.product.findMany({
     where: {
       seller: {
         sellerProfile: {
@@ -32,6 +32,13 @@ export default async function MarketplacePage() {
       createdAt: "asc", // Oldest first
     },
   });
+
+  const products = productsRaw.map((p) => ({
+    ...p,
+    images: Array.isArray(p.images)
+      ? p.images.filter((img): img is string => typeof img === "string")
+      : [],
+  }));
 
   return (
     <div className="container mx-auto py-8 px-4">
