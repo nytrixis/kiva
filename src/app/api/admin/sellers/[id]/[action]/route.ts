@@ -6,30 +6,30 @@ import { UserRole, SellerStatus } from "@prisma/client";
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string; action: string } }
+  { params }: { params: Promise<{ id: string; action: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session?.user || session.user.role !== UserRole.ADMIN) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    
-    const { id, action } = params;
-    
+
+    const { id, action } = await params;
+
     // Validate the seller exists
     const seller = await prisma.user.findUnique({
       where: { id },
       include: { sellerProfile: true },
     });
-    
+
     if (!seller || !seller.sellerProfile) {
       return NextResponse.json({ error: "Seller not found" }, { status: 404 });
     }
-    
+
     let newStatus: SellerStatus;
     let isVerified = seller.sellerProfile.isVerified;
-    
+
     // Determine the action to take
     switch (action) {
       case "approve":
@@ -52,10 +52,8 @@ export async function GET(
           { status: 400 }
         );
     }
-    
+
     // Update the seller profile
-    //removed this part 
-    //const sellerProfile =
     await prisma.sellerProfile.update({
       where: { userId: id },
       data: {
@@ -65,7 +63,7 @@ export async function GET(
         verifiedBy: isVerified ? session.user.id : null,
       },
     });
-    
+
     // Redirect back to the sellers page
     return NextResponse.redirect(new URL("/admin/sellers", req.url));
   } catch (error) {
