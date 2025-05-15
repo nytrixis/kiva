@@ -6,20 +6,18 @@ import { UserRole } from "@prisma/client";
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session?.user || session.user.role !== UserRole.ADMIN) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    
-    const { id } = params;
-    
+
+    const { id } = await params;
+
     // Reset seller profile status to PENDING
-    ///removed this part
-    //const sellerProfile = 
     await prisma.sellerProfile.update({
       where: { userId: id },
       data: {
@@ -29,7 +27,7 @@ export async function GET(
         verifiedBy: null,
       },
     });
-    
+
     // Redirect back to the seller details page
     return NextResponse.redirect(new URL(`/admin/sellers/${id}`, req.url));
   } catch (error) {
