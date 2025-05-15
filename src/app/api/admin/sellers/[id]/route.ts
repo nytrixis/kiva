@@ -6,28 +6,28 @@ import { UserRole } from "@prisma/client";
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session?.user || session.user.role !== UserRole.ADMIN) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    
-    const { id } = params;
-    
+
+    const { id } = await params;
+
     const seller = await prisma.user.findUnique({
       where: { id },
       include: {
         sellerProfile: true,
       },
     });
-    
+
     if (!seller || seller.role !== UserRole.SELLER) {
       return NextResponse.json({ error: "Seller not found" }, { status: 404 });
     }
-    
+
     return NextResponse.json({ success: true, data: seller });
   } catch (error) {
     console.error("Error fetching seller:", error);
@@ -40,27 +40,27 @@ export async function GET(
 
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session?.user || session.user.role !== UserRole.ADMIN) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    
-    const { id } = params;
+
+    const { id } = await params;
     const data = await req.json();
-    
+
     const seller = await prisma.user.findUnique({
       where: { id },
       include: { sellerProfile: true },
     });
-    
+
     if (!seller || seller.role !== UserRole.SELLER || !seller.sellerProfile) {
       return NextResponse.json({ error: "Seller not found" }, { status: 404 });
     }
-    
+
     // Update seller profile status
     const updatedProfile = await prisma.sellerProfile.update({
       where: { id: seller.sellerProfile.id },
@@ -71,7 +71,7 @@ export async function PATCH(
         verifiedBy: data.status === "APPROVED" ? session.user.id : null,
       },
     });
-    
+
     return NextResponse.json({ success: true, data: updatedProfile });
   } catch (error) {
     console.error("Error updating seller status:", error);
