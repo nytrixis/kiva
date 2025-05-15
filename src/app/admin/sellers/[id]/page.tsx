@@ -6,15 +6,41 @@ import { UserRole } from "@prisma/client";
 import Link from "next/link";
 import Image from "next/image";
 import { format } from "date-fns";
+import { Metadata } from "next";
 
-export const metadata = {
-  title: "Seller Details | Admin Dashboard | Kiva",
+type Params = {
+  id: string;
 };
 
-interface SellerDetailsPageProps {
-  params: { id: string };
+type Props = {
+  params: Params;
+};
+
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { id } = params;
+  
+  // Fetch seller data for metadata
+  const seller = await prisma.user.findUnique({
+    where: { id },
+    select: { 
+      name: true, 
+      sellerProfile: { 
+        select: { 
+          businessName: true 
+        } 
+      } 
+    },
+  });
+  
+  const sellerName = seller?.sellerProfile?.businessName || seller?.name || "Seller";
+  
+  return {
+    title: `${sellerName} Details | Admin Dashboard | Kiva`,
+  };
 }
-export default async function SellerDetailsPage({ params }: SellerDetailsPageProps) {
+
+export default async function SellerDetailsPage({ params }: Props) {
   const session = await getServerSession(authOptions);
   
   if (!session?.user || session.user.role !== UserRole.ADMIN) {
