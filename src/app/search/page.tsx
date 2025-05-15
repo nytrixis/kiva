@@ -9,9 +9,7 @@ export const metadata: Metadata = {
 };
 
 interface SearchPageProps {
-  searchParams: {
-    q?: string;
-  };
+  searchParams: Promise<{ q?: string }>;
 }
 
 interface Category {
@@ -20,12 +18,12 @@ interface Category {
 }
 
 export default async function SearchPage({ searchParams }: SearchPageProps) {
-  const query = searchParams.q;
-  
+  const { q: query } = await searchParams;
+
   if (!query) {
     redirect("/collections");
   }
-  
+
   // Fetch categories for filters
   const categories = await prisma.category.findMany({
     select: {
@@ -36,7 +34,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
       name: 'asc',
     },
   }) as Category[];
-  
+
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-12">
