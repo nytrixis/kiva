@@ -24,14 +24,14 @@ interface Reel {
   product?: {
     id: string;
     name: string;
-    images: any;
+    images: string[];
   } | null;
 }
 
 interface Product {
   id: string;
   name: string;
-  images: any;
+  images: string[];
 }
 
 interface SellerReelsClientProps {

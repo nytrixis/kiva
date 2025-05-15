@@ -52,7 +52,12 @@ const reels = await prisma.reel.findMany({
   createdAt: reel.createdAt.toISOString(), // Convert Date to string
   views: reel.views,
   _count: reel._count,
-  product: reel.product
+
+  product: reel.product ? {
+    id: reel.product.id,
+    name: reel.product.name,
+    images: reel.product.images as string[]
+  } : null
 })));
 
   
@@ -69,7 +74,10 @@ const reels = await prisma.reel.findMany({
     orderBy: {
       createdAt: "desc",
     },
-  });
+  }).then(products => products.map(product => ({
+    ...product,
+    images: product.images as string[]
+  })));
   
   return <SellerReelsClient reels={reels} products={products} />;
 }

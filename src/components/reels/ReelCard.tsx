@@ -8,7 +8,7 @@ import { Heart, MessageCircle, Share2, ShoppingBag, Volume2, VolumeX } from "luc
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
 import { formatDistanceToNow } from "date-fns";
-import { Button } from "@/components/ui/button";
+// import { Button } from "@/components/ui/button";
 
 interface ReelCardProps {
   reel: {
@@ -35,7 +35,7 @@ interface ReelCardProps {
       id: string;
       name: string;
       price: number;
-      images: any;
+      images: string[];
       discountPercentage: number;
     };
   };

@@ -1,6 +1,16 @@
 import { v2 as cloudinary } from 'cloudinary';
 import { Readable } from 'stream';
 
+interface CloudinaryUploadResult {
+  secure_url: string;
+  public_id: string;
+  eager?: Array<{
+    secure_url: string;
+    public_id: string;
+  }>;
+}
+
+
 // Configure Cloudinary
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -14,7 +24,7 @@ export async function uploadToCloudinary(
   resourceType: "image" | "video" = "image", 
   folder = "kiva/products"
 ) {
-  return new Promise<any>((resolve, reject) => {
+  return new Promise<CloudinaryUploadResult>((resolve, reject) => {
     const uploadOptions = {
       folder,
       resource_type: resourceType,
@@ -27,9 +37,9 @@ export async function uploadToCloudinary(
       uploadOptions,
       (error, result) => {
         if (error) return reject(error);
-        resolve(result);
-      }
-    );
+        if (!result) return reject(new Error('No result from Cloudinary'));
+        resolve(result as CloudinaryUploadResult);
+      }    );
 
     // Convert buffer to stream and pipe to cloudinary
     const readableStream = new Readable();

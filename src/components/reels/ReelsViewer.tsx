@@ -58,14 +58,9 @@ export default function ReelsViewer({
   const containerRef = useRef<HTMLDivElement>(null);
   const { isAuthenticated } = useAuth();
   const { toast } = useToast();
-  const router = useRouter();
   
   // Fetch initial reels if not provided
-  useEffect(() => {
-    if (initialReels.length === 0) {
-      fetchReels();
-    }
-  }, [initialReels]);
+  
   
   // Fetch reels from API
   const fetchReels = async (cursor?: string) => {
@@ -104,6 +99,12 @@ export default function ReelsViewer({
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (initialReels.length === 0) {
+      fetchReels();
+    }
+  }, [initialReels, fetchReels]);
   
   // Load more reels when reaching the end
   const loadMoreReels = () => {
@@ -117,7 +118,7 @@ export default function ReelsViewer({
     if (activeIndex >= reels.length - 2 && nextCursor && !isLoading) {
       loadMoreReels();
     }
-  }, [activeIndex, reels.length, nextCursor, isLoading]);
+  }, [activeIndex, reels.length, nextCursor, isLoading, loadMoreReels]);
   
   // Handle navigation
   const goToReel = (index: number) => {

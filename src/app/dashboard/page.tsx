@@ -12,7 +12,6 @@ import {
   User,
   Settings,
   LogOut,
-  Bell,
   Package,
   Clock,
   ChevronRight,

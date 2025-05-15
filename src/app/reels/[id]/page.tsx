@@ -10,6 +10,12 @@ interface ReelPageProps {
     id: string;
   };
 }
+interface Product {
+  id: string;
+  name: string;
+  images: string[];
+}
+
 
 export async function generateMetadata({ params }: ReelPageProps): Promise<Metadata> {
   const { id } = params;
@@ -112,6 +118,7 @@ export default async function ReelPage({ params }: ReelPageProps) {
     ...reel,
     isLiked: reel.likes.length > 0,
     likes: undefined, // Remove the likes array
+    thumbnailUrl: reel.thumbnailUrl ?? undefined, // Convert null to undefined
   };
   
   // Fetch related reels
@@ -179,10 +186,10 @@ export default async function ReelPage({ params }: ReelPageProps) {
   const allReels = [transformedReel, ...transformedRelatedReels];
   
   // If user is a seller, fetch their products for the upload form
-  let sellerProducts: any[] = [];
+  let sellerProducts: Product[] = [];
   
   if (isSeller) {
-    sellerProducts = await prisma.product.findMany({
+    const products = await prisma.product.findMany({
       where: {
         sellerId: session.user.id,
       },
@@ -195,6 +202,12 @@ export default async function ReelPage({ params }: ReelPageProps) {
         createdAt: "desc",
       },
     });
+    
+    sellerProducts = products.map(product => ({
+      id: product.id,
+      name: product.name,
+      images: product.images as string[]
+    }));
   }
   
   return (

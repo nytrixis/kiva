@@ -5,6 +5,13 @@ import { prisma } from "@/lib/db";
 import { redirect } from "next/navigation";
 import ReelsClient from "@/components/reels/ReelsClient";
 
+interface Product {
+  id: string;
+  name: string;
+  images: string[];
+}
+
+
 export const metadata: Metadata = {
   title: "Reels | Kiva",
   description: "Discover products through short videos",
@@ -18,6 +25,8 @@ export default async function ReelsPage() {
   }
   
   const isSeller = session.user.role === "SELLER";
+
+  
   
   // Fetch initial reels for server-side rendering
   const initialReels = await prisma.reel.findMany({
@@ -70,13 +79,14 @@ export default async function ReelsPage() {
     ...reel,
     isLiked: reel.likes.length > 0,
     likes: undefined, // Remove the likes array
+    thumbnailUrl: reel.thumbnailUrl || undefined, // Convert null to undefined
   }));
   
   // If user is a seller, fetch their products for the upload form
-  let sellerProducts: any[] = [];
+  let sellerProducts: Product[] = [];
   
   if (isSeller) {
-    sellerProducts = await prisma.product.findMany({
+    const products = await prisma.product.findMany({
       where: {
         sellerId: session.user.id,
       },
@@ -89,6 +99,12 @@ export default async function ReelsPage() {
         createdAt: "desc",
       },
     });
+
+    sellerProducts = products.map(product => ({
+      id: product.id,
+      name: product.name,
+      images: product.images as string[]
+    }));
   }
   
   return (

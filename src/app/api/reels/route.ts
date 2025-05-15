@@ -4,6 +4,24 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { v2 as cloudinary } from 'cloudinary';
 import { Readable } from 'stream';
+interface CloudinaryUploadResult {
+  secure_url: string;
+  public_id: string;
+  eager?: Array<{
+    secure_url: string;
+    public_id: string;
+  }>;
+}
+
+interface CloudinaryUploadResult {
+  secure_url: string;
+  public_id: string;
+  eager?: Array<{
+    secure_url: string;
+    public_id: string;
+  }>;
+}
+
 
 // Configure Cloudinary
 cloudinary.config({
@@ -162,7 +180,8 @@ async function uploadToCloudinary(
   buffer: Buffer,
   resourceType: "image" | "video" = "image",
   folder = "kiva/reels") {
-  return new Promise<any>((resolve, reject) => {
+  return new Promise<CloudinaryUploadResult>
+((resolve, reject) => {
     const uploadStream = cloudinary.uploader.upload_stream(
       {
         folder,
@@ -173,9 +192,9 @@ async function uploadToCloudinary(
       },
       (error, result) => {
         if (error) return reject(error);
+        if (!result) return reject(new Error('No result from Cloudinary'));
         resolve(result);
-      }
-    );
+      }    );
     
     const readableStream = new Readable();
     readableStream.push(buffer);
