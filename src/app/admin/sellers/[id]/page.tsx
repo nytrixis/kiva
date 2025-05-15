@@ -17,8 +17,8 @@ type Props = {
 };
 
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { id } = params;
+export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
+  const { id } = params;
   
   // Fetch seller data for metadata
   const seller = await prisma.user.findUnique({
@@ -40,7 +40,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-export default async function SellerDetailsPage({ params }: Props) {
+export default async function SellerDetailsPage({ params }: { params: { id: string } }) {
   const session = await getServerSession(authOptions);
   
   if (!session?.user || session.user.role !== UserRole.ADMIN) {
