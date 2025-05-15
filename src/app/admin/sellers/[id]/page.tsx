@@ -8,14 +8,9 @@ import Image from "next/image";
 import { format } from "date-fns";
 import { Metadata } from "next";
 
-type Params = {
-  id: string;
-};
-
-type Props = {
-  params: Params;
-};
-
+interface Props {
+  params: { id: string };
+}
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = params;
