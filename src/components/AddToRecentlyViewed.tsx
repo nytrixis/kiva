@@ -1,7 +1,17 @@
 "use client";
 import { useEffect } from "react";
 
-export default function AddToRecentlyViewed({ product }: { product: any }) {
+interface RecentlyViewedProduct {
+  id: string;
+  name: string;
+  price: number;
+  image: string;
+  vendor: string;
+  category: string;
+  link: string;
+}
+
+export default function AddToRecentlyViewed({ product }: { product: RecentlyViewedProduct }) {
   useEffect(() => {
     if (
       !product ||

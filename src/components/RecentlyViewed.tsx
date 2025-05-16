@@ -53,7 +53,7 @@ export default function RecentlyViewed() {
     try {
       const res = await fetch("/api/wishlist");
       const data = await res.json();
-      setWishlist((data.items || []).map((item: any) => item.productId));
+      setWishlist((data.items || []).map((item: { productId: string }) => item.productId));
     } catch {
       setWishlist([]);
     }

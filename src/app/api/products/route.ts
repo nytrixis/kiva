@@ -21,20 +21,6 @@ interface Seller {
   sellerProfile?: SellerProfile;
 }
 
-interface ProductDB {
-  id: string;
-  name: string;
-  price: number;
-  images: string[] | string;
-  discountPercentage: number;
-  createdAt: string;
-  viewCount: number;
-  rating: number;
-  reviewCount: number;
-  category?: Category;
-  seller?: Seller;
-}
-
 interface ProductAPI {
   id: string;
   name: string;
@@ -100,20 +86,20 @@ export async function GET(request: Request) {
 
       const products: ProductAPI[] = (data as any[]).map((p) => {
         // Supabase returns category and seller as arrays when using foreign key joins
-        const category = Array.isArray(p.category) ? p.category[0] : p.category;
-        const seller = Array.isArray(p.seller) ? p.seller[0] : p.seller;
+        const category = Array.isArray((p as any).category) ? (p as any).category[0] : (p as any).category;
+        const seller = Array.isArray((p as any).seller) ? (p as any).seller[0] : (p as any).seller;
         return {
           id: p.id,
           name: p.name,
           price: p.discountPercentage > 0
-  ? Math.round((p.price * (1 - p.discountPercentage / 100)) * 100) / 100
-  : p.price,
-originalPrice: p.price,
-          images: Array.isArray(p.images)
-  ? p.images.filter((img: string) => typeof img === "string" && img.trim() !== "")
-  : typeof p.images === "string"
-    ? JSON.parse(p.images).filter((img: string) => typeof img === "string" && img.trim() !== "")
-    : [],
+            ? Math.round((p.price * (1 - p.discountPercentage / 100)) * 100) / 100
+            : p.price,
+          originalPrice: p.price,
+          images: Array.isArray((p as any).images)
+            ? (p as any).images.filter((img: string) => typeof img === "string" && img.trim() !== "")
+            : typeof (p as any).images === "string"
+              ? JSON.parse((p as any).images).filter((img: string) => typeof img === "string" && img.trim() !== "")
+              : [],
           discountPercentage: p.discountPercentage ?? 0,
           createdAt: p.createdAt,
           viewCount: p.viewCount ?? 0,
@@ -132,7 +118,7 @@ originalPrice: p.price,
             },
           },
           link: `/products/${p.id}`,
-        };
+        } as ProductAPI;
       });
 
       return NextResponse.json({ products });
@@ -211,40 +197,42 @@ originalPrice: p.price,
       throw error;
     }
 
-    const products: ProductAPI[] = (data as any[]).map((p) => ({
-      id: p.id,
-      name: p.name,
-      price: p.price,
-      originalPrice:
-        p.discountPercentage > 0
-          ? Math.round((p.price / (1 - p.discountPercentage / 100)) * 100) / 100
-          : null,
-      images: Array.isArray(p.images)
-  ? p.images.filter((img: string) => typeof img === "string" && img.trim() !== "")
-  : typeof p.images === "string"
-    ? JSON.parse(p.images).filter((img: string) => typeof img === "string" && img.trim() !== "")
-    : [],
-      discountPercentage: p.discountPercentage ?? 0,
-      createdAt: p.createdAt,
-      viewCount: p.viewCount ?? 0,
-      rating: p.rating ?? 0,
-      reviewCount: p.reviewCount ?? 0,
-      category: {
-        id: Array.isArray(p.category) ? p.category[0]?.id || "" : p.category?.id || "",
-        name: Array.isArray(p.category) ? p.category[0]?.name || "" : p.category?.name || "",
-        slug: Array.isArray(p.category) ? p.category[0]?.slug || "" : p.category?.slug || "",
-      },
-      seller: {
-        id: Array.isArray(p.seller) ? p.seller[0]?.id || "" : p.seller?.id || "",
-        name: Array.isArray(p.seller) ? p.seller[0]?.name || "" : p.seller?.name || "",
-        sellerProfile: {
-          businessName: Array.isArray(p.seller)
-            ? p.seller[0]?.sellerProfile?.businessName || ""
-            : p.seller?.sellerProfile?.businessName || "",
+    const products: ProductAPI[] = (data as any[]).map((p) => {
+      const category = Array.isArray((p as any).category) ? (p as any).category[0] : (p as any).category;
+      const seller = Array.isArray((p as any).seller) ? (p as any).seller[0] : (p as any).seller;
+      return {
+        id: p.id,
+        name: p.name,
+        price: p.price,
+        originalPrice:
+          p.discountPercentage > 0
+            ? Math.round((p.price / (1 - p.discountPercentage / 100)) * 100) / 100
+            : p.price,
+        images: Array.isArray((p as any).images)
+          ? (p as any).images.filter((img: string) => typeof img === "string" && img.trim() !== "")
+          : typeof (p as any).images === "string"
+            ? JSON.parse((p as any).images).filter((img: string) => typeof img === "string" && img.trim() !== "")
+            : [],
+        discountPercentage: p.discountPercentage ?? 0,
+        createdAt: p.createdAt,
+        viewCount: p.viewCount ?? 0,
+        rating: p.rating ?? 0,
+        reviewCount: p.reviewCount ?? 0,
+        category: {
+          id: category?.id || "",
+          name: category?.name || "",
+          slug: category?.slug || "",
         },
-      },
-      link: `/products/${p.id}`,
-    }));
+        seller: {
+          id: seller?.id || "",
+          name: seller?.name || "",
+          sellerProfile: {
+            businessName: seller?.sellerProfile?.businessName || "",
+          },
+        },
+        link: `/products/${p.id}`,
+      };
+    });
 
     const response: ProductsResponse = {
       products,

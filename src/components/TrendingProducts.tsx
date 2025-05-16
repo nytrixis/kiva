@@ -41,25 +41,25 @@ export default function TrendingProducts() {
 
   // Fetch trending products
   useEffect(() => {
-  const fetchTrending = async () => {
-    try {
-      const res = await fetch("/api/products?sort=popularity&limit=10");
-      const data = await res.json();
-      setProducts(
-  (data.products || []).map((p: any) => ({
-    ...p,
-    mainImage:
-      Array.isArray(p.images) && p.images[0] && p.images[0].trim() !== ""
-        ? p.images[0]
-        : "/placeholder-image.jpg",
-  }))
-);
-    } catch {
-      setProducts([]);
-    }
-  };
-  fetchTrending();
-}, []);
+    const fetchTrending = async () => {
+      try {
+        const res = await fetch("/api/products?sort=popularity&limit=10");
+        const data = await res.json();
+        setProducts(
+          (data.products || []).map((p: Product) => ({
+            ...p,
+            mainImage:
+              Array.isArray(p.images) && p.images[0] && p.images[0].trim() !== ""
+                ? p.images[0]
+                : "/placeholder-image.jpg",
+          }))
+        );
+      } catch {
+        setProducts([]);
+      }
+    };
+    fetchTrending();
+  }, []);
 
   const checkScrollButtons = () => {
     if (containerRef.current) {
@@ -87,73 +87,73 @@ export default function TrendingProducts() {
 
   // Wishlist logic
   const fetchWishlist = async () => {
-  try {
-    const res = await fetch("/api/wishlist");
-    const data = await res.json();
-    setWishlist((data.items || []).map((item: any) => item.productId));
-  } catch {
-    setWishlist([]);
-  }
-};
+    try {
+      const res = await fetch("/api/wishlist");
+      const data = await res.json();
+      setWishlist((data.items || []).map((item: { productId: string }) => item.productId));
+    } catch {
+      setWishlist([]);
+    }
+  };
 
-useEffect(() => {
-  fetchWishlist();
-}, []);
+  useEffect(() => {
+    fetchWishlist();
+  }, []);
 
-const toggleWishlist = async (id: string) => {
-  try {
-    const res = await fetch("/api/wishlist", {
-      method: "POST",
-      body: JSON.stringify({ productId: id }),
-      headers: { "Content-Type": "application/json" },
-    });
-    const data = await res.json();
-    // Always refetch wishlist after toggle to sync state
-    await fetchWishlist();
-    toast({
-      title: data.added ? "Added to wishlist" : "Removed from wishlist",
-      variant: data.added ? "success" : "info",
-    });
-  } catch {
-    toast({ title: "Error updating wishlist", variant: "destructive" });
-  }
-};
+  const toggleWishlist = async (id: string) => {
+    try {
+      const res = await fetch("/api/wishlist", {
+        method: "POST",
+        body: JSON.stringify({ productId: id }),
+        headers: { "Content-Type": "application/json" },
+      });
+      const data = await res.json();
+      // Always refetch wishlist after toggle to sync state
+      await fetchWishlist();
+      toast({
+        title: data.added ? "Added to wishlist" : "Removed from wishlist",
+        variant: data.added ? "success" : "info",
+      });
+    } catch {
+      toast({ title: "Error updating wishlist", variant: "destructive" });
+    }
+  };
 
   // Add to cart logic
   const addToCart = async (id: string) => {
-  try {
-    const res = await fetch("/api/cart", {
-      method: "POST",
-      body: JSON.stringify({ productId: id, quantity: 1 }),
-      headers: { "Content-Type": "application/json" },
-    });
-    const data = await res.json();
-
-    if (res.ok) {
-      // Optionally, refetch cart here if you want to sync state
-      setCart((prev) => [...new Set([...prev, id])]);
-      toast({
-        title: "Added to cart",
-        variant: "success",
+    try {
+      const res = await fetch("/api/cart", {
+        method: "POST",
+        body: JSON.stringify({ productId: id, quantity: 1 }),
+        headers: { "Content-Type": "application/json" },
       });
-    } else if (data?.error === "Product not found") {
+      const data = await res.json();
+
+      if (res.ok) {
+        // Optionally, refetch cart here if you want to sync state
+        setCart((prev) => [...new Set([...prev, id])]);
+        toast({
+          title: "Added to cart",
+          variant: "success",
+        });
+      } else if (data?.error === "Product not found") {
+        toast({
+          title: "Product not found",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Already in cart",
+          variant: "info",
+        });
+      }
+    } catch {
       toast({
-        title: "Product not found",
+        title: "Error adding to cart",
         variant: "destructive",
       });
-    } else {
-      toast({
-        title: "Already in cart",
-        variant: "info",
-      });
     }
-  } catch {
-    toast({
-      title: "Error adding to cart",
-      variant: "destructive",
-    });
-  }
-};
+  };
 
   // Helper: is new arrival (created within last 7 days)
   const isNewArrival = (createdAt: string) => {
@@ -234,18 +234,18 @@ const toggleWishlist = async (id: string) => {
                   {/* Image */}
                   <div className="relative h-[220px] overflow-hidden">
                     <Image
-  src={product.mainImage}
-  alt={product.name}
-  fill
-  className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
-  sizes="(max-width: 768px) 280px, 320px"
-/>
+                      src={product.mainImage}
+                      alt={product.name}
+                      fill
+                      className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                      sizes="(max-width: 768px) 280px, 320px"
+                    />
 
-<div className="text-xs text-primary/80 mb-1">
-  {typeof product.category === "string"
-    ? product.category
-    : product.category?.name || ""}
-</div>
+                    <div className="text-xs text-primary/80 mb-1">
+                      {typeof product.category === "string"
+                        ? product.category
+                        : product.category?.name || ""}
+                    </div>
 
                     {/* Wishlist button */}
                     <button
@@ -287,18 +287,18 @@ const toggleWishlist = async (id: string) => {
                 {/* Product info */}
                 <div className="p-4 flex-grow flex flex-col">
                   <div className="text-xs text-primary/80 mb-1">
-  {typeof product.category === "string"
-    ? product.category
-    : product.category?.name || ""}
-</div>
+                    {typeof product.category === "string"
+                      ? product.category
+                      : product.category?.name || ""}
+                  </div>
                   <Link href={product.link}>
                     <h3 className="font-medium text-gray-800 mb-1 line-clamp-2 hover:text-primary transition-colors duration-200">
                       {product.name}
                     </h3>
                   </Link>
                   <div className="text-xs text-gray-500 mb-2">
-  {product.seller?.sellerProfile?.businessName || product.seller?.name || ""}
-</div>
+                    {product.seller?.sellerProfile?.businessName || product.seller?.name || ""}
+                  </div>
 
                   {/* Price */}
                   <div className="flex items-center mb-3">
