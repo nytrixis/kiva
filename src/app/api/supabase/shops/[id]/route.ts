@@ -6,11 +6,11 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
 
-interface User {
-  id: string;
-  name: string;
-  createdAt: string;
-}
+// interface User {
+//   id: string;
+//   name: string;
+//   createdAt: string;
+// }
 
 interface Category {
   name: string;

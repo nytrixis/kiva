@@ -7,23 +7,23 @@ import ProductImageGallery from "@/components/product/ProductImageGallery";
 import { Badge } from "@/components/ui/badge";
 import { formatCurrency } from "@/lib/utils";
 
-interface Category {
-  id: string;
-  name: string;
-  slug: string;
-}
+// interface Category {
+//   id: string;
+//   name: string;
+//   slug: string;
+// }
 
-interface SellerProfile {
-  businessName: string;
-  logoImage?: string;
-  status: string;
-}
+// interface SellerProfile {
+//   businessName: string;
+//   logoImage?: string;
+//   status: string;
+// }
 
-interface Seller {
-  id: string;
-  name: string;
-  sellerProfile?: SellerProfile;
-}
+// interface Seller {
+//   id: string;
+//   name: string;
+//   sellerProfile?: SellerProfile;
+// }
 
 // interface Product {
 //   id: string;
