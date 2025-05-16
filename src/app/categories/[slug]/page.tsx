@@ -10,8 +10,8 @@ const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 // No custom CategoryPageParams type needed!
 
-export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
-  const { slug } = params;
+export async function generateMetadata(props: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await props.params;
 
   const { data: category } = await supabase
     .from("Category")
@@ -31,8 +31,8 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   };
 }
 
-export default async function CategoryPage({ params }: { params: { slug: string } }) {
-  const { slug } = params;
+export default async function CategoryPage(props: { params: Promise<{ slug: string }> }) {
+  const { slug } = await props.params;
 
   // Get the category by slug
   const { data: category } = await supabase
