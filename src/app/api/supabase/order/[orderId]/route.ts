@@ -6,12 +6,13 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
 
-export async function GET(
-  req: NextRequest,
-  { params }: { params: { orderId: string } }
-) {
-  const { orderId } = params;
-  const { searchParams } = new URL(req.url);
+export async function GET(req: NextRequest) {
+  // Extract orderId from the URL path
+  const url = new URL(req.url);
+  const pathParts = url.pathname.split("/");
+  const orderId = pathParts[pathParts.length - 1]; // last part is [orderId]
+
+  const { searchParams } = url;
   const userId = searchParams.get("userId");
 
   if (!orderId || !userId) {
@@ -43,6 +44,5 @@ export async function GET(
     return NextResponse.json(null, { status: 404 });
   }
 
-  // Optionally, format the order object if needed
   return NextResponse.json(order);
 }
