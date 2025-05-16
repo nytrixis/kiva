@@ -6,8 +6,11 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
-export async function GET(request: Request, { params }: { params: { id: string } }) {
-  const { id } = await params;
+export async function GET(request: Request) {
+  // Extract id from the URL path
+  const url = new URL(request.url);
+  const pathParts = url.pathname.split("/");
+  const id = pathParts[pathParts.length - 1]; // last part is [id]
 
   // Fetch product with category and seller
   const { data: product, error } = await supabase
@@ -45,10 +48,10 @@ export async function GET(request: Request, { params }: { params: { id: string }
     .single();
 
   return NextResponse.json({
-  ...product,
-  seller: {
-    ...product.seller,
-    sellerProfile: sellerProfile || null,
-  },
-});
+    ...product,
+    seller: {
+      ...product.seller,
+      sellerProfile: sellerProfile || null,
+    },
+  });
 }
