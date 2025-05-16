@@ -13,7 +13,7 @@ type CategoryPageParams = {
 };
 
 export async function generateMetadata({ params }: CategoryPageParams): Promise<Metadata> {
-  const { slug } = await params;
+  const { slug } = params; // <-- Remove await
 
   const { data: category } = await supabase
     .from("Category")
@@ -34,7 +34,7 @@ export async function generateMetadata({ params }: CategoryPageParams): Promise<
 }
 
 export default async function CategoryPage({ params }: CategoryPageParams) {
-  const { slug } = await params;
+  const { slug } = params; // <-- Remove await
 
   // Get the category by slug
   const { data: category } = await supabase
