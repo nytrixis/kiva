@@ -12,17 +12,17 @@ interface Like {
   userId: string;
 }
 
-export async function GET(
-  req: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function GET(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { id } = await params;
+    // Extract id from the URL path
+    const url = new URL(req.url);
+    const pathParts = url.pathname.split("/");
+    const id = pathParts[pathParts.length - 1]; // last part is [id]
     const userId = req.nextUrl.searchParams.get("userId") || session.user.id;
 
     // 1. Fetch the reel
@@ -86,7 +86,6 @@ export async function GET(
         likes: likeCount,
         comments: commentCount,
       },
-      // Optionally, you can remove likes/comments arrays if not needed
     };
 
     return NextResponse.json(transformedReel);

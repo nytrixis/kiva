@@ -1,10 +1,17 @@
-import type { NextApiRequest, NextApiResponse } from "next";
+import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 
-const supabase = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
+const supabase = createClient(
+  process.env.SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  const { userId } = req.query;
+export async function GET(req: NextRequest) {
+  // Extract userId from the URL path
+  const url = new URL(req.url);
+  const pathParts = url.pathname.split("/");
+  const userId = pathParts[pathParts.length - 1]; // last part is [userId]
+
   const { data, error } = await supabase
     .from("seller_profiles")
     .select("*")
@@ -12,7 +19,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     .single();
 
   if (error || !data) {
-    return res.status(404).json(null);
+    return NextResponse.json(null, { status: 404 });
   }
-  res.status(200).json(data);
+  return NextResponse.json(data);
 }

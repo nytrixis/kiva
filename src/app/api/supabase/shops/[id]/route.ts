@@ -6,12 +6,6 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
 
-// interface User {
-//   id: string;
-//   name: string;
-//   createdAt: string;
-// }
-
 interface Category {
   name: string;
 }
@@ -28,35 +22,12 @@ interface Product {
   category?: Category;
 }
 
-// interface Shop {
-//   id: string;
-//   userId: string;
-//   businessName: string;
-//   businessType: string;
-//   description: string | null;
-//   phoneNumber: string | null;
-//   website: string | null;
-//   address: string | null;
-//   city: string | null;
-//   state: string | null;
-//   postalCode: string | null;
-//   country: string | null;
-//   taxId: string | null;
-//   categories: string[];
-//   status: string;
-//   verifiedAt: string | null;
-//   identityDocument: string | null;
-//   businessDocument: string | null;
-//   logoImage: string | null;
-//   createdAt: string;
-//   updatedAt: string;
-//   user: User;
-// }
-
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
-  const { id } = params;
-  const { searchParams } = new URL(req.url);
-  const q = searchParams.get("q");
+export async function GET(req: NextRequest) {
+  // Extract id from the URL path
+  const url = new URL(req.url);
+  const pathParts = url.pathname.split("/");
+  const id = pathParts[pathParts.length - 1]; // last part is [id]
+  const q = url.searchParams.get("q");
 
   // 1. Fetch the shop (seller profile) and user
   const { data: shop, error: shopError } = await supabase
@@ -97,28 +68,28 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
       .eq("sellerId", shop.user.id);
 
     if (!productsError && productsData) {
-  products = productsData.map((p: {
-    id: string;
-    name: string;
-    price: number;
-    discountPercentage: number;
-    images: string[] | string;
-    rating: number;
-    reviewCount: number;
-    stock: number;
-    category: Category[] | Category | null;
-  }) => ({
-    id: p.id,
-    name: p.name,
-    price: p.price,
-    discountPercentage: p.discountPercentage,
-    images: p.images,
-    rating: p.rating,
-    reviewCount: p.reviewCount,
-    stock: p.stock,
-    category: Array.isArray(p.category) ? p.category[0] : p.category ?? undefined,
-  }));
-}
+      products = productsData.map((p: {
+        id: string;
+        name: string;
+        price: number;
+        discountPercentage: number;
+        images: string[] | string;
+        rating: number;
+        reviewCount: number;
+        stock: number;
+        category: Category[] | Category | null;
+      }) => ({
+        id: p.id,
+        name: p.name,
+        price: p.price,
+        discountPercentage: p.discountPercentage,
+        images: p.images,
+        rating: p.rating,
+        reviewCount: p.reviewCount,
+        stock: p.stock,
+        category: Array.isArray(p.category) ? p.category[0] : p.category ?? undefined,
+      }));
+    }
   }
 
   // 3. Optionally filter products by search query
