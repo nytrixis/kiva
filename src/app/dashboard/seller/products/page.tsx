@@ -16,7 +16,7 @@ interface Product {
   discountPercentage: number;
   stock: number;
   images: string[] | Record<string, unknown>;
-  createdAt: Date; // <-- Fix type here
+  createdAt: Date;
   viewCount: number;
   reviewCount: number;
   rating: number;
@@ -38,7 +38,7 @@ export default async function SellerProductsPage() {
   });
 
   const products: Product[] = res.ok
-    ? (await res.json()).map((p: any) => ({
+    ? (await res.json()).map((p: Product) => ({
         ...p,
         createdAt: new Date(p.createdAt), // <-- Convert to Date
       }))

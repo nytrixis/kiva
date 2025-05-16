@@ -4,7 +4,41 @@ import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import ReelsClient from "@/components/reels/ReelsClient";
 
+// Add at the top:
+interface SellerProfile {
+  businessName: string;
+  logoImage?: string;
+}
+
+interface User {
+  id: string;
+  name: string;
+  image?: string;
+  sellerProfile?: SellerProfile;
+}
+
 interface Product {
+  id: string;
+  name: string;
+  price: number;
+  images: string[] | string;
+  discountPercentage: number;
+}
+
+interface Reel {
+  id: string;
+  videoUrl: string;
+  thumbnailUrl?: string;
+  caption?: string;
+  createdAt: string;
+  _count: { likes: number; comments: number };
+  isLiked: boolean;
+  user: User;
+  product?: Product | null;
+  likes?: any[]; // Add this line to fix the error
+}
+
+interface SellerProduct {
   id: string;
   name: string;
   images: string[];
@@ -32,7 +66,7 @@ export default async function ReelsPage() {
   const initialReels = reelsRes.ok ? await reelsRes.json() : [];
 
   // Transform reels to include isLiked
-  const transformedReels = initialReels.map((reel: any) => {
+  const transformedReels = initialReels.map((reel: Reel) => {
     const transformedReel = {
       id: reel.id,
       videoUrl: reel.videoUrl,
@@ -73,7 +107,7 @@ export default async function ReelsPage() {
   });
 
   // If user is a seller, fetch their products for the upload form via Supabase REST API
-  let sellerProducts: Product[] = [];
+  let sellerProducts: SellerProduct[] = [];
 
   if (isSeller) {
     const productsRes = await fetch(
@@ -82,7 +116,7 @@ export default async function ReelsPage() {
     );
     const products = productsRes.ok ? await productsRes.json() : [];
 
-    sellerProducts = products.map((product: any) => ({
+    sellerProducts = products.map((product: Product) => ({
       id: product.id,
       name: product.name,
       images: Array.isArray(product.images)

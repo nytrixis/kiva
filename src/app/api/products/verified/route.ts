@@ -5,6 +5,32 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
+interface SellerProfile {
+  status: string;
+}
+
+interface Seller {
+  id: string;
+  name: string;
+  image?: string;
+  seller_profile?: SellerProfile[];
+}
+
+interface Category {
+  id: string;
+  name: string;
+  slug?: string;
+}
+
+interface Product {
+  id: string;
+  name: string;
+  price: number;
+  images: string[] | string;
+  seller?: Seller;
+  category?: Category;
+}
+
 export async function GET(req: NextRequest) {
   try {
     // Get query parameters
@@ -42,7 +68,7 @@ export async function GET(req: NextRequest) {
 
     // Filter products where seller's seller_profile.status === "APPROVED"
     const filteredProducts = (products || []).filter(
-      (product: any) =>
+      (product: Product) =>
         product.seller?.seller_profile &&
         Array.isArray(product.seller.seller_profile) &&
         product.seller.seller_profile[0]?.status === "APPROVED"

@@ -7,6 +7,35 @@ export const metadata: Metadata = {
   description: "Discover unique local businesses and artisans on Kiva",
 };
 
+interface Category {
+  name: string;
+}
+
+interface Seller {
+  id: string;
+  userId: string;
+  businessName: string;
+  businessType: string;
+  description: string | null;
+  phoneNumber: string | null;
+  website: string | null;
+  address: string | null;
+  city: string | null;
+  state: string | null;
+  postalCode: string | null;
+  country: string | null;
+  taxId: string | null;
+  categories: string[];
+  status: string;
+  verifiedAt: string | null;
+  identityDocument: string | null;
+  businessDocument: string | null;
+  logoImage: string | null;
+  createdAt: string;
+  updatedAt: string;
+  avgRating: number;
+}
+
 export default async function ShopsPage({
   searchParams,
 }: {
@@ -39,11 +68,11 @@ export default async function ShopsPage({
   );
   let allCategories = categoriesRes.ok ? await categoriesRes.json() : [];
   if (!Array.isArray(allCategories)) allCategories = [];
-  const categoryOptions = allCategories.map((cat: any) => cat.name);
+  const categoryOptions = allCategories.map((cat: Category) => cat.name);
 
   // Filter by rating if needed (if not handled in API)
   const filteredSellers = minRating
-    ? sellersWithRating.filter((seller: any) => seller.avgRating >= minRating)
+    ? sellersWithRating.filter((seller: Seller) => seller.avgRating >= minRating)
     : sellersWithRating;
 
   return (

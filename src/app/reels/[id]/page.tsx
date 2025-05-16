@@ -7,11 +7,46 @@ import ReelsClient from "@/components/reels/ReelsClient";
 interface ReelPageProps {
   params: Promise<{ id: string }>;
 }
+// Add at the top:
+interface SellerProfile {
+  businessName: string;
+  logoImage?: string;
+}
+
+interface User {
+  id: string;
+  name: string;
+  image?: string;
+  sellerProfile?: SellerProfile;
+}
+
 interface Product {
+  id: string;
+  name: string;
+  price: number;
+  images: string[] | string;
+  discountPercentage: number;
+  categoryId?: string;
+}
+
+interface Reel {
+  id: string;
+  videoUrl: string;
+  thumbnailUrl?: string;
+  caption?: string;
+  createdAt: string;
+  _count: { likes: number; comments: number };
+  isLiked: boolean;
+  user: User;
+  product?: Product | null;
+}
+
+interface SellerProduct {
   id: string;
   name: string;
   images: string[];
 }
+
 
 export async function generateMetadata({ params }: ReelPageProps): Promise<Metadata> {
   const { id } = await params;
@@ -108,7 +143,7 @@ isLiked: reel.isLiked ?? false,
   };
 
   // Transform related reels
-  const transformedRelatedReels = relatedReels.map((relatedReel: any) => ({
+  const transformedRelatedReels = relatedReels.map((relatedReel: Reel) => ({
     id: relatedReel.id,
     videoUrl: relatedReel.videoUrl,
     thumbnailUrl: relatedReel.thumbnailUrl || undefined,
@@ -118,7 +153,7 @@ isLiked: reel.isLiked ?? false,
       likes: relatedReel._count?.likes ?? 0,
       comments: relatedReel._count?.comments ?? 0,
     },
-    isLiked: Array.isArray(relatedReel.likes) ? relatedReel.likes.length > 0 : false,
+    isLiked: relatedReel.isLiked ?? false,
     user: {
       id: relatedReel.user?.id,
       name: relatedReel.user?.name,
@@ -149,25 +184,25 @@ isLiked: reel.isLiked ?? false,
   const allReels = [transformedReel, ...transformedRelatedReels];
 
   // If user is a seller, fetch their products for the upload form via Supabase REST API
-  let sellerProducts: Product[] = [];
+let sellerProducts: SellerProduct[] = [];
 
-  if (isSeller) {
-    const productsRes = await fetch(
-      `${process.env.NEXT_PUBLIC_BASE_URL || ""}/api/supabase/seller-products?sellerId=${session.user.id}`,
-      { cache: "no-store" }
-    );
-    const products = productsRes.ok ? await productsRes.json() : [];
+if (isSeller) {
+  const productsRes = await fetch(
+    `${process.env.NEXT_PUBLIC_BASE_URL || ""}/api/supabase/seller-products?sellerId=${session.user.id}`,
+    { cache: "no-store" }
+  );
+  const products = productsRes.ok ? await productsRes.json() : [];
 
-    sellerProducts = products.map((product: any) => ({
-      id: product.id,
-      name: product.name,
-      images: Array.isArray(product.images)
-        ? product.images
-        : typeof product.images === "string"
-        ? JSON.parse(product.images)
-        : [],
-    }));
-  }
+  sellerProducts = products.map((product: Product): SellerProduct => ({
+    id: product.id,
+    name: product.name,
+    images: Array.isArray(product.images)
+      ? product.images
+      : typeof product.images === "string"
+      ? JSON.parse(product.images)
+      : [],
+  }));
+}
 
   return (
     <div className="fixed inset-0 bg-black flex items-center justify-center overflow-hidden">

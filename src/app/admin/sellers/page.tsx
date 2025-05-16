@@ -13,6 +13,21 @@ enum UserRole {
   INFLUENCER = "INFLUENCER",
 }
 
+type Seller = {
+  id: string;
+  name: string;
+  email: string;
+  image?: string;
+  sellerProfile?: {
+    businessName?: string;
+    businessType?: string;
+    status?: string;
+    identityDocument?: string;
+    businessDocument?: string;
+  };
+  createdAt?: string;
+};
+
 export const metadata = {
   title: "Manage Sellers | Admin Dashboard | Kiva",
 };
@@ -29,7 +44,7 @@ export default async function AdminSellersPage() {
   }
 
   // Fetch all sellers with their profiles
-  const { data: users, error } = await supabase
+  const { data: users } = await supabase
     .from("user")
     .select(`
       *,
@@ -92,7 +107,7 @@ export default async function AdminSellersPage() {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {sellers.map((seller: any) => (
+              {sellers.map((seller: Seller) => (
                 <tr key={seller.id}>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">

@@ -8,6 +8,11 @@ export const metadata = {
   description: "Create a new product to sell on Kiva",
 };
 
+interface Category {
+  id: string;
+  name: string;
+}
+
 export default async function NewProductPage() {
   // Check if user is authenticated and is a seller
   const session = await getServerSession(authOptions);
@@ -42,7 +47,7 @@ export default async function NewProductPage() {
   ];
 
   // Create a mapping of database categories to preferred names
-  const categories = dbCategories.map((dbCat: any) => {
+  const categories = dbCategories.map((dbCat: Category) => {
     // Try to find a matching preferred category
     const matchingCategory = preferredCategories.find(preferred =>
       dbCat.name.toLowerCase().includes(preferred.toLowerCase())
@@ -64,7 +69,7 @@ export default async function NewProductPage() {
   }
 
   // Filter out any categories with empty IDs
-  const validCategories = categories.filter((cat: any) => cat.id);
+  const validCategories = categories.filter((cat: Category) => cat.id);
 
   return (
     <div className="container mx-auto px-4 py-8">

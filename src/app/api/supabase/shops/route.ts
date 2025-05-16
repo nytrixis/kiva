@@ -6,6 +6,43 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
 
+interface Product {
+  rating: number;
+}
+
+interface SellerUser {
+  id: string;
+  name: string;
+  createdAt: string;
+  products?: Product[];
+}
+
+interface Seller {
+  id: string;
+  userId: string;
+  businessName: string;
+  businessType: string;
+  description: string | null;
+  phoneNumber: string | null;
+  website: string | null;
+  address: string | null;
+  city: string | null;
+  state: string | null;
+  postalCode: string | null;
+  country: string | null;
+  taxId: string | null;
+  categories: string[];
+  status: string;
+  verifiedAt: string | null;
+  identityDocument: string | null;
+  businessDocument: string | null;
+  logoImage: string | null;
+  createdAt: string;
+  updatedAt: string;
+  user?: SellerUser;
+  avgRating?: number;
+}
+
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const categoriesParam = searchParams.get("categories");
@@ -48,9 +85,9 @@ export async function GET(req: NextRequest) {
   }
 
   // Calculate avgRating for each seller
-  const sellersWithRating = (sellers || []).map((seller: any) => {
+  const sellersWithRating = (sellers || []).map((seller: Seller) => {
     const products = seller.user?.products || [];
-    const totalRating = products.reduce((sum: number, p: any) => sum + (p.rating || 0), 0);
+    const totalRating = products.reduce((sum: number, p: Product) => sum + (p.rating || 0), 0);
     const avgRating = products.length > 0 ? totalRating / products.length : 0;
     return {
       ...seller,
@@ -62,7 +99,7 @@ export async function GET(req: NextRequest) {
   let filtered = sellersWithRating;
   if (minRatingParam) {
     const minRating = parseFloat(minRatingParam);
-    filtered = sellersWithRating.filter((seller: any) => seller.avgRating >= minRating);
+    filtered = sellersWithRating.filter((seller: Seller) => (seller.avgRating ?? 0) >= minRating);
   }
 
   return NextResponse.json(filtered);

@@ -6,6 +6,16 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
+interface Like {
+  id: string;
+  userId: string;
+}
+
+interface Reel {
+  id: string;
+  likes?: Like[];
+}
+
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const { userId, take } = req.query;
 
@@ -46,9 +56,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   // Optionally, filter likes for the current user
-  const reelsWithLikes = (reels || []).map((reel: any) => ({
+  const reelsWithLikes = (reels || []).map((reel: Reel) => ({
     ...reel,
-    likes: reel.likes?.filter((like: any) => like.id === userId) || [],
+    likes: reel.likes?.filter((like: Like) => like.id === userId) || [],
   }));
 
   res.status(200).json(reelsWithLikes);

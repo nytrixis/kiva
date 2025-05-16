@@ -17,6 +17,21 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
+interface Category {
+  name: string;
+}
+
+interface Product {
+  id: string;
+  name: string;
+  price: number;
+  images: string[] | string;
+  rating: number;
+  viewCount: number;
+  reviewCount: number;
+  category?: Category;
+}
+
 export default async function SellerDashboardPage() {
   const session = await getServerSession(authOptions);
   const userId = session?.user?.id;
@@ -188,7 +203,7 @@ export default async function SellerDashboardPage() {
 
         {(topProducts ?? []).length > 0 ? (
           <div className="divide-y divide-gray-100">
-            {(topProducts ?? []).map((product: any) => (
+            {(topProducts ?? []).map((product: Product) => (
               <div key={product.id} className="p-4 hover:bg-gray-50 transition-colors">
                 <div className="flex items-center">
                   <div className="relative h-16 w-16 rounded-md overflow-hidden bg-gray-100">

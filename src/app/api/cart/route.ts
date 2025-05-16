@@ -7,6 +7,36 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
+type Category = {
+  id: string;
+  name: string;
+};
+
+type Seller = {
+  id: string;
+  name: string;
+};
+
+type Product = {
+  id: string;
+  name: string;
+  price: number;
+  images: string[] | string;
+  discountPercentage?: number;
+  discountPrice?: number | null;
+  category?: Category;
+  seller?: Seller;
+};
+
+type CartItem = {
+  id: string;
+  userId: string;
+  productId: string;
+  quantity: number;
+  createdAt: string;
+  product: Product;
+};
+
 export async function GET() {
   try {
     const session = await getServerSession(authOptions);
@@ -37,7 +67,7 @@ export async function GET() {
     }
 
     // Process cart items to add calculated fields
-    const processedCartItems = (cartItems || []).map((item: any) => {
+    const processedCartItems = (cartItems || []).map((item: CartItem) => {
       const product = item.product;
       let discountPrice = null;
       const discountPercentage = product?.discountPercentage || 0;
@@ -60,7 +90,7 @@ export async function GET() {
     });
 
     // Calculate cart totals
-    const subtotal = processedCartItems.reduce((sum: number, item: any) => {
+    const subtotal = processedCartItems.reduce((sum: number, item: CartItem) => {
       const price = item.product.discountPrice || item.product.price;
       return sum + price * item.quantity;
     }, 0);

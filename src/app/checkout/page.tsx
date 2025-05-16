@@ -5,6 +5,36 @@ import { authOptions } from "@/lib/auth";
 import { createClient } from "@supabase/supabase-js";
 import CheckoutClient from "@/components/checkout/CheckoutClient";
 
+interface Category {
+  name: string;
+}
+
+interface Seller {
+  id: string;
+  name: string;
+}
+
+interface Product {
+  id: string;
+  name: string;
+  price: number;
+  discountPercentage: number;
+  images: string[] | Record<string, unknown>;
+  stock: number;
+  category?: Category;
+  seller?: Seller;
+}
+
+interface CartItem {
+  id: string;
+  userId: string;
+  productId: string;
+  quantity: number;
+  createdAt: string;
+  updatedAt: string;
+  product: Product;
+}
+
 export const metadata: Metadata = {
   title: "Checkout | Kiva",
   description: "Complete your purchase",
@@ -50,7 +80,7 @@ export default async function CheckoutPage() {
 
 const validAddresses = addresses || [];
 
-const validCartItems = cartItems.map((item: any) => ({
+const validCartItems = cartItems.map((item: CartItem) => ({
   ...item,
   product: {
     ...item.product,

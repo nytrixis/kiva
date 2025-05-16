@@ -7,6 +7,34 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
+interface Category {
+  id: string;
+  name: string;
+}
+
+interface Seller {
+  id: string;
+  name: string;
+}
+
+interface Product {
+  id: string;
+  name: string;
+  price: number;
+  images: string[] | string;
+  discountPercentage?: number;
+  category?: Category;
+  seller?: Seller;
+}
+
+interface WishlistItem {
+  id: string;
+  wishlistId: string;
+  productId: string;
+  createdAt: string;
+  product?: Product;
+}
+
 export async function GET() {
   try {
     const session = await getServerSession(authOptions);
@@ -59,7 +87,7 @@ export async function GET() {
     }
 
     // Process wishlist items to add calculated fields
-    const processedItems = (wishlist.items || []).map((item: any) => {
+    const processedItems = (wishlist.items || []).map((item: WishlistItem) => {
       const product = item.product;
       let discountPrice = null;
       const discountPercentage = product?.discountPercentage || 0;
@@ -74,9 +102,9 @@ export async function GET() {
           ...product,
           discountPrice,
           discountPercentage,
-          images: typeof product.images === 'string'
+          images: product && typeof product.images === 'string'
             ? JSON.parse(product.images)
-            : product.images,
+            : product?.images,
         },
       };
     });

@@ -14,6 +14,45 @@ interface CloudinaryUploadResult {
   }>;
 }
 
+interface User {
+  id: string;
+  name: string;
+  image?: string;
+}
+
+interface Product {
+  id: string;
+  name: string;
+  price: number;
+  images: string[] | string;
+  discountPercentage?: number;
+}
+
+interface Reel {
+  id: string;
+  user?: User;
+  product?: Product;
+  createdAt: string;
+}
+
+interface Like {
+  id: string;
+  userId: string;
+  reelId: string;
+}
+
+interface Comment {
+  id: string;
+  reelId: string;
+}
+
+interface SellerProfile {
+  userId: string;
+  businessName: string;
+  logoImage?: string;
+}
+
+
 // Configure Cloudinary
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -59,10 +98,10 @@ export async function GET(req: NextRequest) {
     const { data: reels, error } = await query;
     if (error) throw error;
 
-    const reelIds = (reels || []).map((reel: any) => reel.id);
+    const reelIds = (reels || []).map((reel: Reel) => reel.id);
 
     // 2. Fetch all likes for these reels
-    let likesMap: Record<string, any[]> = {};
+    const likesMap: Record<string, Like[]> = {};
     if (reelIds.length > 0) {
       const { data: likes } = await supabase
         .from("reel_like")
@@ -77,7 +116,7 @@ export async function GET(req: NextRequest) {
     }
 
     // 3. Fetch all comments for these reels
-    let commentsMap: Record<string, any[]> = {};
+    const commentsMap: Record<string, Comment[]> = {};
     if (reelIds.length > 0) {
       const { data: comments } = await supabase
         .from("reel_comment")
@@ -92,8 +131,8 @@ export async function GET(req: NextRequest) {
     }
 
     // 4. Fetch seller profiles for all unique userIds
-    const userIds = [...new Set((reels || []).map((reel: any) => reel.user?.id).filter(Boolean))];
-    let sellerProfiles: Record<string, any> = {};
+    const userIds = [...new Set((reels || []).map((reel: Reel) => reel.user?.id).filter(Boolean))];
+    const sellerProfiles: Record<string, SellerProfile> = {};
     if (userIds.length > 0) {
       const { data: profiles } = await supabase
         .from("SellerProfile")
@@ -107,7 +146,7 @@ export async function GET(req: NextRequest) {
     }
 
     // 5. Merge everything
-    const transformedReels = (reels || []).map((reel: any) => {
+    const transformedReels = (reels || []).map((reel: Reel) => {
       const likes = likesMap[reel.id] || [];
       const comments = commentsMap[reel.id] || [];
       return {
@@ -120,7 +159,7 @@ export async function GET(req: NextRequest) {
           : null,
           likes,
           comments,
-        isLiked: likes.some((like: any) => like.userId === session.user.id),
+        isLiked: likes.some((like: Like) => like.userId === session.user.id),
         likeCount: likes.length,
         commentCount: comments.length,
       };
@@ -257,7 +296,7 @@ async function createThumbnailFromVideo(videoUrl: string) {
       ],
       eager_async: false,
     });
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("Error creating thumbnail:", error);
     return null;
   }

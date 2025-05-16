@@ -6,6 +6,7 @@ import Image from "next/image";
 import { format } from "date-fns";
 import { Metadata } from "next";
 import { createClient } from "@supabase/supabase-js";
+import { AppPageRouteHandlerContext } from "next/dist/server/route-modules/app-page/module";
 
 enum UserRole {
   ADMIN = "ADMIN",
@@ -13,6 +14,20 @@ enum UserRole {
   CUSTOMER = "CUSTOMER",
   INFLUENCER = "INFLUENCER",
 }
+
+type Product = {
+  id: string;
+  name: string;
+  images: string[] | string;
+  price: number;
+  createdAt: string;
+  stock: number;
+  viewCount: number;
+  category?: {
+    name: string;
+  };
+};
+
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
@@ -73,7 +88,7 @@ export default async function SellerDetailsPage(
 
   // Sort and limit products to 5 most recent
   const products = (seller.products || [])
-    .sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+    .sort((a: Product, b: Product) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
     .slice(0, 5);
 
   return (
@@ -361,7 +376,7 @@ export default async function SellerDetailsPage(
             
             <div className="divide-y">
               {products.length > 0 ? (
-                products.map((product: any) => (
+                products.map((product: Product) => (
                   <div key={product.id} className="p-4 hover:bg-gray-50">
                     <div className="flex items-center space-x-4">
                       <div className="flex-shrink-0 relative h-16 w-16 rounded-md overflow-hidden">

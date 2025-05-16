@@ -40,7 +40,7 @@ export async function GET(request: Request) {
     }
 
     // Check if item exists in wishlist
-    const { data: wishlistItem, error: itemError } = await supabase
+    const { data: wishlistItem } = await supabase
       .from("WishlistItem")
       .select("id")
       .eq("wishlistId", wishlist.id)

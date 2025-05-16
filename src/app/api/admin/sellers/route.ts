@@ -9,12 +9,12 @@ enum UserRole {
   CUSTOMER = "CUSTOMER",
   INFLUENCER = "INFLUENCER",
 }
-enum SellerStatus {
-  PENDING = "PENDING",
-  APPROVED = "APPROVED",
-  REJECTED = "REJECTED",
-  SUSPENDED = "SUSPENDED",
-}
+// enum SellerStatus {
+//   PENDING = "PENDING",
+//   APPROVED = "APPROVED",
+//   REJECTED = "REJECTED",
+//   SUSPENDED = "SUSPENDED",
+// }
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;

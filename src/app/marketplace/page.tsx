@@ -6,6 +6,22 @@ export const metadata: Metadata = {
   description: "Explore all products from verified sellers on Kiva",
 };
 
+interface Product {
+  id: string;
+  name: string;
+  price: number;
+  description: string;
+  images: string[] | string;
+  discountPercentage: number;
+  stock: number;
+  rating: number;
+  reviewCount: number;
+  categoryId: string;
+  sellerId: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export default async function MarketplacePage() {
   // Fetch products from verified sellers via REST API
   const res = await fetch(
@@ -15,7 +31,7 @@ export default async function MarketplacePage() {
   const data = res.ok ? await res.json() : { products: [] };
   const products = data.products || [];
 
-  const productList = products.map((p: any) => ({
+  const productList = products.map((p: Product) => ({
   ...p,
   images: Array.isArray(p.images)
     ? p.images.filter((img: unknown): img is string => typeof img === "string")

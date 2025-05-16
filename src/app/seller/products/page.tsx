@@ -10,6 +10,20 @@ export const metadata = {
   description: "Manage your products on Kiva",
 };
 
+interface Category {
+  name: string;
+}
+
+interface Product {
+  id: string;
+  name: string;
+  price: number;
+  discountPercentage: number;
+  images: string[] | string;
+  stock: number;
+  category?: Category;
+}
+
 export default async function SellerProductsPage({
   searchParams,
 }: {
@@ -111,7 +125,7 @@ export default async function SellerProductsPage({
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200">
-                  {products.map((product: any) => {
+                  {products.map((product: Product) => {
                     // Calculate discounted price
                     const discountedPrice = product.discountPercentage > 0
                       ? product.price * (1 - product.discountPercentage / 100)

@@ -14,7 +14,7 @@ export async function GET(req: NextRequest) {
   const userIdMatch = searchParams.get("userIdMatch");
 
   // Build filter
-  let orFilters = [];
+  const orFilters = [];
   if (userIdMatch) orFilters.push(`userId.eq.${userIdMatch}`);
   if (categoryId) orFilters.push(`product.categoryId.eq.${categoryId}`);
 
@@ -64,11 +64,10 @@ export async function GET(req: NextRequest) {
   }
 
   // Filter likes for the current user
-  const result = (relatedReels || []).map((reel: any) => ({
+const result = (relatedReels || []).map((reel: { likes: { id: string }[] }) => ({
     ...reel,
     likes: Array.isArray(reel.likes) && userId
-      ? reel.likes.filter((like: any) => like.id === userId)
-      : [],
+? reel.likes.filter((like: { id: string }) => like.id === userId)      : [],
   }));
 
   return NextResponse.json(result);

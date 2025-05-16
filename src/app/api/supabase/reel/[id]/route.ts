@@ -7,6 +7,11 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
+interface Like {
+  id: string;
+  userId: string;
+}
+
 export async function GET(
   req: NextRequest,
   { params }: { params: { id: string } }
@@ -76,7 +81,7 @@ export async function GET(
             sellerProfile,
           }
         : null,
-      isLiked: (likes || []).some((like: any) => like.userId === userId),
+      isLiked: (likes || []).some((like: Like) => like.userId === userId),
       _count: {
         likes: likeCount,
         comments: commentCount,

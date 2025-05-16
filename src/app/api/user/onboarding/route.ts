@@ -59,7 +59,7 @@ export async function POST(req: Request) {
     if (prefError) throw prefError;
 
     // Remove sensitive data if needed
-    const { password, ...userWithoutPassword } = updatedUser;
+    const { password: _password, ...userWithoutPassword } = updatedUser;
 
     return NextResponse.json(
       {

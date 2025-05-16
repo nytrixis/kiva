@@ -12,6 +12,27 @@ interface ShopPageProps {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }
 
+interface Category {
+  name: string;
+}
+
+interface Seller {
+  name: string;
+}
+
+interface Product {
+  id: string;
+  name: string;
+  price: number;
+  discountPercentage: number;
+  images: string[] | string;
+  rating: number;
+  reviewCount: number;
+  category?: Category;
+  seller?: Seller;
+  stock: number;
+}
+
 export async function generateMetadata({ params }: ShopPageProps): Promise<Metadata> {
   const { id } = await params;
 
@@ -52,7 +73,7 @@ export default async function ShopPage({ params, searchParams }: ShopPageProps) 
 
   // Calculate shop stats
   const totalProducts = shop.user.products.length;
-  const avgRating = shop.user.products.reduce((sum: number, product: any) => sum + (product.rating || 0), 0) / (totalProducts || 1);
+  const avgRating = shop.user.products.reduce((sum: number, product: Product) => sum + (product.rating || 0), 0) / (totalProducts || 1);
 
   // For demo purposes, we'll create some mock stats
   const mockStats = {
@@ -73,21 +94,21 @@ export default async function ShopPage({ params, searchParams }: ShopPageProps) 
     };
   }).reverse();
 
-  const formattedProducts = shop.user.products.map((product: any) => {
+  const formattedProducts = shop.user.products.map((product: Product) => {
     // Handle images conversion more explicitly
     let processedImages: string[] = [];
 
     if (product.images) {
-      if (Array.isArray(product.images)) {
-        processedImages = product.images.map((img: any) =>
-          typeof img === 'string' ? img : ''
-        ).filter(Boolean);
-      } else if (typeof product.images === 'object') {
-        processedImages = Object.values(product.images)
-          .map((img: any) => typeof img === 'string' ? img : '')
-          .filter(Boolean);
-      }
-    }
+  if (Array.isArray(product.images)) {
+    processedImages = (product.images as unknown[]).map((img: unknown) =>
+      typeof img === 'string' ? img : ''
+    ).filter(Boolean);
+  } else if (typeof product.images === 'object') {
+    processedImages = Object.values(product.images)
+      .map((img: unknown) => typeof img === 'string' ? img : '')
+      .filter(Boolean);
+  }
+}
 
     return {
       id: product.id,

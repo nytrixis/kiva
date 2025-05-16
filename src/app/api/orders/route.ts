@@ -7,6 +7,18 @@ interface CartItemRequest {
   id: string;
 }
 
+interface Product {
+  id: string;
+  price: number;
+  discountPercentage: number;
+}
+
+interface CartItem {
+  id: string;
+  quantity: number;
+  product: Product;
+}
+
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
@@ -47,7 +59,7 @@ export async function POST(req: NextRequest) {
 
     // Calculate order totals
     let subtotal = 0;
-    const orderItems = cartItems.map((item: any) => {
+    const orderItems = cartItems.map((item: CartItem) => {
       const discountedPrice = item.product.price * (1 - item.product.discountPercentage / 100);
       const itemTotal = discountedPrice * item.quantity;
       subtotal += itemTotal;
@@ -83,7 +95,8 @@ export async function POST(req: NextRequest) {
     if (orderError) throw orderError;
 
     // Insert order items
-    const orderItemsToInsert = orderItems.map((item: any) => ({
+    const orderItemsToInsert = orderItems.map((item: { productId: string; quantity: number; price: number; discountPercentage: number }) => ({
+
       orderId: order.id,
       ...item
     }));

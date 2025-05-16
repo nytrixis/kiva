@@ -7,6 +7,36 @@ import ProductImageGallery from "@/components/product/ProductImageGallery";
 import { Badge } from "@/components/ui/badge";
 import { formatCurrency } from "@/lib/utils";
 
+interface Category {
+  id: string;
+  name: string;
+  slug: string;
+}
+
+interface SellerProfile {
+  businessName: string;
+  logoImage?: string;
+  status: string;
+}
+
+interface Seller {
+  id: string;
+  name: string;
+  sellerProfile?: SellerProfile;
+}
+
+interface Product {
+  id: string;
+  name: string;
+  price: number;
+  discountPercentage: number;
+  images: string[] | string;
+  stock: number;
+  description: string;
+  category?: Category;
+  seller: Seller;
+}
+
 interface ProductPageParams {
   params: Promise<{ id: string }>;
 }
@@ -70,8 +100,8 @@ export default async function ProductPage({ params }: ProductPageParams) {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {/* Product Images */}
         <div>
-          <ProductImageGallery images={productImages.map((img: any) => String(img))} productName={product.name} />
-        </div>
+<ProductImageGallery images={productImages.map((img: string) => String(img))} productName={product.name} />
+          </div>
 
         {/* Product Details */}
         <div className="space-y-6">

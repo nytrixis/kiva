@@ -5,6 +5,27 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
+interface Category {
+  id: string;
+  name: string;
+  slug: string;
+}
+
+interface Seller {
+  id: string;
+  name: string;
+}
+
+interface Product {
+  id: string;
+  name: string;
+  price: number;
+  images: string[] | string;
+  discountPercentage: number;
+  category?: Category;
+  seller?: Seller;
+}
+
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
@@ -84,7 +105,7 @@ export async function GET(request: Request) {
     }
 
     // Process products to add calculated fields
-    const processedProducts = (products || []).map((product: any) => {
+const processedProducts = (products || []).map((product: Product) => {
       let discountPrice = null;
       let discountPercentage = 0;
 

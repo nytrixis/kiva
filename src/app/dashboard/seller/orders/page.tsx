@@ -11,6 +11,23 @@ export const metadata = {
   description: "Manage your orders and track your sales",
 };
 
+interface OrderItem {
+  id: string;
+  product?: { name?: string | null; id?: string };
+  product_id?: string;
+  quantity: number;
+  price: number;
+}
+
+interface OrderData {
+  id: string;
+  created_at: string;
+  total: number;
+  status: string;
+  user?: { name?: string | null };
+  items: OrderItem[];
+}
+
 interface Order {
   id: string;
   createdAt: Date | string;
@@ -23,6 +40,9 @@ interface Order {
     quantity: number;
     price: number;
   }[];
+  orderNumber: string;
+  customerName: string;
+  date: Date;
 }
 
 type OrderStatus = "pending" | "processing" | "shipped" | "delivered" | "cancelled";
@@ -137,28 +157,31 @@ export default async function SellerOrdersPage() {
   }
 
   // Filter orders to only those that have at least one item with a productId in productIds
-  const orders = ordersData.filter((order: any) =>
-    order.items.some((item: any) => productIds.includes(item.product_id || item.product?.id))
-  );
+const orders = (ordersData as OrderData[]).filter((order) =>
+  order.items.some((item) => {
+    const pid = item.product_id ?? item.product?.id;
+    return pid !== undefined && productIds.includes(pid);
+  })
+);
 
   // Format orders for the OrdersTable component
-  const formattedOrders = orders.map((order: any) => ({
-    id: order.id,
-    createdAt: order.created_at,
-    total: order.total,
-    status: (order.status?.toLowerCase() === 'paid' ? 'processing' : order.status?.toLowerCase()) as OrderStatus,
-    user: { name: order.user?.name || 'Anonymous' },
-    items: (order.items || []).map((item: any) => ({
-      id: item.id,
-      product: { name: item.product?.name ?? 'Unknown' },
-      quantity: item.quantity,
-      price: item.price
-    })),
-    // Add missing properties for OrdersTable compatibility
-    orderNumber: order.id, // or use another unique order number if available
-    customerName: order.user?.name || 'Anonymous',
-    date: order.created_at,
-  }));
+  const formattedOrders = orders.map((order: OrderData) => ({
+  id: order.id,
+  createdAt: order.created_at,
+  total: order.total,
+  status: (order.status?.toLowerCase() === 'paid' ? 'processing' : order.status?.toLowerCase()) as OrderStatus,
+  user: { name: order.user?.name || 'Anonymous' },
+  items: (order.items || []).map((item: OrderItem) => ({
+  id: item.id,
+  productName: item.product?.name ?? 'Unknown',
+  quantity: item.quantity,
+  price: item.price
+})),
+  // Add missing properties for OrdersTable compatibility
+  orderNumber: order.id,
+  customerName: order.user?.name || 'Anonymous',
+  date: new Date(order.created_at),
+}));
 
   // Format data for charts
   const revenueData = formatOrdersDataForChart(formattedOrders, "revenue");
