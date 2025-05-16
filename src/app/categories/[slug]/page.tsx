@@ -8,12 +8,10 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
-type CategoryPageParams = {
-  params: { slug: string };
-};
+// No custom CategoryPageParams type needed!
 
-export async function generateMetadata({ params }: CategoryPageParams): Promise<Metadata> {
-  const { slug } = params; // <-- Remove await
+export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
+  const { slug } = params;
 
   const { data: category } = await supabase
     .from("Category")
@@ -33,8 +31,8 @@ export async function generateMetadata({ params }: CategoryPageParams): Promise<
   };
 }
 
-export default async function CategoryPage({ params }: CategoryPageParams) {
-  const { slug } = params; // <-- Remove await
+export default async function CategoryPage({ params }: { params: { slug: string } }) {
+  const { slug } = params;
 
   // Get the category by slug
   const { data: category } = await supabase
