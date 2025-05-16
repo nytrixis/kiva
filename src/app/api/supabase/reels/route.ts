@@ -1,4 +1,4 @@
-import type { NextApiRequest, NextApiResponse } from "next";
+import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 
 const supabase = createClient(
@@ -16,8 +16,9 @@ interface Reel {
   likes?: Like[];
 }
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  const { userId, take } = req.query;
+export async function GET(req: NextRequest) {
+  const userId = req.nextUrl.searchParams.get("userId");
+  const take = Number(req.nextUrl.searchParams.get("take")) || 5;
 
   // Fetch reels with related user, product, and like/comment counts
   const { data: reels, error } = await supabase
@@ -49,10 +50,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       )
     `)
     .order("createdAt", { ascending: false })
-    .limit(Number(take) || 5);
+    .limit(take);
 
   if (error) {
-    return res.status(500).json({ error: error.message });
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
   // Optionally, filter likes for the current user
@@ -61,5 +62,5 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     likes: reel.likes?.filter((like: Like) => like.id === userId) || [],
   }));
 
-  res.status(200).json(reelsWithLikes);
+  return NextResponse.json(reelsWithLikes);
 }
