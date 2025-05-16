@@ -35,7 +35,7 @@ interface Reel {
   isLiked: boolean;
   user: User;
   product?: Product | null;
-  likes?: any[]; // Add this line to fix the error
+  likes?: unknown[]; // Add this line to fix the error
 }
 
 interface SellerProduct {

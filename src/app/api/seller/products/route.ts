@@ -69,7 +69,7 @@ function extractPublicIdFromUrl(url: string): string | null {
     const regex = /\/v\d+\/(.+)\.\w+$/;
     const match = url.match(regex);
     return match ? match[1] : null;
-  } catch (_error) {
+  } catch {
     return null;
   }
 }

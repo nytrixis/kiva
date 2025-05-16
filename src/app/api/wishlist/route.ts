@@ -46,48 +46,49 @@ export async function GET() {
       );
     }
 
-    // Get user's wishlist and items
-    let { data: wishlist, error } = await supabase
-      .from("Wishlist")
-      .select(`
+    const { data: wishlist, error } = await supabase
+  .from("Wishlist")
+  .select(`
+    *,
+    items:WishlistItem (
+      *,
+      product:Product (
         *,
-        items:WishlistItem (
+        category:Category(*),
+        seller:sellerId(id, name)
+      )
+    )
+  `)
+  .eq("userId", session.user.id)
+  .single();
+
+if (error && error.code !== "PGRST116") throw error;
+
+let finalWishlist = wishlist;
+
+if (!finalWishlist) {
+  const { data: createdWishlist, error: createError } = await supabase
+    .from("Wishlist")
+    .insert([{ userId: session.user.id }])
+    .select(`
+      *,
+      items:WishlistItem (
+        *,
+        product:Product (
           *,
-          product:Product (
-            *,
-            category:Category(*),
-            seller:sellerId(id, name)
-          )
+          category:Category(*),
+          seller:sellerId(id, name)
         )
-      `)
-      .eq("userId", session.user.id)
-      .single();
+      )
+    `)
+    .single();
+  if (createError) throw createError;
+  finalWishlist = createdWishlist;
+}
 
-    if (error && error.code !== "PGRST116") throw error;
-
-    // If wishlist doesn't exist, create it
-    if (!wishlist) {
-      const { data: createdWishlist, error: createError } = await supabase
-        .from("Wishlist")
-        .insert([{ userId: session.user.id }])
-        .select(`
-          *,
-          items:WishlistItem (
-            *,
-            product:Product (
-              *,
-              category:Category(*),
-              seller:sellerId(id, name)
-            )
-          )
-        `)
-        .single();
-      if (createError) throw createError;
-      wishlist = createdWishlist;
-    }
 
     // Process wishlist items to add calculated fields
-    const processedItems = (wishlist.items || []).map((item: WishlistItem) => {
+    const processedItems = (finalWishlist.items || []).map((item: WishlistItem) => {
       const product = item.product;
       let discountPrice = null;
       const discountPercentage = product?.discountPercentage || 0;
@@ -157,7 +158,7 @@ export async function POST(request: Request) {
     }
 
     // Get or create user's wishlist
-    let { data: wishlist, error: wishlistError } = await supabase
+    const { data: wishlist, error: wishlistError } = await supabase
       .from("Wishlist")
       .select("id")
       .eq("userId", session.user.id)
@@ -165,21 +166,23 @@ export async function POST(request: Request) {
 
     if (wishlistError && wishlistError.code !== "PGRST116") throw wishlistError;
 
-    if (!wishlist) {
-      const { data: createdWishlist, error: createError } = await supabase
-        .from("Wishlist")
-        .insert([{ userId: session.user.id }])
-        .select("id")
-        .single();
-      if (createError) throw createError;
-      wishlist = createdWishlist;
-    }
+let finalWishlist = wishlist;
+
+if (!finalWishlist) {
+  const { data: createdWishlist, error: createError } = await supabase
+    .from("Wishlist")
+    .insert([{ userId: session.user.id }])
+    .select("id")
+    .single();
+  if (createError) throw createError;
+  finalWishlist = createdWishlist;
+}
 
     // Check if item already exists in wishlist
     const { data: existingWishlistItem, error: existingError } = await supabase
       .from("WishlistItem")
       .select("id")
-      .eq("wishlistId", wishlist.id)
+      .eq("wishlistId", finalWishlist.id)
       .eq("productId", productId)
       .maybeSingle();
 
@@ -204,7 +207,7 @@ export async function POST(request: Request) {
         .from("WishlistItem")
         .insert([
           {
-            wishlistId: wishlist.id,
+            wishlistId: finalWishlist.id,
             productId,
           },
         ])

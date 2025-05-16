@@ -97,11 +97,28 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
       .eq("sellerId", shop.user.id);
 
     if (!productsError && productsData) {
-      products = productsData.map((p: any) => ({
-        ...p,
-        category: Array.isArray(p.category) ? p.category[0] : p.category,
-      }));
-    }
+  products = productsData.map((p: {
+    id: string;
+    name: string;
+    price: number;
+    discountPercentage: number;
+    images: string[] | string;
+    rating: number;
+    reviewCount: number;
+    stock: number;
+    category: Category[] | Category | null;
+  }) => ({
+    id: p.id,
+    name: p.name,
+    price: p.price,
+    discountPercentage: p.discountPercentage,
+    images: p.images,
+    rating: p.rating,
+    reviewCount: p.reviewCount,
+    stock: p.stock,
+    category: Array.isArray(p.category) ? p.category[0] : p.category ?? undefined,
+  }));
+}
   }
 
   // 3. Optionally filter products by search query
