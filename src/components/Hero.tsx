@@ -16,9 +16,9 @@ const carouselData = [
     description: "Shop from trusted local vendors and discover products with real recommendations.",
     image: "/images/model.png",
     stats: [
-      { value: "8+", label: "Years Experience" },
-      { value: "4k+", label: "Best Clients" },
-      { value: "4.9", label: "Customer Rating" }
+      { value: "50+", label: "Owners Surveyed" },
+      { value: "10+", label: "Sellers Onboarded" },
+      { value: "Unique", label: "Products Listed" }
     ]
   },
   {
@@ -27,31 +27,31 @@ const carouselData = [
     description: "Explore artisanal products made with passion and traditional techniques.",
     image: "/images/model1.png",
     stats: [
-      { value: "100+", label: "Artisans" },
-      { value: "500+", label: "Products" },
-      { value: "12", label: "Categories" }
+      { value: "20+", label: "Artisan Partners" },
+      { value: "12", label: "Craft Categories" },
+      { value: "85%", label: "Handmade Items" }
     ]
   },
   {
     id: 3,
     heading: "Personalized Gifts & Decor",
     description: "Discover unique customizable items handcrafted by local artisans to create the perfect gift or home accent.",
-    image: "/images/model5.png", // Image showing personalized gifts or home decor items
+    image: "/images/model5.png",
     stats: [
-      { value: "100%", label: "Customizable" },
-      { value: "3-5 Days", label: "Turnaround Time" },
-      { value: "Unique", label: "Handcrafted Items" }
+      { value: "70%", label: "Custom Orders" },
+      { value: "3-7 Days", label: "Delivery Time" },
+      { value: "95%", label: "Unique Designs" }
     ]
   },
   {
     id: 4,
     heading: "Trusted Recommendations",
-    description: "Shop with confidence through authentic reviews and recommendations from trusted local influencers. ",
+    description: "Shop with confidence through authentic reviews and recommendations from trusted local influencers.",
     image: "/images/model4.png",
     stats: [
-      { value: "Verified", label: "Reviews" },
-      { value: "100+", label: "Local Influencers" },
-      { value: "Real", label: "Experiences" }
+      { value: "15+", label: "Early Reviewers" },
+      { value: "100%", label: "Verified Sellers" },
+      { value: "4.5+", label: "Avg. Rating (Beta)" }
     ]
   },
   {
@@ -60,12 +60,13 @@ const carouselData = [
     description: "Eco-friendly clothing that looks good and feels good for the planet.",
     image: "/images/model333.png",
     stats: [
-      { value: "30%", label: "Less Water" },
-      { value: "90%", label: "Recycled" },
-      { value: "Zero", label: "Carbon Footprint" }
+      { value: "60%", label: "Eco Materials" },
+      { value: "25%", label: "Lower Waste" },
+      { value: "0%", label: "Plastic Use" }
     ]
   }
 ];
+
 
 export default function Hero() {
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -165,15 +166,26 @@ export default function Hero() {
               className="space-y-4 md:space-y-6 relative order-2 md:order-1 mt-8 md:mt-0"
             >
               <h1 className="font-heading text-3xl md:text-4xl lg:text-6xl font-bold text-[#111827] leading-tight">
-                {carouselData[currentSlide].heading.split(' ').map((word, i, arr) => 
-                  i === arr.length - 2 ? (
-                    <span key={i}>
-                      <span className="text-primary">{word}</span>{' '}
-                    </span>
-                  ) : (
+                {carouselData[currentSlide].heading.split(' ').map((word, i, arr) => {
+                  const isId3 = carouselData[currentSlide].id === 3;
+                  if (isId3 && i === 1) {
+                    return (
+                      <span key={i}>
+                        <span className="text-primary">{word}</span>{' '}
+                      </span>
+                    );
+                  }
+                  if (!isId3 && i === arr.length - 2) {
+                    return (
+                      <span key={i}>
+                        <span className="text-primary">{word}</span>{' '}
+                      </span>
+                    );
+                  }
+                  return (
                     <span key={i}>{word}{' '}</span>
-                  )
-                )}
+                  );
+                })}
               </h1>
               
               <p className="text-base md:text-lg text-gray-600 max-w-md">

@@ -29,13 +29,28 @@ export default function Footer() {
               <a href="#" className="text-primary hover:text-primary/80 transition-colors">
                 <Facebook size={20} />
               </a>
-              <a href="#" className="text-primary hover:text-primary/80 transition-colors">
+              <a
+                href="https://instagram.com/kivaverse"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary hover:text-primary/80 transition-colors"
+              >
                 <Instagram size={20} />
               </a>
-              <a href="#" className="text-primary hover:text-primary/80 transition-colors">
+              <a
+                href="https://x.com/kivaverse"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary hover:text-primary/80 transition-colors"
+              >
                 <Twitter size={20} />
               </a>
-              <a href="#" className="text-primary hover:text-primary/80 transition-colors">
+              <a
+                href="https://linkedin.com/company/kivaverse"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary hover:text-primary/80 transition-colors"
+              >
                 <Linkedin size={20} />
               </a>
             </div>
@@ -56,7 +71,7 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/products" className="text-gray-600 hover:text-primary transition-colors">
+                <Link href="/marketplace" className="text-gray-600 hover:text-primary transition-colors">
                   Products
                 </Link>
               </li>
@@ -118,13 +133,13 @@ export default function Footer() {
               <li className="flex items-center">
                 <Phone className="mr-2 h-5 w-5 text-primary" />
                 <a href="tel:+1234567890" className="text-gray-600 hover:text-primary transition-colors">
-                  +91 1111111111
+                  +91 9933506086
                 </a>
               </li>
               <li className="flex items-center">
                 <Mail className="mr-2 h-5 w-5 text-primary" />
                 <a href="mailto:info@kiva.com" className="text-gray-600 hover:text-primary transition-colors">
-                  info@kiva.com
+                  info@mykiva.in
                 </a>
               </li>
             </ul>

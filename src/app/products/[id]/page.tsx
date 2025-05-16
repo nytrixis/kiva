@@ -6,6 +6,8 @@ import AddToWishlistButton from "@/components/product/AddToWishlistButton";
 import ProductImageGallery from "@/components/product/ProductImageGallery";
 import { Badge } from "@/components/ui/badge";
 import { formatCurrency } from "@/lib/utils";
+import AddToRecentlyViewed from "@/components/AddToRecentlyViewed";
+
 
 // interface Category {
 //   id: string;
@@ -96,7 +98,9 @@ export default async function ProductPage({ params }: ProductPageParams) {
   const productImages = Array.isArray(product.images) ? product.images : [];
 
   return (
+    
     <div className="container mx-auto py-8 px-4">
+      <AddToRecentlyViewed product={product} />
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {/* Product Images */}
         <div>
