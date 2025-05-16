@@ -5,20 +5,22 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
-interface Category {
+interface SellerProfile {
+  businessName: string;
+}
+
+interface CategoryAPI {
   id: string;
   name: string;
   slug: string;
 }
 
-interface SellerProfile {
-  businessName: string;
-}
-
-interface Seller {
+interface SellerAPI {
   id: string;
   name: string;
-  sellerProfile?: SellerProfile;
+  sellerProfile: {
+    businessName: string;
+  };
 }
 
 interface ProductAPI {
@@ -32,18 +34,8 @@ interface ProductAPI {
   viewCount: number;
   rating: number;
   reviewCount: number;
-  category: {
-    id: string;
-    name: string;
-    slug: string;
-  };
-  seller: {
-    id: string;
-    name: string;
-    sellerProfile: {
-      businessName: string;
-    };
-  };
+  category: CategoryAPI;
+  seller: SellerAPI;
   link: string;
 }
 
@@ -53,6 +45,75 @@ interface ProductsResponse {
   page?: number;
   limit?: number;
   totalPages?: number;
+}
+
+// Helper types for Supabase join results
+type SupabaseCategory = CategoryAPI | CategoryAPI[] | null | undefined;
+type SupabaseSeller = {
+  id?: string;
+  name?: string;
+  sellerProfile?: SellerProfile | null;
+} | {
+  id?: string;
+  name?: string;
+  sellerProfile?: SellerProfile | null;
+}[] | null | undefined;
+
+type SupabaseProduct = {
+  id: string;
+  name: string;
+  price: number;
+  images: string[] | string;
+  discountPercentage: number;
+  createdAt: string;
+  viewCount?: number;
+  rating?: number;
+  reviewCount?: number;
+  category?: SupabaseCategory;
+  seller?: SupabaseSeller;
+};
+
+function parseCategory(category: SupabaseCategory): CategoryAPI {
+  if (Array.isArray(category)) {
+    return {
+      id: category[0]?.id || "",
+      name: category[0]?.name || "",
+      slug: category[0]?.slug || "",
+    };
+  }
+  return {
+    id: category?.id || "",
+    name: category?.name || "",
+    slug: category?.slug || "",
+  };
+}
+
+function parseSeller(seller: SupabaseSeller): SellerAPI {
+  const s = Array.isArray(seller) ? seller[0] : seller;
+  return {
+    id: s?.id || "",
+    name: s?.name || "",
+    sellerProfile: {
+      businessName: s?.sellerProfile?.businessName || "",
+    },
+  };
+}
+
+function parseImages(images: string[] | string | undefined): string[] {
+  if (Array.isArray(images)) {
+    return images.filter((img) => typeof img === "string" && img.trim() !== "");
+  }
+  if (typeof images === "string") {
+    try {
+      const arr = JSON.parse(images);
+      if (Array.isArray(arr)) {
+        return arr.filter((img) => typeof img === "string" && img.trim() !== "");
+      }
+    } catch {
+      return [];
+    }
+  }
+  return [];
 }
 
 export async function GET(request: Request) {
@@ -84,42 +145,23 @@ export async function GET(request: Request) {
         return NextResponse.json({ products: [] }, { status: 500 });
       }
 
-      const products: ProductAPI[] = (data as any[]).map((p) => {
-        // Supabase returns category and seller as arrays when using foreign key joins
-        const category = Array.isArray((p as any).category) ? (p as any).category[0] : (p as any).category;
-        const seller = Array.isArray((p as any).seller) ? (p as any).seller[0] : (p as any).seller;
-        return {
-          id: p.id,
-          name: p.name,
-          price: p.discountPercentage > 0
-            ? Math.round((p.price * (1 - p.discountPercentage / 100)) * 100) / 100
-            : p.price,
-          originalPrice: p.price,
-          images: Array.isArray((p as any).images)
-            ? (p as any).images.filter((img: string) => typeof img === "string" && img.trim() !== "")
-            : typeof (p as any).images === "string"
-              ? JSON.parse((p as any).images).filter((img: string) => typeof img === "string" && img.trim() !== "")
-              : [],
-          discountPercentage: p.discountPercentage ?? 0,
-          createdAt: p.createdAt,
-          viewCount: p.viewCount ?? 0,
-          rating: p.rating ?? 0,
-          reviewCount: p.reviewCount ?? 0,
-          category: {
-            id: category?.id || "",
-            name: category?.name || "",
-            slug: category?.slug || "",
-          },
-          seller: {
-            id: seller?.id || "",
-            name: seller?.name || "",
-            sellerProfile: {
-              businessName: seller?.sellerProfile?.businessName || "",
-            },
-          },
-          link: `/products/${p.id}`,
-        } as ProductAPI;
-      });
+      const products: ProductAPI[] = (data as SupabaseProduct[]).map((p) => ({
+        id: p.id,
+        name: p.name,
+        price: p.discountPercentage > 0
+          ? Math.round((p.price * (1 - p.discountPercentage / 100)) * 100) / 100
+          : p.price,
+        originalPrice: p.price,
+        images: parseImages(p.images),
+        discountPercentage: p.discountPercentage ?? 0,
+        createdAt: p.createdAt,
+        viewCount: p.viewCount ?? 0,
+        rating: p.rating ?? 0,
+        reviewCount: p.reviewCount ?? 0,
+        category: parseCategory(p.category),
+        seller: parseSeller(p.seller),
+        link: `/products/${p.id}`,
+      }));
 
       return NextResponse.json({ products });
     }
@@ -197,42 +239,24 @@ export async function GET(request: Request) {
       throw error;
     }
 
-    const products: ProductAPI[] = (data as any[]).map((p) => {
-      const category = Array.isArray((p as any).category) ? (p as any).category[0] : (p as any).category;
-      const seller = Array.isArray((p as any).seller) ? (p as any).seller[0] : (p as any).seller;
-      return {
-        id: p.id,
-        name: p.name,
-        price: p.price,
-        originalPrice:
-          p.discountPercentage > 0
-            ? Math.round((p.price / (1 - p.discountPercentage / 100)) * 100) / 100
-            : p.price,
-        images: Array.isArray((p as any).images)
-          ? (p as any).images.filter((img: string) => typeof img === "string" && img.trim() !== "")
-          : typeof (p as any).images === "string"
-            ? JSON.parse((p as any).images).filter((img: string) => typeof img === "string" && img.trim() !== "")
-            : [],
-        discountPercentage: p.discountPercentage ?? 0,
-        createdAt: p.createdAt,
-        viewCount: p.viewCount ?? 0,
-        rating: p.rating ?? 0,
-        reviewCount: p.reviewCount ?? 0,
-        category: {
-          id: category?.id || "",
-          name: category?.name || "",
-          slug: category?.slug || "",
-        },
-        seller: {
-          id: seller?.id || "",
-          name: seller?.name || "",
-          sellerProfile: {
-            businessName: seller?.sellerProfile?.businessName || "",
-          },
-        },
-        link: `/products/${p.id}`,
-      };
-    });
+    const products: ProductAPI[] = (data as SupabaseProduct[]).map((p) => ({
+      id: p.id,
+      name: p.name,
+      price: p.price,
+      originalPrice:
+        p.discountPercentage > 0
+          ? Math.round((p.price / (1 - p.discountPercentage / 100)) * 100) / 100
+          : p.price,
+      images: parseImages(p.images),
+      discountPercentage: p.discountPercentage ?? 0,
+      createdAt: p.createdAt,
+      viewCount: p.viewCount ?? 0,
+      rating: p.rating ?? 0,
+      reviewCount: p.reviewCount ?? 0,
+      category: parseCategory(p.category),
+      seller: parseSeller(p.seller),
+      link: `/products/${p.id}`,
+    }));
 
     const response: ProductsResponse = {
       products,
