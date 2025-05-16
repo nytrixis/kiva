@@ -1,10 +1,11 @@
-// import { PrismaAdapter } from "@auth/prisma-adapter";
 import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
+import { createClient } from "@supabase/supabase-js";
 import { compare } from "bcrypt";
-import { prisma } from "@/lib/db";
-import { UserRole } from "@prisma/client";
 
+export type UserRole = "CUSTOMER" | "SELLER" | "ADMIN" | "INFLUENCER";
+
+// Module augmentation for NextAuth types
 declare module "next-auth" {
   interface User {
     id: string;
@@ -14,7 +15,7 @@ declare module "next-auth" {
     image?: string | null;
     isOnboarded: boolean;
   }
-  
+
   interface Session {
     user: {
       id: string;
@@ -33,9 +34,13 @@ declare module "next-auth/jwt" {
   }
 }
 
+// Initialize Supabase client
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
+
 export const authOptions: NextAuthOptions = {
-  // Remove PrismaAdapter for now as it might be causing issues
-  // adapter: PrismaAdapter(prisma),
   session: {
     strategy: "jwt",
   },
@@ -58,25 +63,32 @@ export const authOptions: NextAuthOptions = {
           return null;
         }
         try {
-          const user = await prisma.user.findUnique({
-            where: {
-              email: credentials.email,
-            },
-          });
-          
-          if (!user || !user.password) {
+          // Query user from Supabase
+          const { data: users, error } = await supabase
+            .from("User")
+            .select("*")
+            .eq("email", credentials.email)
+            .limit(1);
+
+          if (error || !users || users.length === 0) {
             return null;
           }
-          
+
+          const user = users[0];
+
+          if (!user.password) {
+            return null;
+          }
+
           const isPasswordValid = await compare(
             credentials.password,
             user.password
           );
-          
+
           if (!isPasswordValid) {
             return null;
           }
-          
+
           return {
             id: user.id,
             email: user.email,
@@ -102,7 +114,7 @@ export const authOptions: NextAuthOptions = {
     },
     async session({ session, token }) {
       if (token && session.user) {
-        session.user.id = token.id;
+        session.user.id = token.id as string;
         session.user.role = token.role as string;
       }
       return session;

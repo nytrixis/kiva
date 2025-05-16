@@ -1,96 +1,89 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
-import { prisma } from "@/lib/db";
+import { createClient } from "@supabase/supabase-js";
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 export async function GET() {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session?.user) {
       return NextResponse.json(
         { error: "Unauthorized" },
         { status: 401 }
       );
     }
-    
-    // Get user's wishlist
-    let wishlist = await prisma.wishlist.findUnique({
-      where: {
-        userId: session.user.id,
-      },
-      include: {
-        items: {
-          include: {
-            product: {
-              include: {
-                category: true,
-                seller: {
-                  select: {
-                    id: true,
-                    name: true,
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
-    });
-    
+
+    // Get user's wishlist and items
+    let { data: wishlist, error } = await supabase
+      .from("Wishlist")
+      .select(`
+        *,
+        items:WishlistItem (
+          *,
+          product:Product (
+            *,
+            category:Category(*),
+            seller:sellerId(id, name)
+          )
+        )
+      `)
+      .eq("userId", session.user.id)
+      .single();
+
+    if (error && error.code !== "PGRST116") throw error;
+
     // If wishlist doesn't exist, create it
     if (!wishlist) {
-      wishlist = await prisma.wishlist.create({
-        data: {
-          userId: session.user.id,
-        },
-        include: {
-          items: {
-            include: {
-              product: {
-                include: {
-                  category: true,
-                  seller: {
-                    select: {
-                      id: true,
-                      name: true,
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
-      });
+      const { data: createdWishlist, error: createError } = await supabase
+        .from("Wishlist")
+        .insert([{ userId: session.user.id }])
+        .select(`
+          *,
+          items:WishlistItem (
+            *,
+            product:Product (
+              *,
+              category:Category(*),
+              seller:sellerId(id, name)
+            )
+          )
+        `)
+        .single();
+      if (createError) throw createError;
+      wishlist = createdWishlist;
     }
-    
+
     // Process wishlist items to add calculated fields
-    const processedItems = wishlist.items.map(item => {
+    const processedItems = (wishlist.items || []).map((item: any) => {
       const product = item.product;
       let discountPrice = null;
-      const discountPercentage = product.discountPercentage || 0;
-      
-      if (discountPercentage > 0) {
+      const discountPercentage = product?.discountPercentage || 0;
+
+      if (product && discountPercentage > 0) {
         discountPrice = parseFloat((product.price * (1 - discountPercentage / 100)).toFixed(2));
       }
-      
+
       return {
         ...item,
         product: {
           ...product,
           discountPrice,
           discountPercentage,
-          // Convert images from JSON string to array if needed
-          images: typeof product.images === 'string' 
-            ? JSON.parse(product.images) 
+          images: typeof product.images === 'string'
+            ? JSON.parse(product.images)
             : product.images,
         },
       };
     });
-    
+
     return NextResponse.json({
-        items: processedItems,
-        itemCount: processedItems.length,
+      items: processedItems,
+      itemCount: processedItems.length,
     });
   } catch (error) {
     console.error("Error fetching wishlist:", error);
@@ -104,80 +97,94 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session?.user) {
       return NextResponse.json(
         { error: "Unauthorized" },
         { status: 401 }
       );
     }
-    
+
     const { productId } = await request.json();
-    
+
     if (!productId) {
       return NextResponse.json(
         { error: "Product ID is required" },
         { status: 400 }
       );
     }
-    
+
     // Check if product exists
-    const product = await prisma.product.findUnique({
-      where: { id: productId },
-    });
-    
-    if (!product) {
+    const { data: product, error: productError } = await supabase
+      .from("Product")
+      .select("id")
+      .eq("id", productId)
+      .single();
+
+    if (productError || !product) {
       return NextResponse.json(
         { error: "Product not found" },
         { status: 404 }
       );
     }
-    
+
     // Get or create user's wishlist
-    let wishlist = await prisma.wishlist.findUnique({
-      where: {
-        userId: session.user.id,
-      },
-    });
-    
+    let { data: wishlist, error: wishlistError } = await supabase
+      .from("Wishlist")
+      .select("id")
+      .eq("userId", session.user.id)
+      .single();
+
+    if (wishlistError && wishlistError.code !== "PGRST116") throw wishlistError;
+
     if (!wishlist) {
-      wishlist = await prisma.wishlist.create({
-        data: {
-          userId: session.user.id,
-        },
-      });
+      const { data: createdWishlist, error: createError } = await supabase
+        .from("Wishlist")
+        .insert([{ userId: session.user.id }])
+        .select("id")
+        .single();
+      if (createError) throw createError;
+      wishlist = createdWishlist;
     }
-    
+
     // Check if item already exists in wishlist
-    const existingWishlistItem = await prisma.wishlistItem.findFirst({
-      where: {
-        wishlistId: wishlist.id,
-        productId,
-      },
-    });
-    
+    const { data: existingWishlistItem, error: existingError } = await supabase
+      .from("WishlistItem")
+      .select("id")
+      .eq("wishlistId", wishlist.id)
+      .eq("productId", productId)
+      .maybeSingle();
+
+    if (existingError) throw existingError;
+
     if (existingWishlistItem) {
       // Remove item if it already exists (toggle behavior)
-      await prisma.wishlistItem.delete({
-        where: { id: existingWishlistItem.id },
-      });
-      
+      const { error: deleteError } = await supabase
+        .from("WishlistItem")
+        .delete()
+        .eq("id", existingWishlistItem.id);
+
+      if (deleteError) throw deleteError;
+
       return NextResponse.json({
         message: "Item removed from wishlist",
         added: false,
       });
     } else {
       // Add new item to wishlist
-      const wishlistItem = await prisma.wishlistItem.create({
-        data: {
-          wishlistId: wishlist.id,
-          productId,
-        },
-        include: {
-          product: true,
-        },
-      });
-      
+      const { data: wishlistItem, error: addError } = await supabase
+        .from("WishlistItem")
+        .insert([
+          {
+            wishlistId: wishlist.id,
+            productId,
+          },
+        ])
+        .select("*, product:Product(*)")
+        .single();
+
+      if (addError) throw addError;
+
       return NextResponse.json({
         message: "Item added to wishlist",
         added: true,
@@ -196,58 +203,63 @@ export async function POST(request: Request) {
 export async function DELETE(request: Request) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session?.user) {
       return NextResponse.json(
         { error: "Unauthorized" },
         { status: 401 }
       );
     }
-    
+
     const { searchParams } = new URL(request.url);
     const wishlistItemId = searchParams.get("id");
-    
+
     if (!wishlistItemId) {
       return NextResponse.json(
         { error: "Wishlist item ID is required" },
         { status: 400 }
       );
     }
-    
+
     // Get user's wishlist
-    const wishlist = await prisma.wishlist.findUnique({
-      where: {
-        userId: session.user.id,
-      },
-    });
-    
-    if (!wishlist) {
+    const { data: wishlist, error: wishlistError } = await supabase
+      .from("Wishlist")
+      .select("id")
+      .eq("userId", session.user.id)
+      .single();
+
+    if (wishlistError || !wishlist) {
       return NextResponse.json(
         { error: "Wishlist not found" },
         { status: 404 }
       );
     }
-    
+
     // Check if wishlist item exists and belongs to user's wishlist
-    const existingWishlistItem = await prisma.wishlistItem.findFirst({
-      where: {
-        id: wishlistItemId,
-        wishlistId: wishlist.id,
-      },
-    });
-    
-    if (!existingWishlistItem) {
+    const { data: existingWishlistItem, error: itemError } = await supabase
+      .from("WishlistItem")
+      .select("id")
+      .eq("id", wishlistItemId)
+      .eq("wishlistId", wishlist.id)
+      .maybeSingle();
+
+    if (itemError || !existingWishlistItem) {
       return NextResponse.json(
         { error: "Wishlist item not found" },
         { status: 404 }
       );
     }
-    
+
     // Delete wishlist item
-    await prisma.wishlistItem.delete({
-      where: { id: wishlistItemId },
-    });
-    
+    const { error: deleteError } = await supabase
+      .from("WishlistItem")
+      .delete()
+      .eq("id", wishlistItemId);
+
+    if (deleteError) {
+      throw deleteError;
+    }
+
     return NextResponse.json({
       message: "Item removed from wishlist successfully",
     });

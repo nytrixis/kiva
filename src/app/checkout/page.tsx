@@ -2,7 +2,7 @@ import { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { prisma } from "@/lib/db";
+import { createClient } from "@supabase/supabase-js";
 import CheckoutClient from "@/components/checkout/CheckoutClient";
 
 export const metadata: Metadata = {
@@ -10,55 +10,59 @@ export const metadata: Metadata = {
   description: "Complete your purchase",
 };
 
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
 export default async function CheckoutPage() {
   const session = await getServerSession(authOptions);
-  
+
   if (!session?.user) {
     redirect("/sign-in?callbackUrl=/checkout");
   }
-  
+
   const userId = session.user.id;
-  
+
   // Get user's cart items
-  const cartItems = await prisma.cartItem.findMany({
-    where: { userId },
-    include: {
-      product: {
-        include: {
-          category: true,
-          seller: {
-            select: {
-              id: true,
-              name: true,
-            },
-          },
-        },
-      },
-    },
-  });
-  
-  // Get user's addresses
-  const addresses = await prisma.address.findMany({
-    where: { userId },
-    orderBy: { isDefault: "desc" },
-  });
-  
+  const { data: cartItems = [] } = await supabase
+    .from("cart_item")
+    .select(`
+      *,
+      product:product (
+        *,
+        category:category(*),
+        seller:user(id, name)
+      )
+    `)
+    .eq("userId", userId);
+
   // If cart is empty, redirect to cart page
-  if (cartItems.length === 0) {
+  if (!cartItems || cartItems.length === 0) {
     redirect("/cart");
   }
 
-  const validCartItems = cartItems.map(item => ({
-    ...item,
-    product: {
-      ...item.product,
-      images: item.product.images as string[],
-      seller: {
-        id: item.product.seller?.id || "",
-        name: item.product.seller?.name || "Unknown Seller"
-      }
+
+  const { data: addresses } = await supabase
+  .from("address")
+  .select("*")
+  .eq("userId", userId)
+  .order("isDefault", { ascending: false });
+
+const validAddresses = addresses || [];
+
+const validCartItems = cartItems.map((item: any) => ({
+  ...item,
+  product: {
+    ...item.product,
+    images: typeof item.product.images === "string"
+      ? JSON.parse(item.product.images)
+      : item.product.images,
+    seller: {
+      id: item.product.seller?.id || "",
+      name: item.product.seller?.name || "Unknown Seller"
     }
-  }));
-  
-  return <CheckoutClient cartItems={validCartItems} addresses={addresses} />;
+  }
+}));
+
+  return <CheckoutClient cartItems={validCartItems} addresses={validAddresses} />;
 }

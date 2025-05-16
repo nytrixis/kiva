@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
-import { prisma } from "@/lib/db";
+import { createClient } from "@supabase/supabase-js";
 import { uploadToCloudinary, deleteFromCloudinary } from "@/lib/cloudinary";
 
 // Helper function to extract public ID from Cloudinary URL
@@ -15,6 +15,10 @@ function getPublicIdFromUrl(url: string): string | null {
     return null;
   }
 }
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 export async function PUT(
   request: NextRequest,
@@ -35,11 +39,13 @@ export async function PUT(
     const { id: productId } = await params;
 
     // Check if product exists and belongs to the seller
-    const existingProduct = await prisma.product.findUnique({
-      where: {
-        id: productId,
-      },
-    });
+    const { data: existingProduct, error: findError } = await supabase
+      .from("product")
+      .select("*")
+      .eq("id", productId)
+      .single();
+
+    if (findError) throw findError;
 
     if (!existingProduct) {
       return NextResponse.json({ error: "Product not found" }, { status: 404 });
@@ -61,10 +67,14 @@ export async function PUT(
 
     // Get existing images to keep
     const keepImages = formData.getAll("keepImages") as string[];
-    const existingImages = existingProduct.images as string[];
+    const existingImages = Array.isArray(existingProduct.images)
+      ? existingProduct.images
+      : typeof existingProduct.images === "string"
+        ? JSON.parse(existingProduct.images)
+        : [];
 
     // Find images to delete
-    const imagesToDelete = existingImages.filter(url => !keepImages.includes(url));
+    const imagesToDelete = existingImages.filter((url: string) => !keepImages.includes(url));
 
     // Delete removed images from Cloudinary
     for (const imageUrl of imagesToDelete) {
@@ -109,12 +119,10 @@ export async function PUT(
       return NextResponse.json({ error: "At least one image is required" }, { status: 400 });
     }
 
-    // Update product in database
-    const updatedProduct = await prisma.product.update({
-      where: {
-        id: productId,
-      },
-      data: {
+    // Update product in Supabase
+    const { data: updatedProduct, error: updateError } = await supabase
+      .from("product")
+      .update({
         name,
         description,
         price,
@@ -122,8 +130,14 @@ export async function PUT(
         stock,
         images: updatedImages,
         categoryId,
-      },
-    });
+      })
+      .eq("id", productId)
+      .select("*")
+      .single();
+
+    if (updateError) {
+      throw updateError;
+    }
 
     return NextResponse.json(updatedProduct);
   } catch (error) {

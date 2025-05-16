@@ -1,0 +1,73 @@
+import { NextRequest, NextResponse } from "next/server";
+import { createClient } from "@supabase/supabase-js";
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
+
+export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+  const { id } = params;
+  const { searchParams } = new URL(req.url);
+  const q = searchParams.get("q");
+
+  // 1. Fetch the shop (seller profile) and user
+  const { data: shop, error: shopError } = await supabase
+    .from("SellerProfile")
+    .select(`
+      *,
+      user:userId (
+        id,
+        name,
+        createdAt
+      )
+    `)
+    .eq("id", id)
+    .single();
+
+  if (shopError || !shop) {
+    return NextResponse.json(null, { status: 404 });
+  }
+
+  // 2. Fetch products for this seller (where Product.sellerId = shop.user.id)
+  let products: any[] = [];
+  if (shop.user?.id) {
+    const { data: productsData, error: productsError } = await supabase
+      .from("Product")
+      .select(`
+        id,
+        name,
+        price,
+        discountPercentage,
+        images,
+        rating,
+        reviewCount,
+        stock,
+        category:categoryId (
+          name
+        )
+      `)
+      .eq("sellerId", shop.user.id);
+
+    if (!productsError && productsData) {
+      products = productsData;
+    }
+  }
+
+  // 3. Optionally filter products by search query
+  if (q) {
+    const qLower = q.toLowerCase();
+    products = products.filter((p: any) =>
+      typeof p.name === "string" && p.name.toLowerCase().includes(qLower)
+    );
+  }
+
+  // 4. Return the shop with filtered products
+  return NextResponse.json({
+    ...shop,
+    user: {
+      ...shop.user,
+      products,
+    },
+  });
+}

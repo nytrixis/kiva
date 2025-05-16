@@ -1,7 +1,5 @@
-// src/app/dashboard/seller/products/page.tsx
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { prisma } from "@/lib/db";
 import Link from "next/link";
 import { Plus } from "lucide-react";
 import { ProductsTable } from "@/components/dashboard/seller/ProductsTable";
@@ -11,7 +9,6 @@ export const metadata = {
   description: "Manage your products in the Kiva marketplace",
 };
 
-// Define a type that matches what ProductsTable expects
 interface Product {
   id: string;
   name: string;
@@ -19,7 +16,7 @@ interface Product {
   discountPercentage: number;
   stock: number;
   images: string[] | Record<string, unknown>;
-  createdAt: Date;
+  createdAt: Date; // <-- Fix type here
   viewCount: number;
   reviewCount: number;
   rating: number;
@@ -30,36 +27,23 @@ interface Product {
 
 export default async function SellerProductsPage() {
   const session = await getServerSession(authOptions);
-  const userId = session?.user?.id;
-  
-  // Fetch seller's products
-  const prismaProducts = await prisma.product.findMany({
-    where: { sellerId: userId as string },
-    include: {
-      category: true,
-    },
-    orderBy: { createdAt: "desc" },
+  if (!session?.user) {
+    // Optionally redirect to sign-in if not authenticated
+    return null;
+  }
+
+  // Fetch seller's products from your REST API
+  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || ""}/api/seller/products`, {
+    cache: "no-store",
   });
-  
-  // Transform the products to match the expected type
-  const products: Product[] = prismaProducts.map(product => ({
-    id: product.id,
-    name: product.name,
-    price: product.price,
-    discountPercentage: product.discountPercentage,
-    stock: product.stock,
-    images: Array.isArray(product.images)
-      ? product.images.filter((img): img is string => typeof img === 'string')
-      : product.images as Record<string, unknown>,
-    createdAt: product.createdAt,
-    viewCount: product.viewCount,
-    reviewCount: product.reviewCount,
-    rating: product.rating,
-    category: {
-      name: product.category.name
-    }
-  }));
-  
+
+  const products: Product[] = res.ok
+    ? (await res.json()).map((p: any) => ({
+        ...p,
+        createdAt: new Date(p.createdAt), // <-- Convert to Date
+      }))
+    : [];
+
   return (
     <div>
       <div className="flex justify-between items-center mb-6">
@@ -69,7 +53,7 @@ export default async function SellerProductsPage() {
             Manage your product listings in the marketplace
           </p>
         </div>
-        
+
         <Link
           href="/dashboard/seller/products/new"
           className="flex items-center px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors"
@@ -78,7 +62,7 @@ export default async function SellerProductsPage() {
           Add Product
         </Link>
       </div>
-      
+
       {products.length > 0 ? (
         <ProductsTable products={products} />
       ) : (

@@ -5,7 +5,6 @@ import { useToast, ToastVariant } from "@/hooks/use-toast";
 import { Check, AlertCircle } from "lucide-react";
 import Link from "next/link";
 
-// Interface that matches the Prisma schema for WishlistItem
 interface WishlistItem {
   id: string;
   product: {

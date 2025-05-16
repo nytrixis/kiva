@@ -1,12 +1,22 @@
 import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { prisma } from "@/lib/db";
-import { UserRole } from "@prisma/client";
 import Link from "next/link";
 import Image from "next/image";
 import { format } from "date-fns";
 import { Metadata } from "next";
+import { createClient } from "@supabase/supabase-js";
+
+enum UserRole {
+  ADMIN = "ADMIN",
+  SELLER = "SELLER",
+  CUSTOMER = "CUSTOMER",
+  INFLUENCER = "INFLUENCER",
+}
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 export async function generateMetadata(
   props: { params: Promise<{ id: string }> }
@@ -14,26 +24,25 @@ export async function generateMetadata(
   const { id } = await props.params;
 
   // Fetch seller data for metadata
-  const seller = await prisma.user.findUnique({
-    where: { id },
-    select: {
-      name: true,
-      sellerProfile: {
-        select: {
-          businessName: true
-        }
-      }
-    },
-  });
+  const { data: seller } = await supabase
+    .from("user")
+    .select(`
+      name,
+      sellerProfile: seller_profile(businessName)
+    `)
+    .eq("id", id)
+    .single();
 
-  const sellerName = seller?.sellerProfile?.businessName || seller?.name || "Seller";
+  const sellerName =
+  Array.isArray(seller?.sellerProfile) && seller.sellerProfile.length > 0
+    ? seller.sellerProfile[0].businessName
+    : seller?.name || "Seller";
 
   return {
     title: `${sellerName} Details | Admin Dashboard | Kiva`,
   };
 }
 
-// Correct: params is a Promise, using props.params
 export default async function SellerDetailsPage(
   props: { params: Promise<{ id: string }> }
 ) {
@@ -45,21 +54,27 @@ export default async function SellerDetailsPage(
   }
 
   // Fetch seller with profile and products
-  const seller = await prisma.user.findUnique({
-    where: { id },
-    include: {
-      sellerProfile: true,
-      products: {
-        take: 5,
-        orderBy: { createdAt: "desc" },
-        include: { category: true },
-      },
-    },
-  });
+  const { data: seller } = await supabase
+    .from("user")
+    .select(`
+      *,
+      sellerProfile: seller_profile(*),
+      products: product(
+        *,
+        category: category(*)
+      )
+    `)
+    .eq("id", id)
+    .single();
 
   if (!seller) {
     redirect("/admin/sellers");
   }
+
+  // Sort and limit products to 5 most recent
+  const products = (seller.products || [])
+    .sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+    .slice(0, 5);
 
   return (
     <div className="container mx-auto py-8 px-4">
@@ -238,7 +253,7 @@ export default async function SellerDetailsPage(
                     <dd className="mt-1 text-sm text-gray-900">
                       {seller.sellerProfile.categories.length > 0 ? (
                         <div className="flex flex-wrap gap-1">
-                          {seller.sellerProfile.categories.map((category) => (
+                          {seller.sellerProfile.categories.map((category: string) => (
                             <span 
                               key={category} 
                               className="px-2 py-1 bg-accent/30 text-primary text-xs rounded-full"
@@ -345,21 +360,20 @@ export default async function SellerDetailsPage(
             </div>
             
             <div className="divide-y">
-              {seller.products.length > 0 ? (
-                seller.products.map((product) => (
+              {products.length > 0 ? (
+                products.map((product: any) => (
                   <div key={product.id} className="p-4 hover:bg-gray-50">
                     <div className="flex items-center space-x-4">
                       <div className="flex-shrink-0 relative h-16 w-16 rounded-md overflow-hidden">
-                      <Image 
-                        src={Array.isArray(product.images) && product.images.length > 0 
-                            ? String(product.images[0]) 
-                            : "https://via.placeholder.com/64"
-                        } 
-                        alt={product.name} 
-                        fill
-                        style={{ objectFit: 'cover' }}
+                        <Image 
+                          src={Array.isArray(product.images) && product.images.length > 0 
+                              ? String(product.images[0]) 
+                              : "https://via.placeholder.com/64"
+                          } 
+                          alt={product.name} 
+                          fill
+                          style={{ objectFit: 'cover' }}
                         />
-
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium text-gray-900 truncate">

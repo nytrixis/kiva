@@ -1,7 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { prisma } from "@/lib/db";
+import { createClient } from "@supabase/supabase-js";
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 // Get comments for a reel
 export async function GET(
@@ -17,25 +21,22 @@ export async function GET(
 
     const { id } = await params;
 
-    const comments = await prisma.reelComment.findMany({
-      where: { reelId: id },
-      orderBy: { createdAt: "desc" },
-      include: {
-        user: {
-          select: {
-            id: true,
-            name: true,
-            image: true,
-            sellerProfile: {
-              select: {
-                businessName: true,
-                logoImage: true,
-              },
-            },
-          },
-        },
-      },
-    });
+    const { data: comments, error } = await supabase
+      .from("ReelComment")
+      .select(
+        `
+        *,
+        user:userId(
+          id, name, image, seller_profile: SellerProfile(businessName, logoImage)
+        )
+      `
+      )
+      .eq("reelId", id)
+      .order("createdAt", { ascending: false });
+
+    if (error) {
+      throw error;
+    }
 
     return NextResponse.json({ comments });
   } catch (error) {
@@ -70,37 +71,39 @@ export async function POST(
     }
 
     // Check if reel exists
-    const reel = await prisma.reel.findUnique({
-      where: { id },
-    });
+    const { data: reel, error: reelError } = await supabase
+      .from("Reel")
+      .select("id")
+      .eq("id", id)
+      .single();
 
-    if (!reel) {
+    if (reelError || !reel) {
       return NextResponse.json({ error: "Reel not found" }, { status: 404 });
     }
 
     // Create comment
-    const comment = await prisma.reelComment.create({
-      data: {
-        content,
-        reelId: id,
-        userId: session.user.id,
-      },
-      include: {
-        user: {
-          select: {
-            id: true,
-            name: true,
-            image: true,
-            sellerProfile: {
-              select: {
-                businessName: true,
-                logoImage: true,
-              },
-            },
-          },
+    const { data: comment, error: commentError } = await supabase
+      .from("ReelComment")
+      .insert([
+        {
+          content,
+          reelId: id,
+          userId: session.user.id,
         },
-      },
-    });
+      ])
+      .select(
+        `
+        *,
+        user:userId(
+          id, name, image, seller_profile: SellerProfile(businessName, logoImage)
+        )
+      `
+      )
+      .single();
+
+    if (commentError) {
+      throw commentError;
+    }
 
     return NextResponse.json({ comment }, { status: 201 });
   } catch (error) {

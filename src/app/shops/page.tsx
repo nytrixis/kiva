@@ -1,5 +1,4 @@
 import { Metadata } from "next";
-import { prisma } from "@/lib/db";
 import ShopsGrid from "@/components/shop/ShopsGrid";
 import ShopsFilter from "@/components/shop/ShopsFilter";
 
@@ -16,65 +15,36 @@ export default async function ShopsPage({
   const resolvedSearchParams = await searchParams;
 
   // Parse filter parameters
-  const categories = resolvedSearchParams.categories 
-    ? Array.isArray(resolvedSearchParams.categories) 
-      ? resolvedSearchParams.categories 
+  const categories = resolvedSearchParams.categories
+    ? Array.isArray(resolvedSearchParams.categories)
+      ? resolvedSearchParams.categories
       : [resolvedSearchParams.categories]
     : undefined;
-    
-  const minRating = resolvedSearchParams.minRating 
-    ? parseFloat(resolvedSearchParams.minRating as string) 
+
+  const minRating = resolvedSearchParams.minRating
+    ? parseFloat(resolvedSearchParams.minRating as string)
     : undefined;
-  // Fetch all seller profiles that are approved
-  const sellerProfiles = await prisma.sellerProfile.findMany({
-    where: {
-      status: "APPROVED",
-      ...(categories && categories.length > 0 && {
-        categories: {
-          hasSome: categories,
-        },
-      }),
-    },
-    include: {
-      user: {
-        select: {
-          id: true,
-          name: true,
-          products: {
-            select: {
-              rating: true,
-            },
-          },
-        },
-      },
-    },
-  });
 
-  // Calculate average rating for each seller
-  const sellersWithRating = sellerProfiles.map(seller => {
-    const products = seller.user.products;
-    const totalRating = products.reduce((sum, product) => sum + product.rating, 0);
-    const avgRating = products.length > 0 ? totalRating / products.length : 0;
-    
-    return {
-      ...seller,
-      avgRating,
-    };
-  });
+  // Fetch all seller profiles that are approved via Supabase REST API
+  const sellersRes = await fetch(
+    `${process.env.NEXT_PUBLIC_BASE_URL || ""}/api/supabase/shops?${categories ? `categories=${categories.join(",")}&` : ""}${minRating ? `minRating=${minRating}` : ""}`,
+    { cache: "no-store" }
+  );
+  const sellersWithRating = sellersRes.ok ? await sellersRes.json() : [];
 
-  // Filter by rating if needed
-  const filteredSellers = minRating 
-    ? sellersWithRating.filter(seller => seller.avgRating >= minRating)
+  // Fetch all unique categories for the filter via Supabase REST API
+  const categoriesRes = await fetch(
+    `${process.env.NEXT_PUBLIC_BASE_URL || ""}/api/categories`,
+    { cache: "no-store" }
+  );
+  let allCategories = categoriesRes.ok ? await categoriesRes.json() : [];
+  if (!Array.isArray(allCategories)) allCategories = [];
+  const categoryOptions = allCategories.map((cat: any) => cat.name);
+
+  // Filter by rating if needed (if not handled in API)
+  const filteredSellers = minRating
+    ? sellersWithRating.filter((seller: any) => seller.avgRating >= minRating)
     : sellersWithRating;
-
-  // Get all unique categories for the filter
-  const allCategories = await prisma.category.findMany({
-    select: {
-      name: true,
-    },
-  });
-  
-  const categoryOptions = allCategories.map(cat => cat.name);
 
   return (
     <div className="container mx-auto py-8 px-4">
@@ -82,17 +52,17 @@ export default async function ShopsPage({
       <p className="text-gray-600 mb-8">
         Discover unique local businesses and artisans
       </p>
-      
+
       <div className="flex flex-col md:flex-row gap-8">
         {/* Filters sidebar */}
         <div className="w-full md:w-1/4">
-          <ShopsFilter 
-            selectedCategories={categories || []} 
-            minRating={minRating} 
+          <ShopsFilter
+            selectedCategories={categories || []}
+            minRating={minRating}
             categoryOptions={categoryOptions}
           />
         </div>
-        
+
         {/* Main content */}
         <div className="w-full md:w-3/4">
           {filteredSellers.length > 0 ? (

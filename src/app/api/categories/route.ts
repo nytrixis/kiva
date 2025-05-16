@@ -1,18 +1,22 @@
-import { NextResponse } from "next/server";//removed NextRequest
-import { prisma } from "@/lib/db";
+import { NextResponse } from "next/server";
+import { createClient } from "@supabase/supabase-js";
 
-export async function GET() {//removed req: NextRequest
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
+export async function GET() {
   try {
-    const categories = await prisma.category.findMany({
-      orderBy: {
-        name: 'asc',
-      },
-    });
-    
-    return NextResponse.json({ 
-      success: true, 
-      categories 
-    });
+    const { data: categories, error } = await supabase
+      .from("Category")
+      .select("*")
+      .order("name", { ascending: true });
+
+    if (error) {
+      throw error;
+    }
+
+    return NextResponse.json({ categories: categories ?? [] });
   } catch (error) {
     console.error("Error fetching categories:", error);
     return NextResponse.json(

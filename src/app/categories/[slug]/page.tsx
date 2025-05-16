@@ -2,19 +2,24 @@ import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import ProductCatalog from "@/components/product/ProductCatalog";
 import CategoryHero from "@/components/category/CategoryHero";
-import { prisma } from "@/lib/db";
+import { createClient } from "@supabase/supabase-js";
 
-// For Next.js 15 dynamic route params
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
 type CategoryPageParams = {
-  params: Promise<{ slug: string }>;
+  params: { slug: string };
 };
 
 export async function generateMetadata({ params }: CategoryPageParams): Promise<Metadata> {
   const { slug } = await params;
 
-  const category = await prisma.category.findUnique({
-    where: { slug },
-  });
+  const { data: category } = await supabase
+    .from("Category")
+    .select("*")
+    .eq("slug", slug)
+    .single();
 
   if (!category) {
     return {
@@ -31,46 +36,43 @@ export async function generateMetadata({ params }: CategoryPageParams): Promise<
 export default async function CategoryPage({ params }: CategoryPageParams) {
   const { slug } = await params;
 
-  // Get the category with product count
-  const category = await prisma.category.findUnique({
-    where: { slug },
-    include: {
-      _count: {
-        select: { products: true }
-      }
-    }
-  });
+  // Get the category by slug
+  const { data: category } = await supabase
+    .from("Category")
+    .select("*")
+    .eq("slug", slug)
+    .single();
 
   if (!category) {
     notFound();
   }
 
-  // Transform the category to match the expected interface in CategoryHero
+  // Get products for this category
+  const { data: products } = await supabase
+    .from("Product")
+    .select("*")
+    .eq("categoryId", category.id);
+
+  // Get all categories for filters
+  const { data: allCategories } = await supabase
+    .from("Category")
+    .select("id, name")
+    .order("name", { ascending: true });
+
+  // Prepare data for the hero component
   const categoryForHero = {
     name: category.name,
     description: category.description || undefined,
     bannerImage: category.bannerImage || undefined,
-    productCount: category._count.products
+    productCount: Array.isArray(products) ? products.length : 0,
   };
-
-  // Fetch all categories for filters
-  const allCategories = await prisma.category.findMany({
-    orderBy: {
-      name: 'asc',
-    },
-    select: {
-      id: true,
-      name: true
-    }
-  });
 
   return (
     <div className="min-h-screen bg-background">
       <CategoryHero category={categoryForHero} />
-
       <div className="container mx-auto px-4 py-12">
         <ProductCatalog
-          categories={allCategories}
+          categories={allCategories || []}
           initialCategory={category.id}
         />
       </div>

@@ -1,8 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { prisma } from "@/lib/db";
-import { UserRole } from "@prisma/client";
+import { createClient } from "@supabase/supabase-js";
+
+enum UserRole {
+  ADMIN = "ADMIN",
+  SELLER = "SELLER",
+  CUSTOMER = "CUSTOMER",
+  INFLUENCER = "INFLUENCER",
+}
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 export async function GET(
   req: NextRequest,
@@ -17,14 +27,13 @@ export async function GET(
 
     const { id } = await params;
 
-    const seller = await prisma.user.findUnique({
-      where: { id },
-      include: {
-        sellerProfile: true,
-      },
-    });
+    const { data: seller, error } = await supabase
+      .from("user")
+      .select("*, sellerProfile:seller_profile(*)")
+      .eq("id", id)
+      .single();
 
-    if (!seller || seller.role !== UserRole.SELLER) {
+    if (error || !seller || seller.role !== UserRole.SELLER) {
       return NextResponse.json({ error: "Seller not found" }, { status: 404 });
     }
 
@@ -52,25 +61,41 @@ export async function PATCH(
     const { id } = await params;
     const data = await req.json();
 
-    const seller = await prisma.user.findUnique({
-      where: { id },
-      include: { sellerProfile: true },
-    });
+    // Fetch seller and profile
+    const { data: seller, error: sellerError } = await supabase
+      .from("user")
+      .select("*, sellerProfile:seller_profile(*)")
+      .eq("id", id)
+      .single();
 
-    if (!seller || seller.role !== UserRole.SELLER || !seller.sellerProfile) {
+    if (
+      sellerError ||
+      !seller ||
+      seller.role !== UserRole.SELLER ||
+      !Array.isArray(seller.sellerProfile) ||
+      !seller.sellerProfile[0]
+    ) {
       return NextResponse.json({ error: "Seller not found" }, { status: 404 });
     }
 
+    const sellerProfileId = seller.sellerProfile[0].id;
+
     // Update seller profile status
-    const updatedProfile = await prisma.sellerProfile.update({
-      where: { id: seller.sellerProfile.id },
-      data: {
+    const { data: updatedProfile, error: updateError } = await supabase
+      .from("seller_profile")
+      .update({
         status: data.status,
         isVerified: data.status === "APPROVED",
-        verifiedAt: data.status === "APPROVED" ? new Date() : null,
+        verifiedAt: data.status === "APPROVED" ? new Date().toISOString() : null,
         verifiedBy: data.status === "APPROVED" ? session.user.id : null,
-      },
-    });
+      })
+      .eq("id", sellerProfileId)
+      .select()
+      .single();
+
+    if (updateError) {
+      throw updateError;
+    }
 
     return NextResponse.json({ success: true, data: updatedProfile });
   } catch (error) {

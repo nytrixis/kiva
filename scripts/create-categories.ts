@@ -1,5 +1,10 @@
-import { PrismaClient } from '@prisma/client';
-const prisma = new PrismaClient();
+import { createClient } from '@supabase/supabase-js';
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+// For admin scripts, use service_role key if available for upsert-like logic
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || supabaseAnonKey;
+const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
 async function createCategories() {
   const categories = [
@@ -16,13 +21,30 @@ async function createCategories() {
   ];
 
   console.log('Creating categories...');
-  
+
   for (const category of categories) {
-    await prisma.category.upsert({
-      where: { slug: category.slug },
-      update: {},
-      create: category,
-    });
+    // Try to upsert: check if exists, then insert if not
+    const { data: existing, error: fetchError } = await supabase
+      .from('category')
+      .select('id')
+      .eq('slug', category.slug)
+      .single();
+
+    if (fetchError && fetchError.code !== 'PGRST116') {
+      // PGRST116 = No rows found, which is fine for insert
+      console.error('Error checking category:', fetchError);
+      continue;
+    }
+
+    if (!existing) {
+      const { error: insertError } = await supabase
+        .from('category')
+        .insert([category]);
+      if (insertError) {
+        console.error('Error inserting category:', insertError);
+      }
+    }
+    // If exists, do nothing (mimics upsert with empty update)
   }
 
   console.log('Categories created successfully!');
@@ -32,7 +54,4 @@ createCategories()
   .catch(e => {
     console.error('Error creating categories:', e);
     process.exit(1);
-  })
-  .finally(async () => {
-    await prisma.$disconnect();
   });

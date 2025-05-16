@@ -2,7 +2,6 @@
 import { useState } from "react";
 import { useToast } from "./use-toast";
 
-// Define types based on your Prisma schema
 interface CartProduct {
   id: string;
   name: string;

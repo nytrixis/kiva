@@ -1,40 +1,48 @@
 import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { prisma } from "@/lib/db";
-import { UserRole } from "@prisma/client";
 import Link from "next/link";
 import { formatDistanceToNow } from "date-fns";
 import Image from "next/image";
+import { createClient } from "@supabase/supabase-js";
+
+enum UserRole {
+  ADMIN = "ADMIN",
+  SELLER = "SELLER",
+  CUSTOMER = "CUSTOMER",
+  INFLUENCER = "INFLUENCER",
+}
 
 export const metadata = {
   title: "Manage Sellers | Admin Dashboard | Kiva",
 };
 
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
 export default async function AdminSellersPage() {
   const session = await getServerSession(authOptions);
-  
+
   if (!session?.user || session.user.role !== UserRole.ADMIN) {
     redirect("/sign-in?callbackUrl=/admin/sellers");
   }
-  
+
   // Fetch all sellers with their profiles
-  const sellers = await prisma.user.findMany({
-    where: {
-      role: UserRole.SELLER,
-    },
-    include: {
-      sellerProfile: true,
-    },
-    orderBy: {
-      createdAt: "desc",
-    },
-  });
-  
+  const { data: users, error } = await supabase
+    .from("user")
+    .select(`
+      *,
+      sellerProfile: seller_profile(*)
+    `)
+    .eq("role", UserRole.SELLER)
+    .order("createdAt", { ascending: false });
+
+  const sellers = users || [];
+
   return (
     <div className="container mx-auto py-8 px-4">
       <h1 className="text-2xl font-heading text-primary mb-6">Manage Sellers</h1>
-      
       <div className="bg-white rounded-lg shadow-sm overflow-hidden">
         <div className="flex items-center justify-between p-4 border-b">
           <h2 className="text-lg font-medium">Seller Accounts</h2>
@@ -59,7 +67,6 @@ export default async function AdminSellersPage() {
             </Link>
           </div>
         </div>
-        
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
@@ -85,7 +92,7 @@ export default async function AdminSellersPage() {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {sellers.map((seller) => (
+              {sellers.map((seller: any) => (
                 <tr key={seller.id}>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
@@ -211,7 +218,6 @@ export default async function AdminSellersPage() {
                   </td>
                 </tr>
               ))}
-              
               {sellers.length === 0 && (
                 <tr>
                   <td colSpan={6} className="px-6 py-4 text-center text-sm text-gray-500">

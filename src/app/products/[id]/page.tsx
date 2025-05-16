@@ -1,7 +1,5 @@
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
-// import Image from "next/image";
-import { prisma } from "@/lib/db";
 import Link from "next/link";
 import AddToCartButton from "@/components/product/AddToCartButton";
 import AddToWishlistButton from "@/components/product/AddToWishlistButton";
@@ -15,20 +13,20 @@ interface ProductPageParams {
 
 export async function generateMetadata({ params }: ProductPageParams): Promise<Metadata> {
   const { id } = await params;
-  
-  const product = await prisma.product.findUnique({
-    where: { id },
-    include: {
-      category: true,
-    },
-  });
-  
+
+  // Fetch product from Supabase REST API
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_BASE_URL || ""}/api/supabase/product/${id}`,
+    { cache: "no-store" }
+  );
+  const product = res.ok ? await res.json() : null;
+
   if (!product) {
     return {
       title: "Product Not Found | Kiva",
     };
   }
-  
+
   return {
     title: `${product.name} | Kiva`,
     description: product.description || undefined,
@@ -37,45 +35,33 @@ export async function generateMetadata({ params }: ProductPageParams): Promise<M
 
 export default async function ProductPage({ params }: ProductPageParams) {
   const { id } = await params;
-  
-  // Fetch product with related data
-  const product = await prisma.product.findUnique({
-    where: { id },
-    include: {
-      category: true,
-      seller: {
-        include: {
-          sellerProfile: {
-            select: {
-              businessName: true,
-              status: true,
-            },
-          },
-        },
-      },
-    },
-  });
-  
-  if (!product || product.seller.sellerProfile?.status !== "APPROVED") {
+
+  // Fetch product with related data from Supabase REST API
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_BASE_URL || ""}/api/supabase/product/${id}`,
+    { cache: "no-store" }
+  );
+  const product = res.ok ? await res.json() : null;
+
+  if (
+    !product ||
+    product.seller?.sellerProfile?.status !== "APPROVED"
+  ) {
     notFound();
   }
-  
-  // Increment view count
-  await prisma.product.update({
-    where: { id },
-    data: {
-      viewCount: {
-        increment: 1,
-      },
-    },
-  });
-  
+
+  // Increment view count via Supabase REST API (optional, if you have such endpoint)
+  await fetch(
+    `${process.env.NEXT_PUBLIC_BASE_URL || ""}/api/supabase/product/${id}/increment-view`,
+    { method: "POST" }
+  );
+
   // Calculate sale price if there's a discount
-  const salePrice = product.price - (product.price * (product.discountPercentage / 100));
-  
+  const salePrice = product.price - product.price * (product.discountPercentage / 100);
+
   // Check if product has a significant discount (>40%)
   const hasSignificantDiscount = product.discountPercentage > 40;
-  
+
   // Get product images
   const productImages = Array.isArray(product.images) ? product.images : [];
 
@@ -84,9 +70,9 @@ export default async function ProductPage({ params }: ProductPageParams) {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {/* Product Images */}
         <div>
-          <ProductImageGallery images={productImages.map(img => String(img))} productName={product.name} />
+          <ProductImageGallery images={productImages.map((img: any) => String(img))} productName={product.name} />
         </div>
-        
+
         {/* Product Details */}
         <div className="space-y-6">
           {/* Category */}
@@ -95,10 +81,10 @@ export default async function ProductPage({ params }: ProductPageParams) {
               {product.category?.name || "Uncategorized"}
             </Link>
           </div>
-          
+
           {/* Product Name */}
           <h1 className="text-3xl font-heading text-gray-900">{product.name}</h1>
-          
+
           {/* Seller */}
           <div>
             <p className="text-sm text-gray-500">
@@ -108,7 +94,7 @@ export default async function ProductPage({ params }: ProductPageParams) {
               </Link>
             </p>
           </div>
-          
+
           {/* Price */}
           <div className="flex items-center space-x-4">
             {product.discountPercentage > 0 ? (
@@ -123,7 +109,7 @@ export default async function ProductPage({ params }: ProductPageParams) {
               <span className="text-2xl font-bold text-gray-900">{formatCurrency(product.price)}</span>
             )}
           </div>
-          
+
           {/* Stock Status */}
           <div>
             {product.stock > 0 ? (
@@ -139,13 +125,13 @@ export default async function ProductPage({ params }: ProductPageParams) {
               <p className="text-sm text-red-600">Out of Stock</p>
             )}
           </div>
-          
+
           {/* Actions */}
           <div className="flex space-x-4 pt-4">
             <AddToCartButton productId={product.id} stock={product.stock} />
             <AddToWishlistButton productId={product.id} />
           </div>
-          
+
           {/* Description */}
           <div className="pt-6 border-t border-gray-200">
             <h2 className="text-lg font-medium text-gray-900 mb-4">Description</h2>

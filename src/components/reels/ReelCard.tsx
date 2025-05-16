@@ -17,10 +17,8 @@ interface ReelCardProps {
     thumbnailUrl?: string | null;
     caption?: string | null;
     createdAt: string;
-    _count: {
-      likes: number;
-      comments: number;
-    };
+    likeCount: number;
+    commentCount: number;
     isLiked: boolean;
     user: {
       id: string;
@@ -38,13 +36,15 @@ interface ReelCardProps {
       images: string[];
       discountPercentage: number;
     } | null;
+    _count?: {
+      comments: number;
+    };
   };
   onLike: () => void;
   onComment: (reelId: string) => void;
   onShare: (reelId: string) => void;
   isActive: boolean;
 }
-
 
 export default function ReelCard({
   reel,
@@ -55,7 +55,7 @@ export default function ReelCard({
 }: ReelCardProps) {
   const [isMuted, setIsMuted] = useState(true);
   const [isLiked, setIsLiked] = useState(reel.isLiked);
-  const [likesCount, setLikesCount] = useState(reel._count.likes);
+  const [likesCount, setLikesCount] = useState(reel.likeCount);
   const videoRef = useRef<HTMLVideoElement>(null);
   const { toast } = useToast();
   const { isAuthenticated } = useAuth();
@@ -75,40 +75,39 @@ export default function ReelCard({
   }, [isActive]);
   
   // Handle like action
-  const handleLike = async () => {
-    if (!isAuthenticated) {
-      toast({
-        title: "Please sign in",
-        description: "You need to be signed in to like reels",
-        variant: "destructive",
-      });
-      return;
+const handleLike = async () => {
+  if (!isAuthenticated) {
+    toast({
+      title: "Please sign in",
+      description: "You need to be signed in to like reels",
+      variant: "destructive",
+    });
+    return;
+  }
+
+  try {
+    const response = await fetch(`/api/reels/${reel.id}/like`, {
+      method: "POST",
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to like/unlike reel");
     }
-    
-    try {
-      const response = await fetch(`/api/reels/${reel.id}/like`, {
-        method: "POST",
-      });
-      
-      if (!response.ok) {
-        throw new Error("Failed to like/unlike reel");
-      }
-      
-      const data = await response.json();
-      setIsLiked(data.liked);
-      setLikesCount(prev => data.liked ? prev + 1 : prev - 1);
-      
-      // Call parent handler
-      onLike();
-    } catch (error) {
-      console.error("Error liking reel:", error);
-      toast({
-        title: "Error",
-        description: "Failed to like/unlike reel",
-        variant: "destructive",
-      });
-    }
-  };  
+
+    const data = await response.json();
+    setIsLiked(data.liked);
+    setLikesCount(data.likeCount); // <-- Use backend count
+
+    onLike();
+  } catch (error) {
+    console.error("Error liking reel:", error);
+    toast({
+      title: "Error",
+      description: "Failed to like/unlike reel",
+      variant: "destructive",
+    });
+  }
+};
   // Format the price with discount if applicable
   const formatPrice = () => {
     if (!reel.product) return null;
@@ -249,7 +248,7 @@ export default function ReelCard({
           <div className="p-2 bg-black/40 rounded-full text-white">
             <MessageCircle className="h-6 w-6" />
           </div>
-          <span className="text-white text-xs mt-1">{reel._count.comments}</span>
+          <span className="text-white text-xs mt-1">{reel.commentCount ?? 0}</span>
         </button>
         
         <button

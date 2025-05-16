@@ -20,24 +20,6 @@ import {
   MapPin,
   
 } from "lucide-react";
-// import { UserRole } from "@prisma/client";
-
-// Define types based on Prisma schema
-// interface UserWithProfile {
-//   id: string;
-//   name?: string | null;
-//   email?: string | null;
-//   emailVerified?: Date | null;
-//   password?: string | null;
-//   image?: string | null;
-//   role: UserRole;
-//   createdAt?: Date;
-//   updatedAt?: Date;
-//   isOnboarded: boolean;
-//   bio?: string | null;
-//   phone?: string | null;
-//   location?: string | null;
-// }
 
 interface UserPreferences {
   id: string;

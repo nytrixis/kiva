@@ -194,7 +194,7 @@ export default function Navbar() {
                     </button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="start" className="w-56 bg-accent border-accent">
-                    {categories.length > 0 ? (
+                    {(categories || []).length > 0 ? (
                       categories.map((category) => (
                         <DropdownMenuItem key={category.id} asChild className="hover:bg-white focus:bg-white">
                           <Link href={`/categories/${category.slug}`} className="w-full">
@@ -404,7 +404,7 @@ export default function Navbar() {
               
               {isMobileCategoriesOpen && (
                 <div className="mt-2 pl-6 space-y-2">
-                  {categories.length > 0 ? (
+                  {(categories || []).length > 0 ? (
                     categories.map((category) => (
                       <Link
                         key={category.id}

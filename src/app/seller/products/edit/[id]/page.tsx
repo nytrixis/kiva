@@ -1,6 +1,5 @@
 import { getServerSession } from "next-auth/next";
 import { redirect } from "next/navigation";
-import { prisma } from "@/lib/db";
 import { authOptions } from "@/lib/auth";
 import EditProductForm from "@/components/seller/product/EditProductForm";
 
@@ -17,12 +16,12 @@ export default async function EditProductPage({ params }: EditProductPageProps) 
     redirect("/login?callbackUrl=/seller/products");
   }
 
-  // Fetch the product
-  const product = await prisma.product.findUnique({
-    where: {
-      id,
-    },
-  });
+  // Fetch the product via Supabase REST API
+  const productRes = await fetch(
+    `${process.env.NEXT_PUBLIC_BASE_URL || ""}/api/supabase/product/${id}`,
+    { cache: "no-store" }
+  );
+  const product = productRes.ok ? await productRes.json() : null;
 
   // Check if product exists and belongs to the seller
   if (!product || product.sellerId !== session.user.id) {
@@ -37,16 +36,20 @@ export default async function EditProductPage({ params }: EditProductPageProps) 
     price: product.price,
     discountPercentage: product.discountPercentage,
     stock: product.stock,
-    images: product.images as string[], // Cast JSON data to string[]
+    images: Array.isArray(product.images)
+      ? product.images
+      : typeof product.images === "string"
+      ? JSON.parse(product.images)
+      : [],
     categoryId: product.categoryId,
   };
 
-  // Fetch categories for the form
-  const categories = await prisma.category.findMany({
-    orderBy: {
-      name: "asc",
-    },
-  });
+  // Fetch categories for the form via Supabase REST API
+  const categoriesRes = await fetch(
+    `${process.env.NEXT_PUBLIC_BASE_URL || ""}/api/categories`,
+    { cache: "no-store" }
+  );
+  const categories = categoriesRes.ok ? await categoriesRes.json() : [];
 
   return (
     <div className="container mx-auto px-4 py-8">

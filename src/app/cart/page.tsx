@@ -8,7 +8,6 @@ import CartSummary from "@/components/cart/CartSummary";
 import { useToast, ToastVariant } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
 
-// Define types based on Prisma schema
 interface CartItem {
   id: string;
   quantity: number;

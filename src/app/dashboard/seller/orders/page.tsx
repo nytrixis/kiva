@@ -1,10 +1,10 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { prisma } from "@/lib/db";
 import { redirect } from "next/navigation";
 import { OrdersChart } from "@/components/dashboard/seller/OrdersChart";
 import { OrdersTable } from "@/components/dashboard/seller/OrdersTable";
 import { format } from "date-fns";
+import { createClient } from "@supabase/supabase-js";
 
 export const metadata = {
   title: "Orders | Seller Dashboard | Kiva",
@@ -16,6 +16,13 @@ interface Order {
   createdAt: Date | string;
   total: number;
   status: string;
+  user?: { name?: string | null };
+  items: {
+    id: string;
+    product?: { name?: string | null };
+    quantity: number;
+    price: number;
+  }[];
 }
 
 type OrderStatus = "pending" | "processing" | "shipped" | "delivered" | "cancelled";
@@ -39,24 +46,24 @@ function formatOrdersDataForChart(orders: Order[], type: "revenue" | "orders") {
       name: format(month, 'MMM'),
       value: 0,
       target: type === "revenue"
-        ? Math.floor(Math.random() * 15000) // Random target revenue
-        : Math.floor(Math.random() * 70)    // Random target orders count
+        ? Math.floor(Math.random() * 15000)
+        : Math.floor(Math.random() * 70)
     });
   }
 
   // Group orders by month
   orders.forEach(order => {
     const orderDate = new Date(order.createdAt);
-    const monthIndex = months.findIndex(m => 
-      m.month.getMonth() === orderDate.getMonth() && 
+    const monthIndex = months.findIndex(m =>
+      m.month.getMonth() === orderDate.getMonth() &&
       m.month.getFullYear() === orderDate.getFullYear()
     );
-    
+
     if (monthIndex !== -1) {
       if (type === "revenue") {
         months[monthIndex].value += order.total;
       } else {
-        months[monthIndex].value += 1; // Count orders
+        months[monthIndex].value += 1;
       }
     }
   });
@@ -66,113 +73,125 @@ function formatOrdersDataForChart(orders: Order[], type: "revenue" | "orders") {
 
 export default async function SellerOrdersPage() {
   const session = await getServerSession(authOptions);
-  
+
   if (!session?.user) {
     redirect("/sign-in?callbackUrl=/dashboard/seller/orders");
   }
-  
-  // Get the seller's ID but use it in the commented code when ready
-  // const _userId = session.user.id;
-  
+
+  const userId = session.user.id;
+
+  // Supabase client
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
+
+  // Get all products by this seller
+  const { data: sellerProducts, error: productsError } = await supabase
+    .from("products")
+    .select("id")
+    .eq("seller_id", userId);
+
+  if (productsError || !sellerProducts) {
+    return <div className="text-red-500">Error loading products.</div>;
+  }
+
+  const productIds = sellerProducts.map((product: { id: string }) => product.id);
+
+  if (productIds.length === 0) {
+    return (
+      <div>
+        <h1 className="text-3xl font-heading text-primary mb-2">Orders</h1>
+        <p className="text-gray-600 mb-8">
+          Track and manage orders for your products
+        </p>
+        <div className="text-gray-500">No products found for this seller.</div>
+      </div>
+    );
+  }
+
   // Fetch orders with items that contain seller's products
-  // Note: This is a placeholder implementation. When you're ready to use the seller's products,
-  // uncomment the code below and use _userId (remove the underscore)
-  
-  /*
-  // First, get all products by this seller
-  const sellerProducts = await prisma.product.findMany({
-    where: { sellerId: _userId },
-    select: { id: true }
-  });
-  
-  const productIds = sellerProducts.map(product => product.id);
-  
-  // Fetch orders with items that contain seller's products
-  const orders = await prisma.order.findMany({
-    where: {
-      items: {
-        some: {
-          productId: { in: productIds }
-        }
-      }
-    },
-    include: {
-      user: {
-        select: {
-          name: true,
-          email: true
-        }
-      },
-      items: {
-        include: {
-          product: true
-        }
-      }
-    },
-    orderBy: {
-      createdAt: 'desc'
-    }
-  });
-  */
-  
-  // For now, fetch all orders (replace this with the commented code above when ready)
-  const orders = await prisma.order.findMany({
-    include: {
-      user: {
-        select: {
-          name: true,
-          email: true
-        }
-      }
-    },
-    orderBy: {
-      createdAt: 'desc'
-    }
-  });
-  
+  const { data: ordersData, error: ordersError } = await supabase
+    .from("orders")
+    .select(`
+      id,
+      created_at,
+      total,
+      status,
+      user:user_id (
+        name
+      ),
+      items:order_items (
+        id,
+        quantity,
+        price,
+        product:product_id (
+          name
+        )
+      )
+    `)
+    .order("created_at", { ascending: false });
+
+  if (ordersError || !ordersData) {
+    return <div className="text-red-500">Error loading orders.</div>;
+  }
+
+  // Filter orders to only those that have at least one item with a productId in productIds
+  const orders = ordersData.filter((order: any) =>
+    order.items.some((item: any) => productIds.includes(item.product_id || item.product?.id))
+  );
+
   // Format orders for the OrdersTable component
-  const formattedOrders = orders.map(order => ({
+  const formattedOrders = orders.map((order: any) => ({
     id: order.id,
-    orderNumber: `ORD-${order.id.substring(0, 6)}`,
-    customerName: order.user?.name || 'Anonymous',
-    date: order.createdAt,
+    createdAt: order.created_at,
     total: order.total,
-    status: (order.status.toLowerCase() === 'paid' ? 'processing' : order.status.toLowerCase()) as OrderStatus,
-    items: [] // You would populate this from order items if available
+    status: (order.status?.toLowerCase() === 'paid' ? 'processing' : order.status?.toLowerCase()) as OrderStatus,
+    user: { name: order.user?.name || 'Anonymous' },
+    items: (order.items || []).map((item: any) => ({
+      id: item.id,
+      product: { name: item.product?.name ?? 'Unknown' },
+      quantity: item.quantity,
+      price: item.price
+    })),
+    // Add missing properties for OrdersTable compatibility
+    orderNumber: order.id, // or use another unique order number if available
+    customerName: order.user?.name || 'Anonymous',
+    date: order.created_at,
   }));
-  
+
   // Format data for charts
-  const revenueData = formatOrdersDataForChart(orders, "revenue");
-  const ordersData = formatOrdersDataForChart(orders, "orders");
-  
+  const revenueData = formatOrdersDataForChart(formattedOrders, "revenue");
+  const ordersDataChart = formatOrdersDataForChart(formattedOrders, "orders");
+
   return (
     <div>
       <h1 className="text-3xl font-heading text-primary mb-2">Orders</h1>
       <p className="text-gray-600 mb-8">
         Track and manage orders for your products
       </p>
-      
+
       {/* Revenue and Orders Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
         <div className="bg-white rounded-xl shadow-sm p-6">
           <h2 className="text-lg font-medium text-gray-800 mb-4">Revenue Overview</h2>
-          <OrdersChart 
-            data={revenueData} 
-            type="revenue" 
-            colors={{ primary: "#2a4aa1", secondary: "#e7d1ff" }} 
+          <OrdersChart
+            data={revenueData}
+            type="revenue"
+            colors={{ primary: "#2a4aa1", secondary: "#e7d1ff" }}
           />
         </div>
-        
+
         <div className="bg-white rounded-xl shadow-sm p-6">
           <h2 className="text-lg font-medium text-gray-800 mb-4">Orders Overview</h2>
-          <OrdersChart 
-            data={ordersData} 
-            type="orders" 
-            colors={{ primary: "#e7d1ff", secondary: "#2a4aa1" }} 
+          <OrdersChart
+            data={ordersDataChart}
+            type="orders"
+            colors={{ primary: "#e7d1ff", secondary: "#2a4aa1" }}
           />
         </div>
       </div>
-      
+
       {/* Orders Table */}
       <OrdersTable orders={formattedOrders} />
     </div>

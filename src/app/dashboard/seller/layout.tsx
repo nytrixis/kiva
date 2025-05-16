@@ -1,7 +1,6 @@
 import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { UserRole } from "@prisma/client";
 import { Sidebar } from "@/components/dashboard/seller/Sidebar";
 
 export const metadata = {
@@ -17,7 +16,7 @@ export default async function SellerDashboardLayout({
   const session = await getServerSession(authOptions);
 
   // Redirect if not authenticated or not a seller
-  if (!session?.user || session.user.role !== UserRole.SELLER) {
+  if (!session?.user || session.user.role !== "SELLER") {
     redirect("/sign-in?callbackUrl=/dashboard/seller");
   }
 

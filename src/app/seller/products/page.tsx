@@ -2,7 +2,6 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
-import { prisma } from "@/lib/db";
 import { Plus, Package } from "lucide-react";
 import Image from "next/image";
 
@@ -28,40 +27,28 @@ export default async function SellerProductsPage({
   if (session.user.role !== "SELLER") {
     redirect("/access-denied?message=You need a seller account to access this page");
   }
-  
+
   // Pagination
   const page = parseInt(pageParam || "1");
   const limit = parseInt(limitParam || "10");
   const skip = (page - 1) * limit;
 
-  // Fetch seller's products
-  const products = await prisma.product.findMany({
-    where: {
-      sellerId: session.user.id,
-    },
-    include: {
-      category: {
-        select: {
-          name: true,
-        },
-      },
-    },
-    orderBy: {
-      createdAt: "desc",
-    },
-    skip,
-    take: limit,
-  });
-  
-  // Get total count for pagination
-  const total = await prisma.product.count({
-    where: {
-      sellerId: session.user.id,
-    },
-  });
-  
+  // Fetch seller's products via Supabase REST API
+  const productsRes = await fetch(
+    `${process.env.NEXT_PUBLIC_BASE_URL || ""}/api/supabase/seller-products?sellerId=${session.user.id}&skip=${skip}&limit=${limit}`,
+    { cache: "no-store" }
+  );
+  const products = productsRes.ok ? await productsRes.json() : [];
+
+  // Get total count for pagination via Supabase REST API
+  const countRes = await fetch(
+    `${process.env.NEXT_PUBLIC_BASE_URL || ""}/api/supabase/seller-products/count?sellerId=${session.user.id}`,
+    { cache: "no-store" }
+  );
+  const total = countRes.ok ? await countRes.json() : 0;
+
   const totalPages = Math.ceil(total / limit);
-  
+
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-8">
@@ -69,7 +56,7 @@ export default async function SellerProductsPage({
           <h1 className="text-2xl font-heading font-bold text-gray-800">My Products</h1>
           <p className="text-gray-600 mt-1">Manage your product listings</p>
         </div>
-        
+
         <Link
           href="/seller/products/new"
           className="flex items-center px-4 py-2 bg-primary hover:bg-primary/90 text-white rounded-lg transition-colors"
@@ -78,7 +65,7 @@ export default async function SellerProductsPage({
           Add New Product
         </Link>
       </div>
-      
+
       {products.length === 0 ? (
         <div className="bg-white rounded-xl shadow-sm p-8 text-center">
           <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -124,17 +111,17 @@ export default async function SellerProductsPage({
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200">
-                  {products.map((product) => {
+                  {products.map((product: any) => {
                     // Calculate discounted price
                     const discountedPrice = product.discountPercentage > 0
                       ? product.price * (1 - product.discountPercentage / 100)
                       : null;
-                    
+
                     // Get first image and ensure it's a string
                     const imageUrl = Array.isArray(product.images) && product.images.length > 0 && typeof product.images[0] === 'string'
                       ? product.images[0]
                       : "/images/placeholder-product.jpg";
-                    
+
                     return (
                       <tr key={product.id} className="hover:bg-gray-50">
                         <td className="px-6 py-4 whitespace-nowrap">
@@ -181,7 +168,7 @@ export default async function SellerProductsPage({
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="text-sm text-gray-900">
-                            {product.category.name}
+                            {product.category?.name}
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
@@ -207,11 +194,12 @@ export default async function SellerProductsPage({
                         </td>
                       </tr>
                     );
-                  })}                </tbody>
+                  })}
+                </tbody>
               </table>
             </div>
           </div>
-          
+
           {/* Pagination */}
           {totalPages > 1 && (
             <div className="mt-6 flex justify-center">
@@ -224,7 +212,7 @@ export default async function SellerProductsPage({
                 >
                   Previous
                 </Link>
-                
+
                 {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
                   // Show pages around the current page
                   let pageNum = page;
@@ -235,10 +223,10 @@ export default async function SellerProductsPage({
                   } else {
                     pageNum = page - 2 + i;
                   }
-                  
+
                   // Ensure page number is within valid range
                   if (pageNum < 1 || pageNum > totalPages) return null;
-                  
+
                   return (
                     <Link
                       key={pageNum}
@@ -253,7 +241,7 @@ export default async function SellerProductsPage({
                     </Link>
                   );
                 })}
-                
+
                 <Link
                   href={`/seller/products?page=${Math.min(totalPages, page + 1)}&limit=${limit}`}
                   className={`px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors ${

@@ -91,7 +91,7 @@ export default function CategoryImageUpload() {
             <p className="text-sm font-mono">{uploadedUrl}</p>
           </div>
           <p className="mt-2 text-sm text-gray-600">
-            Copy this URL and add it to the category in Prisma Studio
+            Copy this URL and add it to the category in P Studio
           </p>
           
           <div className="mt-4">

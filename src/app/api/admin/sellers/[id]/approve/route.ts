@@ -1,8 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { prisma } from "@/lib/db";
-import { UserRole } from "@prisma/client";
+import { createClient } from "@supabase/supabase-js";
+
+enum UserRole {
+  ADMIN = "ADMIN",
+  SELLER = "SELLER",
+  CUSTOMER = "CUSTOMER",
+  INFLUENCER = "INFLUENCER",
+}
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 export async function GET(
   req: NextRequest,
@@ -17,16 +27,31 @@ export async function GET(
 
     const { id } = await params;
 
+    // Find the seller profile for this user
+    const { data: sellerProfile, error: profileError } = await supabase
+      .from("seller_profile")
+      .select("*")
+      .eq("userId", id)
+      .single();
+
+    if (profileError || !sellerProfile) {
+      return NextResponse.json({ error: "Seller profile not found" }, { status: 404 });
+    }
+
     // Update seller profile status to APPROVED
-    await prisma.sellerProfile.update({
-      where: { userId: id },
-      data: {
+    const { error: updateError } = await supabase
+      .from("seller_profile")
+      .update({
         status: "APPROVED",
         isVerified: true,
-        verifiedAt: new Date(),
+        verifiedAt: new Date().toISOString(),
         verifiedBy: session.user.id,
-      },
-    });
+      })
+      .eq("userId", id);
+
+    if (updateError) {
+      throw updateError;
+    }
 
     // Redirect back to the seller details page
     return NextResponse.redirect(new URL(`/admin/sellers/${id}`, req.url));

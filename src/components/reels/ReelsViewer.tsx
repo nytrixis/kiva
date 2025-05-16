@@ -15,10 +15,8 @@ interface Reel {
   thumbnailUrl?: string | null;
   caption?: string | null;
   createdAt: string;
-  _count: {
-    likes: number;
-    comments: number;
-  };
+  likeCount: number;
+  commentCount: number;
   isLiked: boolean;
   user: {
     id: string;

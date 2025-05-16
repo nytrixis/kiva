@@ -1,7 +1,6 @@
 import { Metadata } from "next";
 import { redirect } from "next/navigation";
 import ProductCatalog from "@/components/product/ProductCatalog";
-import { prisma } from "@/lib/db";
 
 export const metadata: Metadata = {
   title: "Search Results | Kiva",
@@ -24,16 +23,12 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
     redirect("/collections");
   }
 
-  // Fetch categories for filters
-  const categories = await prisma.category.findMany({
-    select: {
-      id: true,
-      name: true,
-    },
-    orderBy: {
-      name: 'asc',
-    },
-  }) as Category[];
+  // Fetch categories for filters via Supabase REST API
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_BASE_URL || ""}/api/categories`,
+    { cache: "no-store" }
+  );
+  const categories = res.ok ? (await res.json() as Category[]) : [];
 
   return (
     <div className="min-h-screen bg-background">
