@@ -1,4 +1,4 @@
-import type { NextApiRequest, NextApiResponse } from "next";
+import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 
 const supabase = createClient(
@@ -6,11 +6,11 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  const { sellerId } = req.query;
+export async function GET(req: NextRequest) {
+  const sellerId = req.nextUrl.searchParams.get("sellerId");
 
   if (!sellerId) {
-    return res.status(400).json({ error: "Missing sellerId" });
+    return NextResponse.json({ error: "Missing sellerId" }, { status: 400 });
   }
 
   const { data: products, error } = await supabase
@@ -20,8 +20,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     .order("createdAt", { ascending: false });
 
   if (error) {
-    return res.status(500).json({ error: error.message });
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  res.status(200).json(products || []);
+  return NextResponse.json(products || []);
 }
