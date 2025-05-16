@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import { Suspense } from "react";
 import ProductCatalog from "@/components/product/ProductCatalog";
 import { createClient } from "@supabase/supabase-js";
 
@@ -14,7 +15,7 @@ const supabase = createClient(supabaseUrl, supabaseAnonKey);
 export default async function CollectionsPage() {
   // Fetch categories for filters
   const { data } = await supabase
-    .from("category")
+    .from("Category")
     .select("*")
     .order("name", { ascending: true });
   const categories = data ?? [];
@@ -28,7 +29,9 @@ export default async function CollectionsPage() {
         <p className="text-gray-600 max-w-2xl mx-auto text-center mb-12">
           Discover unique products from local artisans across India, handcrafted with love and tradition
         </p>
-        <ProductCatalog categories={categories} />
+        <Suspense fallback={<div>Loading products...</div>}>
+          <ProductCatalog categories={categories} />
+        </Suspense>
       </div>
     </div>
   );
