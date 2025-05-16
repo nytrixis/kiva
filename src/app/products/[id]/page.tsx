@@ -25,17 +25,17 @@ interface Seller {
   sellerProfile?: SellerProfile;
 }
 
-interface Product {
-  id: string;
-  name: string;
-  price: number;
-  discountPercentage: number;
-  images: string[] | string;
-  stock: number;
-  description: string;
-  category?: Category;
-  seller: Seller;
-}
+// interface Product {
+//   id: string;
+//   name: string;
+//   price: number;
+//   discountPercentage: number;
+//   images: string[] | string;
+//   stock: number;
+//   description: string;
+//   category?: Category;
+//   seller: Seller;
+// }
 
 interface ProductPageParams {
   params: Promise<{ id: string }>;

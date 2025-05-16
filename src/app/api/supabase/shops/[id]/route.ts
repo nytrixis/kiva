@@ -28,30 +28,30 @@ interface Product {
   category?: Category;
 }
 
-interface Shop {
-  id: string;
-  userId: string;
-  businessName: string;
-  businessType: string;
-  description: string | null;
-  phoneNumber: string | null;
-  website: string | null;
-  address: string | null;
-  city: string | null;
-  state: string | null;
-  postalCode: string | null;
-  country: string | null;
-  taxId: string | null;
-  categories: string[];
-  status: string;
-  verifiedAt: string | null;
-  identityDocument: string | null;
-  businessDocument: string | null;
-  logoImage: string | null;
-  createdAt: string;
-  updatedAt: string;
-  user: User;
-}
+// interface Shop {
+//   id: string;
+//   userId: string;
+//   businessName: string;
+//   businessType: string;
+//   description: string | null;
+//   phoneNumber: string | null;
+//   website: string | null;
+//   address: string | null;
+//   city: string | null;
+//   state: string | null;
+//   postalCode: string | null;
+//   country: string | null;
+//   taxId: string | null;
+//   categories: string[];
+//   status: string;
+//   verifiedAt: string | null;
+//   identityDocument: string | null;
+//   businessDocument: string | null;
+//   logoImage: string | null;
+//   createdAt: string;
+//   updatedAt: string;
+//   user: User;
+// }
 
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
   const { id } = params;

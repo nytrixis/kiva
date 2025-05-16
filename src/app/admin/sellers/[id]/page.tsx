@@ -6,7 +6,7 @@ import Image from "next/image";
 import { format } from "date-fns";
 import { Metadata } from "next";
 import { createClient } from "@supabase/supabase-js";
-import { AppPageRouteHandlerContext } from "next/dist/server/route-modules/app-page/module";
+// import { AppPageRouteHandlerContext } from "next/dist/server/route-modules/app-page/module";
 
 enum UserRole {
   ADMIN = "ADMIN",
