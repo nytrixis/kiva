@@ -3,100 +3,43 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { createClient } from "@supabase/supabase-js";
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-const supabase = createClient(supabaseUrl, supabaseAnonKey);
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
 
-export async function POST(req: NextRequest) {
-  try {
-    const session = await getServerSession(authOptions);
-
-    if (!session?.user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
-    // Extract the reel id from the URL
-    const url = new URL(req.url);
-    const pathParts = url.pathname.split("/");
-    const id = pathParts[pathParts.length - 2];
-
-    // Check if reel exists
-    const { data: reel, error: reelError } = await supabase
-      .from("Reel")
-      .select("id")
-      .eq("id", id)
-      .single();
-
-    if (reelError || !reel) {
-      return NextResponse.json({ error: "Reel not found" }, { status: 404 });
-    }
-
-    // Check if user already liked the reel
-    const { data: existingLike, error: likeError } = await supabase
-      .from("ReelLike")
-      .select("id")
-      .eq("reelId", id)
-      .eq("userId", session.user.id)
-      .maybeSingle();
-
-    if (likeError) {
-      throw likeError;
-    }
-
-    if (existingLike) {
-      // Unlike
-      const { error: deleteError } = await supabase
-        .from("ReelLike")
-        .delete()
-        .eq("id", existingLike.id);
-
-      if (deleteError) {
-        throw deleteError;
-      }
-
-      // Get the new like count after unliking
-      const { count: newCount, error: countError } = await supabase
-        .from("ReelLike")
-        .select("*", { count: "exact", head: true })
-        .eq("reelId", id);
-
-      if (countError) {
-        throw countError;
-      }
-
-      return NextResponse.json({ liked: false, likeCount: newCount });
-    } else {
-      // Like
-      const { error: createError } = await supabase
-        .from("ReelLike")
-        .insert([
-          {
-            reelId: id,
-            userId: session.user.id,
-          },
-        ]);
-
-      if (createError) {
-        throw createError;
-      }
-
-      // Get the new like count after liking
-      const { count: newCount, error: countError } = await supabase
-        .from("ReelLike")
-        .select("*", { count: "exact", head: true })
-        .eq("reelId", id);
-
-      if (countError) {
-        throw countError;
-      }
-
-      return NextResponse.json({ liked: true, likeCount: newCount });
-    }
-  } catch (error) {
-    console.error("Error toggling like:", error);
-    return NextResponse.json(
-      { error: "Failed to toggle like" },
-      { status: 500 }
-    );
+export async function POST(req: NextRequest, context: { params: Promise<{ id: string }> }) {
+  const session = await getServerSession(authOptions);
+  if (!session?.user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
+  const userId = session.user.id;
+  const { id: reelId } = await context.params;
+
+  // Check if already liked
+  const { data: existingLike } = await supabase
+    .from("ReelLike")
+    .select("id")
+    .eq("reelId", reelId)
+    .eq("userId", userId)
+    .maybeSingle();
+
+  if (existingLike) {
+    // Unlike
+    await supabase.from("ReelLike").delete().eq("id", existingLike.id);
+  } else {
+    // Like
+    await supabase.from("ReelLike").insert([{ reelId, userId }]);
+  }
+
+  // Get new like count
+  const { count } = await supabase
+    .from("ReelLike")
+    .select("*", { count: "exact", head: true })
+    .eq("reelId", reelId);
+
+  return NextResponse.json({
+    liked: !existingLike,
+    likeCount: count ?? 0,
+  });
 }

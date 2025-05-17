@@ -77,8 +77,8 @@ export async function GET(req: NextRequest) {
 
   const { data: sellers, error } = await query;
 
-  // Debug log
-  console.log("Sellers:", sellers, "Error:", error);
+  // // Debug log
+  // console.log("Sellers:", sellers, "Error:", error);
 
   if (error) {
     return NextResponse.json([], { status: 200 });

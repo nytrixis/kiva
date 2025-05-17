@@ -40,7 +40,7 @@ interface ReelCardProps {
       comments: number;
     };
   };
-  onLike: () => void;
+  onLike: (liked: boolean, likeCount: number) => void;
   onComment: (reelId: string) => void;
   onShare: (reelId: string) => void;
   isActive: boolean;
@@ -59,6 +59,12 @@ export default function ReelCard({
   const videoRef = useRef<HTMLVideoElement>(null);
   const { toast } = useToast();
   const { isAuthenticated } = useAuth();
+  
+  useEffect(() => {
+    setIsLiked(reel.isLiked);
+    setLikesCount(reel.likeCount);
+  }, [reel.id, reel.isLiked, reel.likeCount]);
+
   
   // Play/pause video based on visibility
   useEffect(() => {
@@ -96,9 +102,10 @@ const handleLike = async () => {
 
     const data = await response.json();
     setIsLiked(data.liked);
-    setLikesCount(data.likeCount); // <-- Use backend count
+    setLikesCount(data.likeCount);
 
-    onLike();
+    onLike(data.liked, data.likeCount); 
+
   } catch (error) {
     console.error("Error liking reel:", error);
     toast({

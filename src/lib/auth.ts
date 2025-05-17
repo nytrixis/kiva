@@ -110,6 +110,7 @@ export const authOptions: NextAuthOptions = {
         token.id = user.id;
         token.role = user.role;
       }
+      // console.log("JWT CALLBACK", { token, user });
       return token;
     },
     async session({ session, token }) {
@@ -117,6 +118,7 @@ export const authOptions: NextAuthOptions = {
         session.user.id = token.id as string;
         session.user.role = token.role as string;
       }
+      // console.log("SESSION CALLBACK", { session, token });
       return session;
     },
   },

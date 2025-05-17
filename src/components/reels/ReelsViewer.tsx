@@ -8,7 +8,7 @@ import ReelCard from "./ReelCard";
 import ReelComments from "./ReelComments";
 import { Plus, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-
+import { useSession } from "next-auth/react";
 interface Reel {
   id: string;
   videoUrl: string;
@@ -55,31 +55,40 @@ export default function ReelsViewer({
   const containerRef = useRef<HTMLDivElement>(null);
   const { isAuthenticated } = useAuth();
   const { toast } = useToast();
+  const { data: session, status } = useSession();
 
   const fetchReels = useCallback(async (cursor?: string) => {
     setIsLoading(true);
-    
+
     try {
-      const url = new URL("/api/reels", window.location.origin);
-      
+      const url = new URL("/api/reels/feed", window.location.origin);
+
       if (cursor) {
         url.searchParams.append("cursor", cursor);
       }
-      
-      const response = await fetch(url.toString());
-      
+      // Pass userId if available
+      if (session?.user?.id) {
+        url.searchParams.append("userId", session.user.id);
+      }
+      console.log("Fetching reels with URL:", url.toString());
+
+
+      const response = await fetch(url.toString(), {
+  credentials: "include", // <-- Add this line
+});
+
       if (!response.ok) {
         throw new Error("Failed to fetch reels");
       }
-      
+
       const data = await response.json();
-      
+
       if (cursor) {
         setReels(prev => [...prev, ...data.reels]);
       } else {
         setReels(data.reels);
       }
-      
+
       setNextCursor(data.nextCursor);
     } catch (error) {
       console.error("Error fetching reels:", error);
@@ -91,13 +100,15 @@ export default function ReelsViewer({
     } finally {
       setIsLoading(false);
     }
-  }, [toast]);
+  }, [toast, session?.user?.id]); // <-- keep session?.user?.id as dependency
+  
 
   useEffect(() => {
-    if (initialReels.length === 0) {
-      fetchReels();
-    }
-  }, [initialReels, fetchReels]);
+  if (initialReels.length === 0 && status === "authenticated" && session?.user?.id) {
+    console.log("Frontend session:", session);
+    fetchReels();
+  }
+}, [initialReels, fetchReels, status, session?.user?.id]);
 
   // Load more reels when reaching the end
   const loadMoreReels = useCallback(() => {
@@ -167,18 +178,15 @@ export default function ReelsViewer({
   }, [activeIndex, reels.length]);
 
   // Handle like action
-  const handleLike = async () => {
-    if (!isAuthenticated) {
-      toast({
-        title: "Please sign in",
-        description: "You need to be signed in to like reels",
-        variant: "destructive",
-      });
-      return;
-    }
-    
-    // Update is handled in the ReelCard component
-  };
+  const handleLike = (reelId: string, liked: boolean, likeCount: number) => {
+  setReels(prev =>
+    prev.map(reel =>
+      reel.id === reelId
+        ? { ...reel, isLiked: liked, likeCount }
+        : reel
+    )
+  );
+};
 
   // Handle comment action
   const handleComment = (reelId: string) => {
@@ -215,6 +223,9 @@ export default function ReelsViewer({
       console.error("Error sharing:", error);
     }
   };
+if (status === "loading") {
+  return <div className="h-full w-full flex items-center justify-center bg-black text-white">Loading...</div>;
+}
 
   return (
     <div className="relative h-full w-full">
@@ -233,7 +244,7 @@ export default function ReelsViewer({
             >
               <ReelCard
                 reel={reel}
-                onLike={handleLike}
+                onLike={(liked: boolean, likeCount: number) => handleLike(reel.id, liked, likeCount)}
                 onComment={handleComment}
                 onShare={handleShare}
                 isActive={index === activeIndex}
