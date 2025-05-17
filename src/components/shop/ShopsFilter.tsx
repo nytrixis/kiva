@@ -1,8 +1,6 @@
 "use client";
 
-import { Star, Filter, X } from "lucide-react";
-import { motion } from "framer-motion";
-
+import { Star, Filter } from "lucide-react";
 interface ShopsFilterProps {
   selectedCategories: string[];
   minRating?: number;

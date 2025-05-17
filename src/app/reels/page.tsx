@@ -4,17 +4,17 @@ import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import ReelsClient from "@/components/reels/ReelsClient";
 
-interface SellerProfile {
-  businessName: string;
-  logoImage?: string;
-}
+// interface SellerProfile {
+//   businessName: string;
+//   logoImage?: string;
+// }
 
-interface User {
-  id: string;
-  name: string;
-  image?: string;
-  sellerProfile?: SellerProfile;
-}
+// interface User {
+//   id: string;
+//   name: string;
+//   image?: string;
+//   sellerProfile?: SellerProfile;
+// }
 
 interface Product {
   id: string;
@@ -24,18 +24,18 @@ interface Product {
   discountPercentage: number;
 }
 
-interface Reel {
-  id: string;
-  videoUrl: string;
-  thumbnailUrl?: string;
-  caption?: string;
-  createdAt: string;
-  likeCount: number;
-  commentCount: number;
-  isLiked: boolean;
-  user: User;
-  product?: Product | null;
-}
+// interface Reel {
+//   id: string;
+//   videoUrl: string;
+//   thumbnailUrl?: string;
+//   caption?: string;
+//   createdAt: string;
+//   likeCount: number;
+//   commentCount: number;
+//   isLiked: boolean;
+//   user: User;
+//   product?: Product | null;
+// }
 
 interface SellerProduct {
   id: string;
