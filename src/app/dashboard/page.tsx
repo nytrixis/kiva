@@ -5,9 +5,9 @@ import { useAuth } from "@/hooks/use-auth";
 import Image from "next/image";
 import ProductImageGallery from "@/components/product/ProductImageGallery";
 import AddToCartButton from "@/components/product/AddToCartButton";
-import AddToWishlistButton from "@/components/product/AddToWishlistButton";
+// import AddToWishlistButton from "@/components/product/AddToWishlistButton";
 import { Badge } from "@/components/ui/badge";
-import { formatCurrency } from "@/lib/utils";
+// import { formatCurrency } from "@/lib/utils";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import {

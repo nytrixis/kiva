@@ -253,7 +253,7 @@ export async function GET(request: Request) {
     query = query.range(from, to);
 
     // Execute query
-    const { data, count: total, error } = await query;
+    const { data, error } = await query;
 
     if (error) {
       throw error;

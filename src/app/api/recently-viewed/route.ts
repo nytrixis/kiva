@@ -117,20 +117,20 @@ export async function GET() {
       sellerProfile: SellerProfile;
     }
 
-    interface Product {
-      id: string;
-      name: string;
-      price: number;
-      discountPercentage: number;
-      createdAt: string;
-      viewCount: number;
-      rating: number;
-      reviewCount: number;
-      stock: number;
-      images: string[] | string;
-      category: Category | Category[];
-      seller: Seller | Seller[];
-    }
+    // interface Product {
+    //   id: string;
+    //   name: string;
+    //   price: number;
+    //   discountPercentage: number;
+    //   createdAt: string;
+    //   viewCount: number;
+    //   rating: number;
+    //   reviewCount: number;
+    //   stock: number;
+    //   images: string[] | string;
+    //   category: Category | Category[];
+    //   seller: Seller | Seller[];
+    // }
 
     const parseCategory = (category: Category | Category[] | null | undefined): Category => {
       if (Array.isArray(category)) {

@@ -103,7 +103,7 @@ const [products, setProducts] = useState<Product[]>(initialProducts || []);  con
     };
     
     fetchProducts();
-  }, [categoryParam, minPrice, maxPrice, sortBy, page, searchQuery]);
+  }, [categoryParam, minPrice, maxPrice, sortBy, page, minRating, searchQuery]);
  
   // Update URL with filters
   type FilterValue = string | number | null | undefined;
