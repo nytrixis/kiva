@@ -306,13 +306,13 @@ const handleSellerClick = async (e: React.MouseEvent) => {
               
               <div className="mt-8">
                 <button
-  type="button"
-  onClick={handleSellerClick}
-  className="inline-flex items-center text-primary hover:text-primary/80 font-medium"
->
-  Start selling on Kiva
-  <ArrowRight className="ml-2 h-4 w-4" />
-</button>
+                  type="button"
+                  onClick={handleSellerClick}
+                  className="inline-flex items-center text-primary hover:text-primary/80 font-medium"
+                >
+                  Start selling on Kiva
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </button>
               </div>
             </motion.div>
             
@@ -531,12 +531,14 @@ const handleSellerClick = async (e: React.MouseEvent) => {
                 Explore Products
               </Link>
               
-              <Link 
-                href="/onboarding/seller"
-                className="px-8 py-3 bg-white text-primary border border-primary rounded-full hover:bg-primary/5 transition-colors"
-              >
-                Become a Seller
-              </Link>
+              <button
+                  type="button"
+                  onClick={handleSellerClick}
+                  className="inline-flex items-center text-primary hover:text-primary/80 font-medium"
+                >
+                  Start selling on Kiva
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </button>
             </div>
             
             <div className="mt-12 flex items-center justify-center space-x-2">
