@@ -11,10 +11,10 @@ interface SearchPageProps {
   searchParams: Promise<{ q?: string }>;
 }
 
-interface Category {
-  id: string;
-  name: string;
-}
+// interface Category {
+//   id: string;
+//   name: string;
+// }
 
 export default async function SearchPage({ searchParams }: SearchPageProps) {
   const { q: query } = await searchParams;
