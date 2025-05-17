@@ -107,15 +107,15 @@ export async function GET() {
       slug: string;
     }
 
-    interface SellerProfile {
-      businessName: string;
-    }
+    // interface SellerProfile {
+    //   businessName: string;
+    // }
 
-    interface Seller {
-      id: string;
-      name: string;
-      sellerProfile: SellerProfile;
-    }
+    // interface Seller {
+    //   id: string;
+    //   name: string;
+    //   sellerProfile: SellerProfile;
+    // }
 
     // interface Product {
     //   id: string;
