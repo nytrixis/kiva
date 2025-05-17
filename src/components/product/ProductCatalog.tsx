@@ -31,26 +31,27 @@ interface Product {
     name: string;
   };
   stock?: number;
-  isInWishlist?: boolean;
+  isFavorite?: boolean;
 }
 
 interface ProductCatalogProps {
   categories: Category[];
   initialCategory?: string | null;
   searchQuery?: string | null;
+  products: Product[];
 }
 
 export default function ProductCatalog({
   categories,
   initialCategory = null,
-  searchQuery = null
+  searchQuery = null,
+  products: initialProducts
 }: ProductCatalogProps) {
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
  
-  const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
+const [products, setProducts] = useState<Product[]>(initialProducts || []);  const [loading, setLoading] = useState(true);
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [totalProducts, setTotalProducts] = useState(0);
   const [activeFilters, setActiveFilters] = useState(0);
@@ -61,6 +62,7 @@ export default function ProductCatalog({
   const maxPrice = searchParams.get("maxPrice");
   const sortBy = searchParams.get("sort") || "newest";
   const page = parseInt(searchParams.get("page") || "1");
+  const minRating = searchParams.get("minRating");
  
   // Fetch products based on filters
   useEffect(() => {
@@ -76,9 +78,12 @@ export default function ProductCatalog({
         if (maxPrice) params.append("maxPrice", maxPrice);
         if (sortBy) params.append("sort", sortBy);
         if (page) params.append("page", page.toString());
+        if (minRating) params.append("minRating", minRating);
         if (searchQuery) params.append("q", searchQuery);
         
-        const response = await fetch(`/api/products?${params.toString()}`);
+        const response = await fetch(`/api/products?${params.toString()}`, {
+          credentials: "include", // <-- Add this line!
+        });        
         const data = await response.json();
         
         setProducts(data.products);
@@ -221,6 +226,7 @@ export default function ProductCatalog({
             selectedCategory={categoryParam}
             minPrice={minPrice}
             maxPrice={maxPrice}
+            minRating={minRating ? Number(minRating) : undefined}
             onFilterChange={updateFilters}
           />
         </div>

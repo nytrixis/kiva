@@ -15,6 +15,7 @@ interface ProductFiltersProps {
   selectedCategory: string | null;
   minPrice: string | null;
   maxPrice: string | null;
+  minRating?: number;
   
   onFilterChange: (filters: { [key: string]: string | number | null | undefined }) => void;
 }
@@ -30,6 +31,8 @@ export default function ProductFilters({
     minPrice ? parseInt(minPrice) : 0,
     maxPrice ? parseInt(maxPrice) : 10000,
   ]);
+  const [minRating, setMinRating] = useState<number | null>(null);
+
  
   const [expandedSections, setExpandedSections] = useState({
     categories: true,
@@ -155,31 +158,37 @@ export default function ProductFilters({
         </button>
         
         {expandedSections.ratings && (
-          <div className="space-y-2 mt-3">
-            {[4, 3, 2, 1].map((rating) => (
-              <div key={rating} className="flex items-center">
-                <Checkbox
-                  id={`rating-${rating}`}
-                  className="mr-2 h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
-                />
-                <label
-                  htmlFor={`rating-${rating}`}
-                  className="text-sm text-gray-700 cursor-pointer flex items-center"
-                >
-                  <div className="flex items-center text-amber-500">
-                    {Array.from({ length: 5 }).map((_, i) => (
-                      <Star
-                        key={i}
-                        className={`h-3 w-3 ${i < rating ? "fill-current" : "text-gray-300"}`}
-                      />
-                    ))}
-                  </div>
-                  <span className="ml-1">& Up</span>
-                </label>
-              </div>
+  <div className="space-y-2 mt-3">
+    {[4, 3, 2, 1].map((rating) => (
+      <div key={rating} className="flex items-center">
+        <Checkbox
+          id={`rating-${rating}`}
+          checked={minRating === rating}
+          onCheckedChange={() => {
+            const newRating = minRating === rating ? null : rating;
+            setMinRating(newRating);
+            onFilterChange({ minRating: newRating });
+          }}
+          className="mr-2 h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+        />
+        <label
+          htmlFor={`rating-${rating}`}
+          className="text-sm text-gray-700 cursor-pointer flex items-center"
+        >
+          <div className="flex items-center text-amber-500">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <Star
+                key={i}
+                className={`h-3 w-3 ${i < rating ? "fill-current" : "text-gray-300"}`}
+              />
             ))}
           </div>
-        )}
+          <span className="ml-1">& Up</span>
+        </label>
+      </div>
+    ))}
+  </div>
+)}
       </div>
     </div>
   );

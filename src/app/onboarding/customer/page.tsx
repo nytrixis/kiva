@@ -119,14 +119,6 @@ export default function CustomerOnboardingPage() {
           <div className="flex items-center justify-between">
             <Link href="/" className="flex items-center">
               <div className="relative h-10 w-10 overflow-hidden border border-[#E6E6FA]">
-                <Image
-                  src="/images/logob.png"
-                  alt="Kiva Logo"
-                  fill
-                  className="object-cover"
-                  sizes="40px"
-                  priority
-                />
               </div>
             </Link>
             <div className="flex items-center space-x-2">

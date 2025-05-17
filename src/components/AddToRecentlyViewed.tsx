@@ -2,20 +2,24 @@
 import { useEffect } from "react";
 
 interface RecentlyViewedProduct {
-  id: string;
+  productId: string;
   name: string;
   price: number;
   image: string;
   vendor: string;
   category: string;
   link: string;
+  discountPercentage?: number;
+  rating?: number;
+  reviewCount?: number;
+  originalPrice?: number;
 }
 
 export default function AddToRecentlyViewed({ product }: { product: RecentlyViewedProduct }) {
   useEffect(() => {
     if (
       !product ||
-      !product.id ||
+      !product.productId ||
       !product.name ||
       !product.price ||
       !product.image ||
@@ -28,7 +32,7 @@ export default function AddToRecentlyViewed({ product }: { product: RecentlyView
     fetch("/api/recently-viewed", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(product),
+      body: JSON.stringify({ ...product, productId: product.productId }),
     });
   }, [product]);
 

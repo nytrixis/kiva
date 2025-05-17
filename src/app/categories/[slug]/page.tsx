@@ -72,6 +72,7 @@ export default async function CategoryPage(props: { params: Promise<{ slug: stri
         <ProductCatalog
           categories={allCategories || []}
           initialCategory={category.id}
+          products={products || []}
         />
       </div>
     </div>

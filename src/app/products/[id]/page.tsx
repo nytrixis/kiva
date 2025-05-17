@@ -100,7 +100,21 @@ export default async function ProductPage({ params }: ProductPageParams) {
   return (
     
     <div className="container mx-auto py-8 px-4">
-      <AddToRecentlyViewed product={product} />
+      <AddToRecentlyViewed
+  product={{
+    productId: product.id,
+    name: product.name,
+    price: product.price,
+    image: Array.isArray(product.images) ? product.images[0] : product.images,
+    vendor: product.seller?.sellerProfile?.businessName || product.seller?.name || "",
+    category: product.category?.name || "",
+    link: `/products/${product.id}`,
+    discountPercentage: product.discountPercentage ?? 0,
+    rating: product.rating ?? 0,
+    reviewCount: product.reviewCount ?? 0,
+    originalPrice: product.price, // or product.originalPrice if you have it
+  }}
+/>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {/* Product Images */}
         <div>

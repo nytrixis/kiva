@@ -24,7 +24,7 @@ interface Product {
   reviewCount: number;
   category: Category;
   seller: Seller;
-  isInWishlist?: boolean;
+  isFavorite?: boolean;
   stock?: number;
 }
 
@@ -85,8 +85,7 @@ interface ProductCardProps {
 function ProductCard({ product, index }: ProductCardProps) {
   const [isWishlistHovered, setIsWishlistHovered] = useState(false);
   const [isAddingToCart, setIsAddingToCart] = useState(false);
-  const [isInWishlist, setIsInWishlist] = useState(product.isInWishlist || false);
-  const { toast } = useToast();
+const [isFavorite, setIsFavorite] = useState(product.isFavorite || false);  const { toast } = useToast();
 
   // Calculate discounted price based on discountPercentage
   const discountPrice = product.discountPercentage > 0 
@@ -149,7 +148,7 @@ function ProductCard({ product, index }: ProductCardProps) {
     
     try {
       // Optimistic UI update
-      setIsInWishlist(!isInWishlist);
+      setIsFavorite(!isFavorite);
       
       // API call to toggle wishlist
       const response = await fetch('/api/wishlist', {
@@ -168,13 +167,13 @@ function ProductCard({ product, index }: ProductCardProps) {
       
       // Show success toast notification
       toast({
-        title: isInWishlist ? "Removed from Wishlist" : "Added to Wishlist",
-        description: isInWishlist
+        title: isFavorite ? "Removed from Wishlist" : "Added to Wishlist",
+        description: isFavorite
           ? `${product.name} has been removed from your wishlist.`
           : `${product.name} has been added to your wishlist.`,
         variant: "success",
         icon: <Check className="h-4 w-4" />,
-        action: isInWishlist ? null : (
+        action: isFavorite ? null : (
           <Link href="/wishlist" className="text-xs underline">
             View Wishlist
           </Link>
@@ -184,7 +183,7 @@ function ProductCard({ product, index }: ProductCardProps) {
       console.error('Error updating wishlist:', error);
       
       // Revert optimistic update
-      setIsInWishlist(!isInWishlist);
+      setIsFavorite(!isFavorite);
       
       // Show error toast notification
       toast({
@@ -234,11 +233,11 @@ function ProductCard({ product, index }: ProductCardProps) {
                 onMouseEnter={() => setIsWishlistHovered(true)}
                 onMouseLeave={() => setIsWishlistHovered(false)}
                 className="p-2 bg-white/90 backdrop-blur-sm rounded-full shadow-sm hover:bg-white transition-colors"
-                aria-label={isInWishlist ? "Remove from wishlist" : "Add to wishlist"}
+                aria-label={isFavorite ? "Remove from wishlist" : "Add to wishlist"}
               >
                 <Heart
                   className={`h-5 w-5 transition-all ${
-                    isWishlistHovered || isInWishlist
+                    isWishlistHovered || isFavorite
                       ? 'fill-primary text-primary'
                       : 'text-gray-600'
                   }`}

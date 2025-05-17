@@ -2,6 +2,9 @@
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { useRouter } from "next/navigation";
+import { useToast } from "@/hooks/use-toast";
+import { signIn, useSession } from "next-auth/react";
 import { 
   Heart, 
   Sparkles, 
@@ -21,6 +24,36 @@ import {
 // };
 
 export default function AboutPage() {
+  const router = useRouter();
+const { toast } = useToast();
+const { data: session, status } = useSession();
+
+const handleSellerClick = async (e: React.MouseEvent) => {
+  e.preventDefault();
+
+  // 1. Not signed in
+  if (status === "unauthenticated" || !session?.user) {
+    toast({
+      title: "Please sign in to continue",
+      variant: "info",
+    });
+    signIn(); // Opens the sign-in modal
+    return;
+  }
+
+  // 2. Signed in, but not a seller
+  // Assume user role is stored as session.user.role ("customer" or "seller")
+  if (session.user.role !== "seller") {
+    toast({
+      title: "You need to have a seller account",
+      variant: "destructive",
+    });
+    return;
+  }
+
+  // 3. Signed in and is a seller
+  router.push("/dashboard/seller");
+};
   return (
     <div className="bg-background overflow-x-hidden">
       {/* Hero Section */}
@@ -136,7 +169,7 @@ export default function AboutPage() {
               <div className="relative z-10">
                 <div className="relative w-full pb-[50%] rounded-tl-3xl rounded-br-3xl overflow-hidden shadow-lg">
                     <Image
-                        src="/images/founders1.png"
+                        src="/images/founders.png"
                         alt="Founders of Kiva"
                         fill
                         className="object-cover"
@@ -272,13 +305,14 @@ export default function AboutPage() {
               </ul>
               
               <div className="mt-8">
-                <Link 
-                  href="/onboarding/seller"
-                  className="inline-flex items-center text-primary hover:text-primary/80 font-medium"
-                >
-                  Start selling on Kiva
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Link>
+                <button
+  type="button"
+  onClick={handleSellerClick}
+  className="inline-flex items-center text-primary hover:text-primary/80 font-medium"
+>
+  Start selling on Kiva
+  <ArrowRight className="ml-2 h-4 w-4" />
+</button>
               </div>
             </motion.div>
             

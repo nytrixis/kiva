@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/lib/auth";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
@@ -37,6 +39,7 @@ interface ProductAPI {
   category: CategoryAPI;
   seller: SellerAPI;
   link: string;
+  isFavorite?: boolean;
 }
 
 interface ProductsResponse {
@@ -161,15 +164,30 @@ export async function GET(request: Request) {
         category: parseCategory(p.category),
         seller: parseSeller(p.seller),
         link: `/products/${p.id}`,
+        isFavorite: favoriteIds.has(p.id), 
       }));
 
       return NextResponse.json({ products });
+    }
+
+    const session = await getServerSession(authOptions);
+    const userId = session?.user?.id;
+
+    // 2. Fetch wishlist product IDs for this user
+    let favoriteIds: Set<string> = new Set();
+    if (userId) {
+      const { data: wishlist } = await supabase
+        .from("Wishlist")
+        .select("productId")
+        .eq("userId", userId);
+      favoriteIds = new Set(wishlist?.map((w) => w.productId));
     }
 
     // Marketplace & Trending logic
     const category = searchParams.get("category");
     const minPrice = searchParams.get("minPrice");
     const maxPrice = searchParams.get("maxPrice");
+    const minRating = searchParams.get("minRating");
     const sort = searchParams.get("sort") || "newest";
     const page = parseInt(searchParams.get("page") || "1");
     const limit = parseInt(searchParams.get("limit") || "12");
@@ -195,6 +213,8 @@ export async function GET(request: Request) {
         `,
         { count: "exact" }
       );
+
+      
 
     if (category) {
       query = query.eq("categoryId", category);
@@ -239,32 +259,44 @@ export async function GET(request: Request) {
       throw error;
     }
 
-    const products: ProductAPI[] = (data as SupabaseProduct[]).map((p) => ({
-      id: p.id,
-      name: p.name,
-      price: p.price,
-      originalPrice:
-        p.discountPercentage > 0
-          ? Math.round((p.price / (1 - p.discountPercentage / 100)) * 100) / 100
-          : p.price,
-      images: parseImages(p.images),
-      discountPercentage: p.discountPercentage ?? 0,
-      createdAt: p.createdAt,
-      viewCount: p.viewCount ?? 0,
-      rating: p.rating ?? 0,
-      reviewCount: p.reviewCount ?? 0,
-      category: parseCategory(p.category),
-      seller: parseSeller(p.seller),
-      link: `/products/${p.id}`,
-    }));
+    let filteredProducts = data as SupabaseProduct[];
+if (minRating) {
+  const min = parseFloat(minRating);
+  filteredProducts = filteredProducts.filter(
+    (p) => (p.rating ?? 0) >= min
+  );
+}
 
-    const response: ProductsResponse = {
-      products,
-      total: total ?? 0,
-      page,
-      limit,
-      totalPages: Math.ceil((total ?? 0) / limit),
-    };
+// Paginate AFTER filtering
+const paginatedProducts = filteredProducts.slice((page - 1) * limit, page * limit);
+
+const products: ProductAPI[] = paginatedProducts.map((p) => ({
+  id: p.id,
+  name: p.name,
+  price: p.price,
+  originalPrice:
+    p.discountPercentage > 0
+      ? Math.round((p.price / (1 - p.discountPercentage / 100)) * 100) / 100
+      : p.price,
+  images: parseImages(p.images),
+  discountPercentage: p.discountPercentage ?? 0,
+  createdAt: p.createdAt,
+  viewCount: p.viewCount ?? 0,
+  rating: p.rating ?? 0,
+  reviewCount: p.reviewCount ?? 0,
+  category: parseCategory(p.category),
+  seller: parseSeller(p.seller),
+  link: `/products/${p.id}`,
+  isFavorite: favoriteIds.has(p.id),
+}));
+
+const response: ProductsResponse = {
+  products,
+  total: filteredProducts.length,
+  page,
+  limit,
+  totalPages: Math.ceil(filteredProducts.length / limit),
+};
 
     return NextResponse.json(response);
   } catch (error) {
