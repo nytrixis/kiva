@@ -8,13 +8,19 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
 
-export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
+export async function POST(req: NextRequest) {
+  const { pathname } = req.nextUrl;
+  const match = pathname.match(/\/reels\/([^/]+)\/comments/);
+  const reelId = match ? match[1] : null;
+  if (!reelId) {
+    return NextResponse.json({ error: "Invalid reel id" }, { status: 400 });
+  }
+
   const session = await getServerSession(authOptions);
   if (!session?.user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
   const userId = session.user.id;
-  const reelId = params.id;
   const { content } = await req.json();
 
   const { data: comment, error } = await supabase
@@ -39,8 +45,13 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   return NextResponse.json({ comment });
 }
 
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
-  const reelId = params.id;
+export async function GET(req: NextRequest) {
+  const { pathname } = req.nextUrl;
+  const match = pathname.match(/\/reels\/([^/]+)\/comments/);
+  const reelId = match ? match[1] : null;
+  if (!reelId) {
+    return NextResponse.json({ error: "Invalid reel id" }, { status: 400 });
+  }
 
   const { data: comments, error } = await supabase
     .from("ReelComment")

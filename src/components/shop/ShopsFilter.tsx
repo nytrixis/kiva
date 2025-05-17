@@ -7,7 +7,6 @@ interface ShopsFilterProps {
   categoryOptions: string[];
   onFilterChange: (filters: { categories?: string[]; minRating?: number }) => void;
 }
-
 export default function ShopsFilter({
   selectedCategories,
   minRating,

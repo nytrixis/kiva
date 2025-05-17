@@ -8,13 +8,20 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
 
-export async function POST(req: NextRequest, context: { params: Promise<{ id: string }> }) {
+export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions);
   if (!session?.user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
   const userId = session.user.id;
-  const { id: reelId } = await context.params;
+
+  // Extract reelId from the URL
+  const { pathname } = req.nextUrl;
+  const match = pathname.match(/\/reels\/([^/]+)\/like/);
+  const reelId = match ? match[1] : null;
+  if (!reelId) {
+    return NextResponse.json({ error: "Invalid reel id" }, { status: 400 });
+  }
 
   // Check if already liked
   const { data: existingLike } = await supabase
