@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
+import { getServerSession } from "next-auth/next"; // <-- FIXED
 import { authOptions } from "@/lib/auth";
 import { createClient } from "@supabase/supabase-js";
 
@@ -9,15 +9,14 @@ const supabase = createClient(
 );
 
 export async function GET(req: NextRequest) {
-
   const { searchParams } = new URL(req.url);
   const limit = parseInt(searchParams.get("limit") || "10");
   let userId = searchParams.get("userId");
   if (!userId) {
+    // Pass as named params for App Router
     const session = await getServerSession(authOptions);
     userId = session?.user?.id ?? null;
   }
-  
 
   // 1. Fetch reels
   const { data: reels, error } = await supabase
@@ -52,11 +51,8 @@ export async function GET(req: NextRequest) {
     .select("id, reelId")
     .in("reelId", reelIds);
 
-    console.log("Session userId:", userId);
-console.log("Likes:", likes);
-
-// 4. Merge
-const reelsWithEngagement = (reels ?? []).map(reel => {
+  // 4. Merge
+  const reelsWithEngagement = (reels ?? []).map(reel => {
     const reelLikes = likes?.filter(l => l.reelId === reel.id) ?? [];
     const reelComments = comments?.filter(c => c.reelId === reel.id) ?? [];
     return {
@@ -65,10 +61,7 @@ const reelsWithEngagement = (reels ?? []).map(reel => {
       commentCount: reelComments.length,
       isLiked: !!reelLikes.find(l => l.userId === userId)
     };
-
-    console.log("isLiked:", !!reelLikes.find(l => l.userId === userId));
   });
 
-  
   return NextResponse.json({ reels: reelsWithEngagement });
 }

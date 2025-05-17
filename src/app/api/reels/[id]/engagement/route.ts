@@ -8,11 +8,17 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
 
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(req: NextRequest) {
   const session = await getServerSession(authOptions);
   const userId = session?.user?.id;
 
-  const reelId = params.id;
+  // Extract reelId from the URL
+  const { pathname } = req.nextUrl;
+  const match = pathname.match(/\/reels\/([^/]+)\/engagement/);
+  const reelId = match ? match[1] : null;
+  if (!reelId) {
+    return NextResponse.json({ error: "Invalid reel id" }, { status: 400 });
+  }
 
   // Likes
   const { data: likes, error: likesError } = await supabase
@@ -36,8 +42,8 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
     .eq("reelId", reelId)
     .order("createdAt", { ascending: false });
 
-    console.log("Session userId:", userId);
-console.log("Likes:", likes);
+  console.log("Session userId:", userId);
+  console.log("Likes:", likes);
 
   if (likesError || commentsError) {
     return NextResponse.json({ error: "Failed to fetch engagement" }, { status: 500 });
