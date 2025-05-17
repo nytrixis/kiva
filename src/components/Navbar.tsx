@@ -7,6 +7,7 @@ import { motion } from "framer-motion";
 import { ShoppingCart, Heart, Menu, X, Globe, ChevronDown, Search, User, Grid } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
+import { useRouter } from "next/navigation";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -65,6 +66,7 @@ export default function Navbar() {
   const [isMobileCategoriesOpen, setIsMobileCategoriesOpen] = useState(false);
   const [wishlistCount, setWishlistCount] = useState(0);
   const [cartCount, setCartCount] = useState(0);
+  const router = useRouter();
   
   // Fetch categories for the dropdown
   useEffect(() => {
@@ -98,6 +100,14 @@ export default function Navbar() {
           console.error("Error fetching wishlist count:", error);
         }
       };
+
+      const handleSearchSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+      setIsMenuOpen(false); // Optionally close mobile menu on search
+    }
+  };
       
       // Fetch cart count
       const fetchCartCount = async () => {

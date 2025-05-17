@@ -40,6 +40,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
         <ProductCatalog
           categories={categories}
           searchQuery={query}
+          products={[]}
         />
       </div>
     </div>
