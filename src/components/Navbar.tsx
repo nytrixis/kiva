@@ -100,14 +100,6 @@ export default function Navbar() {
           console.error("Error fetching wishlist count:", error);
         }
       };
-
-      const handleSearchSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
-      setIsMenuOpen(false); // Optionally close mobile menu on search
-    }
-  };
       
       // Fetch cart count
       const fetchCartCount = async () => {
@@ -146,23 +138,10 @@ export default function Navbar() {
 
   const handleSearchSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // This would connect to your backend search functionality
-    // For now, just log the search query
-    console.log("Search query:", searchQuery);
-    
-    /*
-    // Uncomment this when you have backend integration
-    const searchProducts = async () => {
-      try {
-        const response = await fetch(`/api/search?q=${encodeURIComponent(searchQuery)}`);
-        const data = await response.json();
-        // Handle search results
-      } catch (error) {
-        console.error("Error searching products:", error);
-      }
-    };
-    searchProducts();
-    */
+    if (searchQuery.trim()) {
+      router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+      setIsMenuOpen(false); // Optionally close mobile menu on search
+    }
   };
   
   return (
