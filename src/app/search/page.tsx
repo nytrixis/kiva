@@ -28,8 +28,8 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
     `${process.env.NEXT_PUBLIC_BASE_URL || ""}/api/categories`,
     { cache: "no-store" }
   );
-  const categories = res.ok ? (await res.json() as Category[]) : [];
-
+const categoriesData = res.ok ? await res.json() : { categories: [] };
+const categories = Array.isArray(categoriesData.categories) ? categoriesData.categories : [];
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-12">
