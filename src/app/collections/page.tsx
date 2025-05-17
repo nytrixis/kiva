@@ -29,9 +29,7 @@ export default async function CollectionsPage() {
         <p className="text-gray-600 max-w-2xl mx-auto text-center mb-12">
           Discover unique products from local artisans across India, handcrafted with love and tradition
         </p>
-        <Suspense fallback={<div>Loading products...</div>}>
-          <ProductCatalog categories={categories} />
-        </Suspense>
+        <ProductCatalog categories={categories} products={[]} />
       </div>
     </div>
   );
