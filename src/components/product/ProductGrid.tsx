@@ -6,6 +6,7 @@ import { Heart, ShoppingCart, Star, Check, AlertCircle } from "lucide-react";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
+import ProductAverageRating from "./ProductAverageRating";
 
 interface Seller {
   name: string | null;
@@ -297,15 +298,7 @@ function ProductCard({ product, index }: ProductCardProps) {
             </div>
             
             {/* Rating */}
-            <div className="flex items-center mt-2">
-              <div className="flex items-center text-amber-500">
-                <Star className="h-3 w-3 fill-current" />
-                <span className="text-xs ml-1 font-medium">{product.rating}</span>
-              </div>
-              <span className="text-xs text-gray-500 ml-2">
-                ({product.reviewCount} reviews)
-              </span>
-            </div>
+            <ProductAverageRating productId={product.id} />
           </div>
         </div>
       </Link>

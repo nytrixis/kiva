@@ -7,6 +7,9 @@ import ProductImageGallery from "@/components/product/ProductImageGallery";
 import { Badge } from "@/components/ui/badge";
 import { formatCurrency } from "@/lib/utils";
 import AddToRecentlyViewed from "@/components/AddToRecentlyViewed";
+import ProductReviewSection from "@/components/product/ProductReviewSection";
+import ProductAverageRating from "@/components/product/ProductAverageRating";
+
 
 
 // interface Category {
@@ -179,21 +182,7 @@ export default async function ProductPage({ params }: ProductPageParams) {
           </div>
 
           {/* Rating & Reviews */}
-          {(product.rating ?? 0) >= 0 && (
-            <div className="flex items-center space-x-2">
-              <span className="text-yellow-500 flex items-center">
-                {/* Star Icon */}
-                <svg className="w-5 h-5 mr-1 fill-yellow-400" viewBox="0 0 20 20">
-                  <path d="M10 15l-5.878 3.09 1.122-6.545L.488 6.91l6.561-.955L10 0l2.951 5.955 6.561.955-4.756 4.635 1.122 6.545z"/>
-                </svg>
-                <span className="font-semibold">{Number(product.rating).toFixed(1)}</span>
-              </span>
-              <span className="text-gray-500 text-sm">
-                ({product.reviewCount ?? 0} review{(product.reviewCount ?? 0) !== 1 ? "s" : ""})
-              </span>
-            </div>
-          )}
-
+          <ProductAverageRating productId={product.id} />
           {/* Actions */}
           <div className="flex space-x-4 pt-4">
             <AddToCartButton productId={product.id} stock={product.stock} />
@@ -211,6 +200,7 @@ export default async function ProductPage({ params }: ProductPageParams) {
               )}
             </div>
           </div>
+          <ProductReviewSection productId={product.id} sellerId={product.seller.id} />
         </div>
       </div>
     </div>
