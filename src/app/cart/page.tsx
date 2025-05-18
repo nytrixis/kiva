@@ -16,7 +16,7 @@ interface CartItem {
     name: string;
     price: number;
     discountPercentage: number;
-    images: string[] ;
+    images: string[];
     stock: number;
     category?: {
       name: string;
@@ -37,18 +37,24 @@ export default function CartPage() {
   const [isUpdating, setIsUpdating] = useState(false);
   const { toast } = useToast();
   const router = useRouter();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isLoading: authLoading } = useAuth();
+
+  // Redirect to sign-in if not authenticated
+  useEffect(() => {
+    if (!authLoading && isAuthenticated === false) {
+      router.replace("/sign-in?redirect=/cart");
+    }
+  }, [isAuthenticated, authLoading, router]);
 
   useEffect(() => {
+    if (!isAuthenticated) return;
     const fetchCart = async () => {
       try {
         setIsLoading(true);
         const response = await fetch("/api/cart");
-        
         if (!response.ok) {
           throw new Error("Failed to fetch cart");
         }
-        
         const data = await response.json() as CartResponse;
         setCartItems(data.items || []);
       } catch (error) {
@@ -64,7 +70,8 @@ export default function CartPage() {
       }
     };
     fetchCart();
-  }, [toast]);
+  }, [toast, isAuthenticated]);
+
 
   const updateQuantity = async (itemId: string, newQuantity: number) => {
     try {
