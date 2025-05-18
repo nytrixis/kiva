@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+// Define RouteHandlerContext inline since it's not publicly exported by Next.js
+type RouteHandlerContext = { params: { productId: string } };
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -8,9 +10,9 @@ const supabase = createClient(
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { productId: string } }
+  context: RouteHandlerContext
 ) {
-  const { productId } = await params;
+  const { productId } = context.params as { productId: string };
 
   const { data, error } = await supabase
     .from("productreview")
