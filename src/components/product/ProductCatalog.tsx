@@ -113,6 +113,7 @@ const [products, setProducts] = useState<Product[]>(initialProducts || []);  con
   type FilterValue = string | number | null | undefined;
 
   const updateFilters = (filters: { [key: string]: FilterValue }) => {
+    setLoading(true);
     const params = new URLSearchParams(searchParams.toString());
     
     // Update params based on filters
@@ -137,6 +138,7 @@ const [products, setProducts] = useState<Product[]>(initialProducts || []);  con
  
   // Clear all filters
   const clearFilters = () => {
+    setLoading(true);
     const params = new URLSearchParams();
     if (searchQuery) params.set("q", searchQuery);
     router.push(`${pathname}?${params.toString()}`);
@@ -251,11 +253,19 @@ const [products, setProducts] = useState<Product[]>(initialProducts || []);  con
             onChange={(value) => updateFilters({ sort: value })}
           />
         </div>
-        
-        <ProductGrid
-          products={products}
-          loading={loading}
-        />
+
+        {loading && (
+          <div className="flex justify-center items-center py-12">
+            <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-primary"></div>
+            <span className="ml-4 text-primary">Loading products...</span>
+          </div>
+        )}
+        {!loading && (
+          <ProductGrid
+            products={products}
+            loading={loading}
+          />
+        )}
         
         {/* Pagination */}
         {totalProducts > 0 && (
