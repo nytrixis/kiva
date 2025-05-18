@@ -16,7 +16,7 @@ export async function GET() {
     "order",
     "order_item",
     "address",
-    "seller_profile"
+    "SellerProfile"
   ];
   return NextResponse.json({ keys });
 }

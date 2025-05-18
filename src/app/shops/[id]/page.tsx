@@ -122,7 +122,8 @@ export default async function ShopPage({ params, searchParams }: ShopPageProps) 
         name: product.category?.name
       },
       seller: {
-        name: product.seller?.name
+        name: shop.businessName,
+        id: shop.id,  
       },
       stock: product.stock
     };
@@ -227,7 +228,7 @@ export default async function ShopPage({ params, searchParams }: ShopPageProps) 
                   <div>
                     <span className="text-gray-500">Average Rating</span>
                     <p className="font-medium flex items-center">
-                      {avgRating.toFixed(1)}
+                      {avgRating.toFixed(1)} </p>
                       <div className="ml-2 flex">
                         {Array.from({ length: 5 }).map((_, i) => (
                           <Star
@@ -240,7 +241,6 @@ export default async function ShopPage({ params, searchParams }: ShopPageProps) 
                           />
                         ))}
                       </div>
-                    </p>
                   </div>
                 </div>
               </div>

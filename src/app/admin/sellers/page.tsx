@@ -48,7 +48,7 @@ export default async function AdminSellersPage() {
     .from("user")
     .select(`
       *,
-      sellerProfile: seller_profile(*)
+      sellerProfile: SellerProfile(*)
     `)
     .eq("role", UserRole.SELLER)
     .order("createdAt", { ascending: false });

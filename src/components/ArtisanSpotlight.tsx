@@ -68,6 +68,8 @@ const artisans = [
 export default function ArtisanSpotlight() {
   const [currentArtisan, setCurrentArtisan] = useState(0);
   const artisan = artisans[currentArtisan];
+  const [favorites] = useState(() => Math.floor(Math.random() * 500) + 100);
+
 
   const nextArtisan = () => {
     setCurrentArtisan((prev) => (prev === artisans.length - 1 ? 0 : prev + 1));
@@ -272,7 +274,7 @@ export default function ArtisanSpotlight() {
                   </div>
                   <div className="flex items-center text-sm text-gray-600">
                     <Heart className="h-4 w-4 text-primary mr-1" />
-                    <span>{Math.floor(Math.random() * 500) + 100} Favorites</span>
+                    <span>{favorites} Favorites</span>
                   </div>
                 </div>
                 <p className="text-sm text-gray-600 mt-2">

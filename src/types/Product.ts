@@ -16,6 +16,7 @@ export interface Product {
     image?: string | null;
     sellerProfile?: {
       businessName?: string;
+      logoImage?: string | null; // Added business logo
     };
   };
   rating?: number;

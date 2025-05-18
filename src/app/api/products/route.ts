@@ -93,11 +93,20 @@ function parseCategory(category: SupabaseCategory): CategoryAPI {
 
 function parseSeller(seller: SupabaseSeller): SellerAPI {
   const s = Array.isArray(seller) ? seller[0] : seller;
+  // Defensive: handle sellerProfile as array or object
+  let businessName = "";
+  if (s?.sellerProfile) {
+    if (Array.isArray(s.sellerProfile)) {
+      businessName = s.sellerProfile[0]?.businessName || "";
+    } else {
+      businessName = s.sellerProfile?.businessName || "";
+    }
+  }
   return {
     id: s?.id || "",
     name: s?.name || "",
     sellerProfile: {
-      businessName: s?.sellerProfile?.businessName || "",
+      businessName,
     },
   };
 }
@@ -206,8 +215,8 @@ export async function GET(request: Request) {
         category:categoryId (id, name, slug),
         seller:sellerId (
           id, name,
-          sellerProfile:SellerProfile (
-            businessName
+      sellerProfile:SellerProfile!SellerProfile_userId_fkey (
+        businessName
           )
         )
         `,

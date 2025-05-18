@@ -25,6 +25,10 @@ interface Product {
   };
   seller: {
     name: string;
+    id: string;
+    sellerProfile?: {
+    businessName: string;
+  };
   };
   stock?: number;
   isFavorite?: boolean;

@@ -20,6 +20,7 @@ interface Product {
     name: string;
   };
   seller: {
+    id: string;
     name: string;
   };
   stock?: number;
@@ -67,7 +68,9 @@ export default async function RecommendationsPage() {
     ? p.images.filter((img: unknown): img is string => typeof img === "string" && img.trim() !== "")
     : [],
   category: p.category ?? { name: "Uncategorized" },
-  seller: p.seller ?? { name: "Unknown Seller" },
+  seller: p.seller && typeof p.seller.id === "string"
+    ? { name: p.seller.name ?? "Unknown Seller", id: p.seller.id }
+    : { name: "Unknown Seller", id: "unknown" },
 }));
 
   return (

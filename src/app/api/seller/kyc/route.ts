@@ -20,7 +20,7 @@ export async function POST(req: NextRequest) {
 
     // Get the existing seller profile to check for existing documents
     const { data: existingProfile, error: profileError } = await supabase
-      .from("seller_profile")
+      .from("SellerProfile")
       .select(
         "identityDocument, businessDocument, identityDocumentPublicId, businessDocumentPublicId, status"
       )
@@ -80,7 +80,7 @@ export async function POST(req: NextRequest) {
 
     // Update the seller profile with the new document URLs and public IDs
     const { data: updatedProfile, error: updateError } = await supabase
-      .from("seller_profile")
+      .from("SellerProfile")
       .update({
         identityDocument,
         identityDocumentPublicId,
@@ -125,7 +125,7 @@ export async function GET() {
     const userId = session.user.id;
 
     const { data: sellerProfile, error } = await supabase
-      .from("seller_profile")
+      .from("SellerProfile")
       .select("identityDocument, businessDocument, status, isVerified")
       .eq("userId", userId)
       .single();
@@ -162,7 +162,7 @@ export async function DELETE(req: NextRequest) {
     }
 
     const { data: sellerProfile, error } = await supabase
-      .from("seller_profile")
+      .from("SellerProfile")
       .select("identityDocumentPublicId, businessDocumentPublicId")
       .eq("userId", userId)
       .single();
@@ -176,7 +176,7 @@ export async function DELETE(req: NextRequest) {
       await deleteFromCloudinary(sellerProfile.identityDocumentPublicId);
 
       await supabase
-        .from("seller_profile")
+        .from("SellerProfile")
         .update({
           identityDocument: null,
           identityDocumentPublicId: null,
@@ -186,7 +186,7 @@ export async function DELETE(req: NextRequest) {
       await deleteFromCloudinary(sellerProfile.businessDocumentPublicId);
 
       await supabase
-        .from("seller_profile")
+        .from("SellerProfile")
         .update({
           businessDocument: null,
           businessDocumentPublicId: null,

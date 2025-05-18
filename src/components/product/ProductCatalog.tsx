@@ -28,7 +28,11 @@ interface Product {
     name: string;
   };
   seller: {
-    name: string;
+    id: string;
+    name: string | null;
+    sellerProfile?: {
+      businessName: string;
+    };
   };
   stock?: number;
   isFavorite?: boolean;

@@ -25,6 +25,7 @@ interface Reel {
     sellerProfile?: {
       businessName: string;
       logoImage: string | null;
+      id: string; 
     } | null;
   };
   product?: {

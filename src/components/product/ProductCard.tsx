@@ -24,6 +24,10 @@ interface ProductCardProps {
       id: string;
       name: string | null;
       image: string | null;
+      sellerProfile?: {
+    businessName: string;
+  };
+      
     };
     isFavorite: boolean;
   };
@@ -203,8 +207,8 @@ export default function ProductCard({ product }: ProductCardProps) {
           </Link>
           
           {product.seller?.name && (
-            <Link href={`/sellers/${product.seller.id}`} className="text-xs text-gray-500 mb-2 hover:text-primary">
-              {product.seller.name}
+            <Link href={`/shops/${product.seller.id}`} className="text-xs text-gray-500 mb-2 hover:text-primary">
+              {product.seller?.sellerProfile?.businessName || product.seller?.name}
             </Link>
           )}
           

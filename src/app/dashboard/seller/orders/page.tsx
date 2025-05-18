@@ -11,17 +11,19 @@ export const metadata = {
   description: "Manage your orders and track your sales",
 };
 
+type OrderStatus = "pending" | "processing" | "shipped" | "delivered" | "cancelled";
+
 interface OrderItem {
   id: string;
   product?: { name?: string | null; id?: string };
-  product_id?: string;
+  productId?: string;
   quantity: number;
   price: number;
 }
 
 interface OrderData {
   id: string;
-  created_at: string;
+  createdAt: string;
   total: number;
   status: string;
   user?: { name?: string | null };
@@ -44,8 +46,6 @@ interface Order {
   customerName: string;
   date: Date;
 }
-
-type OrderStatus = "pending" | "processing" | "shipped" | "delivered" | "cancelled";
 
 // Helper function to format orders data for the chart
 function formatOrdersDataForChart(orders: Order[], type: "revenue" | "orders") {
@@ -108,15 +108,15 @@ export default async function SellerOrdersPage() {
 
   // Get all products by this seller
   const { data: sellerProducts, error: productsError } = await supabase
-    .from("products")
+    .from("Product")
     .select("id")
-    .eq("seller_id", userId);
+    .eq("sellerId", userId);
 
-  if (productsError || !sellerProducts) {
+  if (productsError) {
     return <div className="text-red-500">Error loading products.</div>;
   }
 
-  const productIds = sellerProducts.map((product: { id: string }) => product.id);
+  const productIds = (sellerProducts ?? []).map((product: { id: string }) => product.id);
 
   if (productIds.length === 0) {
     return (
@@ -132,56 +132,56 @@ export default async function SellerOrdersPage() {
 
   // Fetch orders with items that contain seller's products
   const { data: ordersData, error: ordersError } = await supabase
-    .from("orders")
+    .from("Order")
     .select(`
       id,
-      created_at,
+      createdAt,
       total,
       status,
-      user:user_id (
+      user:userId (
         name
       ),
-      items:order_items (
+      items:OrderItem (
         id,
         quantity,
         price,
-        product:product_id (
+        product:productId (
+          id,
           name
         )
       )
     `)
-    .order("created_at", { ascending: false });
+    .order("createdAt", { ascending: false });
 
-  if (ordersError || !ordersData) {
+  if (ordersError) {
     return <div className="text-red-500">Error loading orders.</div>;
   }
 
   // Filter orders to only those that have at least one item with a productId in productIds
-const orders = (ordersData as OrderData[]).filter((order) =>
-  order.items.some((item) => {
-    const pid = item.product_id ?? item.product?.id;
-    return pid !== undefined && productIds.includes(pid);
-  })
-);
+  const orders = (ordersData ?? []).filter((order: any) =>
+    (order.items ?? []).some((item: any) => {
+      const pid = item.product?.id ?? item.productId;
+      return pid !== undefined && productIds.includes(pid);
+    })
+  );
 
   // Format orders for the OrdersTable component
-  const formattedOrders = orders.map((order: OrderData) => ({
-  id: order.id,
-  createdAt: order.created_at,
-  total: order.total,
-  status: (order.status?.toLowerCase() === 'paid' ? 'processing' : order.status?.toLowerCase()) as OrderStatus,
-  user: { name: order.user?.name || 'Anonymous' },
-  items: (order.items || []).map((item: OrderItem) => ({
-  id: item.id,
-  productName: item.product?.name ?? 'Unknown',
-  quantity: item.quantity,
-  price: item.price
-})),
-  // Add missing properties for OrdersTable compatibility
-  orderNumber: order.id,
-  customerName: order.user?.name || 'Anonymous',
-  date: new Date(order.created_at),
-}));
+  const formattedOrders = orders.map((order: any) => ({
+    id: order.id,
+    createdAt: order.createdAt,
+    total: order.total,
+    status: (order.status?.toLowerCase() === 'paid' ? 'processing' : order.status?.toLowerCase()) as OrderStatus,
+    user: { name: order.user?.name || 'Anonymous' },
+    items: (order.items ?? []).map((item: any) => ({
+      id: item.id,
+      product: { name: item.product?.name ?? 'Unknown' },
+      quantity: item.quantity,
+      price: item.price
+    })),
+    orderNumber: order.id,
+    customerName: order.user?.name || 'Anonymous',
+    date: new Date(order.createdAt),
+  }));
 
   // Format data for charts
   const revenueData = formatOrdersDataForChart(formattedOrders, "revenue");

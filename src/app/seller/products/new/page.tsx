@@ -30,7 +30,10 @@ export default async function NewProductPage() {
     `${process.env.NEXT_PUBLIC_BASE_URL || ""}/api/categories`,
     { cache: "no-store" }
   );
-  const dbCategories = categoriesRes.ok ? await categoriesRes.json() : [];
+  const categoriesJson = categoriesRes.ok ? await categoriesRes.json() : [];
+  const dbCategories = Array.isArray(categoriesJson)
+    ? categoriesJson
+    : categoriesJson.categories ?? [];
 
   // Define our preferred category names
   const preferredCategories = [

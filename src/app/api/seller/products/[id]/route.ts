@@ -40,7 +40,7 @@ export async function PUT(
 
     // Check if product exists and belongs to the seller
     const { data: existingProduct, error: findError } = await supabase
-      .from("product")
+      .from("Product")
       .select("*")
       .eq("id", productId)
       .single();
@@ -121,7 +121,7 @@ export async function PUT(
 
     // Update product in Supabase
     const { data: updatedProduct, error: updateError } = await supabase
-      .from("product")
+      .from("Product")
       .update({
         name,
         description,

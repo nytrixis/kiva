@@ -29,7 +29,7 @@ export async function GET(
 
     // Update seller profile status to SUSPENDED
     const { error: updateError } = await supabase
-      .from("seller_profile")
+      .from("SellerProfile")
       .update({
         status: "SUSPENDED",
       })

@@ -3,27 +3,16 @@ import { authOptions } from "@/lib/auth";
 import Link from "next/link";
 import { Plus } from "lucide-react";
 import { ProductsTable } from "@/components/dashboard/seller/ProductsTable";
+import { createClient } from "@supabase/supabase-js";
 
 export const metadata = {
   title: "Manage Products | Seller Dashboard | Kiva",
   description: "Manage your products in the Kiva marketplace",
 };
 
-interface Product {
-  id: string;
-  name: string;
-  price: number;
-  discountPercentage: number;
-  stock: number;
-  images: string[] | Record<string, unknown>;
-  createdAt: Date;
-  viewCount: number;
-  reviewCount: number;
-  rating: number;
-  category: {
-    name: string;
-  };
-}
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 export default async function SellerProductsPage() {
   const session = await getServerSession(authOptions);
@@ -32,17 +21,18 @@ export default async function SellerProductsPage() {
     return null;
   }
 
-  // Fetch seller's products from your REST API
-  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || ""}/api/seller/products`, {
-    cache: "no-store",
-  });
+  // Fetch seller's products directly from Supabase
+  const { data: products = [] } = await supabase
+    .from("Product")
+    .select("*, category:categoryId(name)")
+    .eq("sellerId", session.user.id)
+    .order("createdAt", { ascending: false });
 
-  const products: Product[] = res.ok
-    ? (await res.json()).map((p: Product) => ({
-        ...p,
-        createdAt: new Date(p.createdAt), // <-- Convert to Date
-      }))
-    : [];
+  // Convert createdAt to Date if needed
+  const formattedProducts = (products ?? []).map((p: any) => ({
+    ...p,
+    createdAt: p.createdAt ? new Date(p.createdAt) : null,
+  }));
 
   return (
     <div>
@@ -63,8 +53,8 @@ export default async function SellerProductsPage() {
         </Link>
       </div>
 
-      {products.length > 0 ? (
-        <ProductsTable products={products} />
+      {formattedProducts.length > 0 ? (
+        <ProductsTable products={formattedProducts} />
       ) : (
         <div className="bg-white rounded-xl shadow-sm p-12 text-center">
           <div className="inline-flex items-center justify-center p-6 bg-gray-50 rounded-full mb-6">

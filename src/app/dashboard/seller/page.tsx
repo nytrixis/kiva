@@ -38,17 +38,17 @@ export default async function SellerDashboardPage() {
 
   // Fetch seller profile
   const { data: sellerProfile } = await supabase
-    .from("seller_profile")
+    .from("SellerProfile")
     .select(
-      "*,user:user(id,name,email,image,createdAt)"
+      "*,user:User(id,name,email,image,createdAt)"
     )
     .eq("userId", userId)
     .single();
 
   // Fetch top 5 products by sales/views
   const { data: topProducts = [] } = await supabase
-    .from("product")
-    .select("*,category:category(*),seller:user(id,name)")
+    .from("Product")
+    .select("*,category:Category(*),seller:User(id,name)")
     .eq("sellerId", userId)
     .order("viewCount", { ascending: false })
     .order("reviewCount", { ascending: false })
@@ -56,7 +56,7 @@ export default async function SellerDashboardPage() {
 
   // Calculate total products
   const { count: totalProducts = 0 } = await supabase
-    .from("product")
+    .from("Product")
     .select("id", { count: "exact", head: true })
     .eq("sellerId", userId);
 

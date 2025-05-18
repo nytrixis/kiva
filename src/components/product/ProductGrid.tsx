@@ -8,6 +8,10 @@ import { useToast } from "@/hooks/use-toast";
 
 interface Seller {
   name: string | null;
+  id: string;
+  sellerProfile?: {
+    businessName: string;
+  };
 }
 
 interface Category {
@@ -267,7 +271,15 @@ const [isFavorite, setIsFavorite] = useState(product.isFavorite || false);  cons
             <h3 className="font-medium text-gray-800 mb-1 line-clamp-1 group-hover:text-primary transition-colors duration-200">
               {product.name}
             </h3>
-<div className="text-xs text-gray-500 mb-2">{product.seller?.name || 'Unknown Seller'}</div>            
+{product.seller?.id ? (
+  <p className="text-xs text-primary font-medium mb-2">
+    {product.seller.sellerProfile?.businessName || product.seller.name}
+  </p>
+) : (
+  <div className="text-xs text-gray-500 mb-2">
+    {product.seller.sellerProfile?.businessName || product.seller.name || 'Unknown Seller'}
+  </div>
+)}         
             {/* Price */}
             <div className="flex items-center space-x-2">
               <span className="font-semibold text-gray-900">

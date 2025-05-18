@@ -51,17 +51,41 @@ export async function GET(req: NextRequest) {
     .select("id, reelId")
     .in("reelId", reelIds);
 
-  // 4. Merge
-  const reelsWithEngagement = (reels ?? []).map(reel => {
-    const reelLikes = likes?.filter(l => l.reelId === reel.id) ?? [];
-    const reelComments = comments?.filter(c => c.reelId === reel.id) ?? [];
-    return {
-      ...reel,
-      likeCount: reelLikes.length,
-      commentCount: reelComments.length,
-      isLiked: !!reelLikes.find(l => l.userId === userId)
-    };
-  });
+  // After fetching reels, add this:
+const userIds = [...new Set((reels ?? []).map(reel => reel.user?.id).filter(Boolean))];
+let sellerProfiles: Record<string, { businessName: string; logoImage: string | null; id: string }> = {};
+if (userIds.length > 0) {
+  const { data: profiles } = await supabase
+    .from("SellerProfile")
+    .select("userId, businessName, logoImage, id")
+    .in("userId", userIds);
+  if (profiles) {
+    for (const profile of profiles) {
+      sellerProfiles[profile.userId] = {
+        businessName: profile.businessName,
+        logoImage: profile.logoImage,
+        id: profile.id,
+      };
+    }
+  }
+}
+
+const reelsWithEngagement = (reels ?? []).map(reel => {
+  // Merge sellerProfile into user
+  return {
+    ...reel,
+    user: reel.user
+      ? {
+          ...reel.user,
+          sellerProfile: sellerProfiles[reel.user.id] || null,
+        }
+      : null,
+    // ...rest of your engagement logic
+    likeCount: (likes?.filter(l => l.reelId === reel.id) ?? []).length,
+    commentCount: (comments?.filter(c => c.reelId === reel.id) ?? []).length,
+    isLiked: !!likes?.find(l => l.reelId === reel.id && l.userId === userId),
+  };
+});
 
   return NextResponse.json({ reels: reelsWithEngagement });
 }

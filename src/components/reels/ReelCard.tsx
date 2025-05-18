@@ -27,6 +27,7 @@ interface ReelCardProps {
       sellerProfile?: {
         businessName: string;
         logoImage: string | null;
+        id: string;
       } | null;
     };
     product?: {
@@ -197,9 +198,9 @@ const handleLike = async () => {
 
           </div>
           <div className="ml-2">
-            <Link href={`/sellers/${reel.user.id}`} className="text-white font-medium hover:underline">
-              {reel.user.sellerProfile?.businessName || reel.user.name}
-            </Link>
+            <Link href={`/shops/${reel.user.sellerProfile?.id}`} className="text-white font-medium hover:underline">
+            {reel.user.sellerProfile?.businessName || reel.user.name}
+          </Link>
             <p className="text-xs text-gray-300">
               {formatDistanceToNow(new Date(reel.createdAt), { addSuffix: true })}
             </p>

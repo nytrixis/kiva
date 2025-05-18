@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 
 const supabase = createClient(
-  process.env.SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
@@ -14,9 +14,9 @@ export async function GET(req: NextRequest) {
   }
 
   const { data: products, error } = await supabase
-    .from("products")
+    .from("Product")
     .select("id, name, images")
-    .eq("seller_id", sellerId)
+    .eq("sellerId", sellerId)
     .order("createdAt", { ascending: false });
 
   if (error) {

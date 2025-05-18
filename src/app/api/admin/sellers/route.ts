@@ -35,11 +35,11 @@ export async function GET(req: NextRequest) {
     // Build filter
     let query = supabase
       .from("user")
-      .select("*, sellerProfile:seller_profile(*)")
+      .select("*, sellerProfile:SellerProfile(*)")
       .eq("role", UserRole.SELLER);
 
     if (status) {
-      query = query.filter("seller_profile.status", "eq", status);
+      query = query.filter("SellerProfile.status", "eq", status);
     }
 
     const { data: sellers, error } = await query;

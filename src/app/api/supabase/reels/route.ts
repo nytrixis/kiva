@@ -2,51 +2,34 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 
 const supabase = createClient(
-  process.env.SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
-
-interface Like {
-  id: string;
-  userId: string;
-}
-
-interface Reel {
-  id: string;
-  likes?: Like[];
-}
 
 export async function GET(req: NextRequest) {
   const userId = req.nextUrl.searchParams.get("userId");
   const take = Number(req.nextUrl.searchParams.get("take")) || 5;
 
-  // Fetch reels with related user, product, and like/comment counts
+  // 1. Fetch reels with related user and product
   const { data: reels, error } = await supabase
-    .from("reels")
+    .from("Reel")
     .select(`
       *,
-      user:user_id (
+      user:userId (
         id,
         name,
         image,
-        sellerProfile:seller_profile_id (
+        sellerProfile:SellerProfile (
           businessName,
           logoImage
         )
       ),
-      product:product_id (
+      product:productId (
         id,
         name,
         price,
         images,
         discountPercentage
-      ),
-      likes:user_id (
-        id
-      ),
-      _count:reels (
-        likes,
-        comments
       )
     `)
     .order("createdAt", { ascending: false })
@@ -56,11 +39,40 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  // Optionally, filter likes for the current user
-  const reelsWithLikes = (reels || []).map((reel: Reel) => ({
+  const reelIds = (reels || []).map(r => r.id);
+
+  // 2. Fetch likes for these reels
+  let likesByReel: Record<string, { userId: string }[]> = {};
+  if (reelIds.length > 0) {
+    const { data: likes } = await supabase
+      .from("ReelLike")
+      .select("reelId, userId")
+      .in("reelId", reelIds);
+
+    // Group likes by reelId
+    likesByReel = (likes || []).reduce((acc, like) => {
+      if (!acc[like.reelId]) acc[like.reelId] = [];
+      acc[like.reelId].push({ userId: like.userId });
+      return acc;
+    }, {} as Record<string, { userId: string }[]>);
+  }
+
+  // 3. Merge likes info into each reel
+  const reelsWithLikes = (reels || []).map(reel => {
+    let sellerProfile = reel.user?.sellerProfile;
+  if (Array.isArray(sellerProfile)) {
+    sellerProfile = sellerProfile[0] || null;
+  }
+  return {
     ...reel,
-    likes: reel.likes?.filter((like: Like) => like.id === userId) || [],
-  }));
+    user: {
+      ...reel.user,
+      sellerProfile,
+    },
+    likeCount: likesByReel[reel.id]?.length || 0,
+    isLiked: !!userId && (likesByReel[reel.id] || []).some(like => like.userId === userId),
+  };
+});
 
   return NextResponse.json(reelsWithLikes);
 }

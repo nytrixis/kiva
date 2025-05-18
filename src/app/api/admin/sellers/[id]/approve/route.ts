@@ -29,7 +29,7 @@ export async function GET(
 
     // Find the seller profile for this user
     const { data: sellerProfile, error: profileError } = await supabase
-      .from("seller_profile")
+      .from("SellerProfile")
       .select("*")
       .eq("userId", id)
       .single();
@@ -40,7 +40,7 @@ export async function GET(
 
     // Update seller profile status to APPROVED
     const { error: updateError } = await supabase
-      .from("seller_profile")
+      .from("SellerProfile")
       .update({
         status: "APPROVED",
         isVerified: true,

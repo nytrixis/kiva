@@ -29,7 +29,7 @@ export async function GET(
 
     const { data: seller, error } = await supabase
       .from("user")
-      .select("*, sellerProfile:seller_profile(*)")
+      .select("*, sellerProfile:SellerProfile(*)")
       .eq("id", id)
       .single();
 
@@ -64,7 +64,7 @@ export async function PATCH(
     // Fetch seller and profile
     const { data: seller, error: sellerError } = await supabase
       .from("user")
-      .select("*, sellerProfile:seller_profile(*)")
+      .select("*, sellerProfile:SellerProfile(*)")
       .eq("id", id)
       .single();
 
@@ -82,7 +82,7 @@ export async function PATCH(
 
     // Update seller profile status
     const { data: updatedProfile, error: updateError } = await supabase
-      .from("seller_profile")
+      .from("SellerProfile")
       .update({
         status: data.status,
         isVerified: data.status === "APPROVED",

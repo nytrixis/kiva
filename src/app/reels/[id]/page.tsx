@@ -116,6 +116,8 @@ export default async function ReelPage({ params }: ReelPageProps) {
   },
   };
 
+  console.log("Transformed Reel:", transformedReel);
+
   // Fetch related reels (optional, keep as is if you want)
   const relatedRes = await fetch(
     `${process.env.NEXT_PUBLIC_BASE_URL || ""}/api/supabase/related-reels?reelId=${id}&userId=${session.user.id}&categoryId=${reel.product?.categoryId}&userIdMatch=${reel.userId}`,

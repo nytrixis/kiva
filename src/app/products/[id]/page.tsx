@@ -147,8 +147,12 @@ export default async function ProductPage({ params }: ProductPageParams) {
           <div className="flex items-center space-x-4">
             {product.discountPercentage > 0 ? (
               <>
-                <span className="text-2xl font-bold text-gray-900">{formatCurrency(salePrice)}</span>
-                <span className="text-lg text-gray-500 line-through">{formatCurrency(product.price)}</span>
+                <span className="text-2xl font-bold text-gray-900">
+                  ₹{salePrice.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+                </span>
+                <span className="text-lg text-gray-500 line-through">
+                  ₹{product.price.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+                </span>
                 <Badge className={`${hasSignificantDiscount ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'} px-2 py-1`}>
                   {Math.round(product.discountPercentage)}% OFF
                 </Badge>
@@ -173,6 +177,22 @@ export default async function ProductPage({ params }: ProductPageParams) {
               <p className="text-sm text-red-600">Out of Stock</p>
             )}
           </div>
+
+          {/* Rating & Reviews */}
+          {(product.rating ?? 0) >= 0 && (
+            <div className="flex items-center space-x-2">
+              <span className="text-yellow-500 flex items-center">
+                {/* Star Icon */}
+                <svg className="w-5 h-5 mr-1 fill-yellow-400" viewBox="0 0 20 20">
+                  <path d="M10 15l-5.878 3.09 1.122-6.545L.488 6.91l6.561-.955L10 0l2.951 5.955 6.561.955-4.756 4.635 1.122 6.545z"/>
+                </svg>
+                <span className="font-semibold">{Number(product.rating).toFixed(1)}</span>
+              </span>
+              <span className="text-gray-500 text-sm">
+                ({product.reviewCount ?? 0} review{(product.reviewCount ?? 0) !== 1 ? "s" : ""})
+              </span>
+            </div>
+          )}
 
           {/* Actions */}
           <div className="flex space-x-4 pt-4">

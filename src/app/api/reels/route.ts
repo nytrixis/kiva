@@ -136,7 +136,7 @@ export async function GET(req: NextRequest) {
     if (userIds.length > 0) {
       const { data: profiles } = await supabase
         .from("SellerProfile")
-        .select("userId, businessName, logoImage")
+        .select("userId, businessName, logoImage, id")
         .in("userId", userIds);
       if (profiles) {
         for (const profile of profiles) {

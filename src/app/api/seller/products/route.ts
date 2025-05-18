@@ -111,7 +111,7 @@ export async function POST(request: NextRequest) {
 
     // Insert product into Supabase
     const { data: product, error } = await supabase
-      .from("products")
+      .from("Product")
       .insert([{
         name,
         description,
@@ -119,9 +119,9 @@ export async function POST(request: NextRequest) {
         discountPercentage: discountPercentage || 0,
         stock,
         images: imageUrls,
-        seller_id: session.user.id,
-        category_id: categoryId,
-        created_at: new Date().toISOString(),
+        sellerId: session.user.id,
+        categoryId: categoryId,
+        createdAt: new Date().toISOString(),
       }])
       .select()
       .single();
@@ -159,10 +159,10 @@ export async function GET(request: NextRequest) {
 
     // Fetch products from Supabase
     const { data: products, error, count } = await supabase
-      .from("products")
-      .select("*, category:category_id(name)", { count: "exact" })
-      .eq("seller_id", session.user.id)
-      .order("created_at", { ascending: false })
+      .from("Product")
+      .select("*, category:categoryId(name)", { count: "exact" })
+      .eq("sellerId", session.user.id)
+      .order("createdAt", { ascending: false })
       .range(from, to);
 
     if (error) {
@@ -211,9 +211,10 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
+
     // Fetch product to check ownership and get current images
     const { data: existingProduct, error: fetchError } = await supabase
-      .from("products")
+      .from("Product")
       .select("*")
       .eq("id", productId)
       .single();
@@ -266,7 +267,7 @@ export async function PUT(request: NextRequest) {
 
     // Update product in Supabase
     const { data: updatedProduct, error: updateError } = await supabase
-      .from("products")
+      .from("Product")
       .update({
         name,
         description,
@@ -274,7 +275,7 @@ export async function PUT(request: NextRequest) {
         discountPercentage,
         stock,
         images: updatedImages,
-        category_id: categoryId,
+        categoryId: categoryId,
       })
       .eq("id", productId)
       .select()
@@ -314,7 +315,7 @@ export async function DELETE(request: NextRequest) {
 
     // Fetch product to check ownership and get images
     const { data: existingProduct, error: fetchError } = await supabase
-      .from("products")
+      .from("Product")
       .select("*")
       .eq("id", productId)
       .single();
@@ -340,7 +341,7 @@ export async function DELETE(request: NextRequest) {
 
     // Delete product from Supabase
     const { error: deleteError } = await supabase
-      .from("products")
+      .from("Product")
       .delete()
       .eq("id", productId);
 

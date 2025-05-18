@@ -43,7 +43,7 @@ export async function generateMetadata(
     .from("user")
     .select(`
       name,
-      sellerProfile: seller_profile(businessName)
+      sellerProfile: SellerProfile(businessName)
     `)
     .eq("id", id)
     .single();
@@ -70,13 +70,13 @@ export default async function SellerDetailsPage(
 
   // Fetch seller with profile and products
   const { data: seller } = await supabase
-    .from("user")
+    .from("User")
     .select(`
       *,
-      sellerProfile: seller_profile(*),
-      products: product(
+      sellerProfile: SellerProfile(*),
+      products: Product(
         *,
-        category: category(*)
+        category: Category(*)
       )
     `)
     .eq("id", id)

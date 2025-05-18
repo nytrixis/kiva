@@ -38,3 +38,14 @@ export interface SellerProfile extends SellerProfileData, SellerKYCData {
   createdAt: Date;
   updatedAt: Date;
 }
+
+export interface SellerUser {
+  id: string;
+  name?: string | null;
+  email?: string | null;
+  image?: string | null;
+  role: "SELLER";
+  isOnboarded: boolean;
+  createdAt: string;
+  updatedAt: string;
+}

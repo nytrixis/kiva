@@ -2,11 +2,11 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { SellerProfileForm } from "@/components/dashboard/seller/SellerProfileForm";
 import { redirect } from "next/navigation";
+import { createClient } from "@supabase/supabase-js";
 
-export const metadata = {
-  title: "Seller Profile | Kiva",
-  description: "Manage your seller profile and store information",
-};
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 export default async function SellerProfilePage() {
   const session = await getServerSession(authOptions);
@@ -17,19 +17,12 @@ export default async function SellerProfilePage() {
 
   const userId = session.user.id;
 
-  // Fetch seller profile from your REST API
-  const sellerProfileRes = await fetch(
-    `${process.env.NEXT_PUBLIC_BASE_URL || ""}/api/seller/profile`,
-    { cache: "no-store" }
-  );
-  const sellerProfile = sellerProfileRes.ok ? await sellerProfileRes.json() : null;
-
-  // Fetch user data from your REST API
-  const userRes = await fetch(
-    `${process.env.NEXT_PUBLIC_BASE_URL || ""}/api/user/${userId}`,
-    { cache: "no-store" }
-  );
-  const user = userRes.ok ? await userRes.json() : null;
+  // Fetch seller profile directly from Supabase
+  const { data: sellerProfile } = await supabase
+    .from("SellerProfile")
+    .select("*")
+    .eq("userId", userId)
+    .single();
 
   // Format the seller profile data for the form
   const formattedSellerProfile = sellerProfile
@@ -75,7 +68,6 @@ export default async function SellerProfilePage() {
 
       <SellerProfileForm
         initialData={formattedSellerProfile}
-        userData={user || undefined}
       />
     </div>
   );

@@ -29,7 +29,7 @@ export async function GET(
 
     // Reset seller profile status to PENDING
     const { error: updateError } = await supabase
-      .from("seller_profile")
+      .from("SellerProfile")
       .update({
         status: "PENDING",
         isVerified: false,

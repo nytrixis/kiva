@@ -36,7 +36,7 @@ export async function GET(
     // Validate the seller exists
     const { data: seller, error: sellerError } = await supabase
       .from("user")
-      .select("*, sellerProfile:seller_profile(*)")
+      .select("*, sellerProfile:SellerProfile(*)")
       .eq("id", id)
       .single();
 
@@ -77,7 +77,7 @@ export async function GET(
 
     // Update the seller profile
     const { error: updateError } = await supabase
-      .from("seller_profile")
+      .from("SellerProfile")
       .update({
         status: newStatus,
         isVerified,
