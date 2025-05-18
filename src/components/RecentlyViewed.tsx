@@ -8,6 +8,7 @@ import { ChevronLeft, ChevronRight, TrendingUp, ShoppingBag, Heart } from "lucid
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
+import { useSession } from "next-auth/react";
 
 interface Product {
   id: string;
@@ -33,6 +34,7 @@ export default function RecentlyViewed() {
   const [cart, setCart] = useState<string[]>([]);
   const containerRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
+  const { data: session } = useSession();
 
   // Fetch recently viewed products from server-side API
   useEffect(() => {
@@ -114,6 +116,22 @@ export default function RecentlyViewed() {
         variant: "destructive",
       });
     }
+  };
+
+  const handleWishlist = async (id: string) => {
+    if (!session) {
+      toast({ title: "Please sign in to use wishlist", variant: "destructive" });
+      return;
+    }
+    await toggleWishlist(id);
+  };
+
+  const handleCart = async (id: string) => {
+    if (!session) {
+      toast({ title: "Please sign in to add to cart", variant: "destructive" });
+      return;
+    }
+    await addToCart(id);
   };
 
   const checkScrollButtons = () => {
@@ -235,7 +253,7 @@ export default function RecentlyViewed() {
 
                       {/* Wishlist button */}
                       <button
-                        onClick={() => toggleWishlist(product.id)}
+                        onClick={() => handleWishlist(product.id)}
                         className="absolute top-3 right-3 p-2 bg-white/80 backdrop-blur-sm rounded-full shadow-sm hover:bg-white transition-colors z-10"
                         aria-label={isFav ? "Remove from wishlist" : "Add to wishlist"}
                       >
@@ -333,7 +351,7 @@ export default function RecentlyViewed() {
                         className={`w-full bg-primary/10 hover:bg-primary/20 text-primary rounded-full flex items-center justify-center gap-2 transition-colors ${
                           cart.includes(product.id) ? "ring-2 ring-primary" : ""
                         }`}
-                        onClick={() => addToCart(product.id)}
+                        onClick={() => handleCart(product.id)}
                       >
                         <ShoppingBag className="h-4 w-4" />
                         {cart.includes(product.id) ? "Added" : "Add to Cart"}

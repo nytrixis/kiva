@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Heart, ShoppingCart, Star, Check, AlertCircle } from "lucide-react";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/use-auth";
 
 interface Seller {
   name: string | null;
@@ -89,7 +90,9 @@ interface ProductCardProps {
 function ProductCard({ product, index }: ProductCardProps) {
   const [isWishlistHovered, setIsWishlistHovered] = useState(false);
   const [isAddingToCart, setIsAddingToCart] = useState(false);
-const [isFavorite, setIsFavorite] = useState(product.isFavorite || false);  const { toast } = useToast();
+  const [isFavorite, setIsFavorite] = useState(product.isFavorite || false);  
+  const { toast } = useToast();
+  const { isAuthenticated } = useAuth();
 
   // Calculate discounted price based on discountPercentage
   const discountPrice = product.discountPercentage > 0 
@@ -99,6 +102,15 @@ const [isFavorite, setIsFavorite] = useState(product.isFavorite || false);  cons
   const addToCart = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+
+    if (!isAuthenticated) {
+    toast({
+      title: "Please sign in",
+      description: "You need to be signed in to add items to your cart",
+      variant: "destructive",
+    });
+    return;
+  }
     
     setIsAddingToCart(true);
     
@@ -149,11 +161,20 @@ const [isFavorite, setIsFavorite] = useState(product.isFavorite || false);  cons
   const toggleWishlist = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    
+
+    if (!isAuthenticated) {
+      toast({
+        title: "Please sign in",
+        description: "You need to be signed in to use wishlist",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Optimistic UI update
+    setIsFavorite(!isFavorite);
+
     try {
-      // Optimistic UI update
-      setIsFavorite(!isFavorite);
-      
       // API call to toggle wishlist
       const response = await fetch('/api/wishlist', {
         method: 'POST',
@@ -164,37 +185,19 @@ const [isFavorite, setIsFavorite] = useState(product.isFavorite || false);  cons
           productId: product.id,
         }),
       });
-      
+
       if (!response.ok) {
         throw new Error('Failed to update wishlist');
       }
-      
-      // Show success toast notification
-      toast({
-        title: isFavorite ? "Removed from Wishlist" : "Added to Wishlist",
-        description: isFavorite
-          ? `${product.name} has been removed from your wishlist.`
-          : `${product.name} has been added to your wishlist.`,
-        variant: "success",
-        icon: <Check className="h-4 w-4" />,
-        action: isFavorite ? null : (
-          <Link href="/wishlist" className="text-xs underline">
-            View Wishlist
-          </Link>
-        ),
-      });
+
+      // ...toast...
     } catch (error) {
-      console.error('Error updating wishlist:', error);
-      
       // Revert optimistic update
-      setIsFavorite(!isFavorite);
-      
-      // Show error toast notification
+      setIsFavorite(isFavorite);
       toast({
         title: "Error",
         description: "Could not update wishlist. Please try again.",
         variant: "destructive",
-        icon: <AlertCircle className="h-4 w-4" />,
       });
     }
   };
