@@ -272,24 +272,17 @@ export async function GET(request: Request) {
 
 // Filter by discounted price
     if (minPrice || maxPrice) {
-      const min = minPrice ? parseFloat(minPrice) : undefined;
-      const max = maxPrice ? parseFloat(maxPrice) : undefined;
-      filteredProducts = filteredProducts.filter((p) => {
-        const discounted = p.price * (1 - (p.discountPercentage ?? 0) / 100);
-        if (min !== undefined && discounted < min) return false;
-        if (max !== undefined && discounted > max) return false;
-        return true;
-      });
-    }
-    if (minRating) {
-      const min = parseFloat(minRating);
-      filteredProducts = filteredProducts.filter(
-        (p) => (p.rating ?? 0) >= min
-      );
-    }
+  const min = minPrice ? parseFloat(minPrice) : undefined;
+  const max = maxPrice ? parseFloat(maxPrice) : undefined;
+  filteredProducts = filteredProducts.filter((p) => {
+    const discounted = p.price * (1 - (p.discountPercentage ?? 0) / 100);
+    if (min !== undefined && discounted < min) return false;
+    if (max !== undefined && discounted > max) return false;
+    return true;
+  });
 
-// Paginate AFTER filtering
-const paginatedProducts = filteredProducts.slice((page - 1) * limit, page * limit);
+  // Paginate AFTER price filtering
+  const paginatedProducts = filteredProducts.slice((page - 1) * limit, page * limit);
 
 const products: ProductAPI[] = paginatedProducts.map((p) => ({
   id: p.id,
@@ -312,19 +305,51 @@ const products: ProductAPI[] = paginatedProducts.map((p) => ({
 }));
 
 const response: ProductsResponse = {
-  products,
-  total: filteredProducts.length,
-  page,
-  limit,
-  totalPages: Math.ceil(filteredProducts.length / limit),
-};
+    products,
+    total: filteredProducts.length,
+    page,
+    limit,
+    totalPages: Math.ceil(filteredProducts.length / limit),
+  };
 
-    return NextResponse.json(response);
-  } catch (error) {
-    console.error("Error fetching products:", error);
-    return NextResponse.json(
-      { error: "An error occurred while fetching products" },
-      { status: 500 }
-    );
+  return NextResponse.json(response);
+} else {
+  // If no price filter, use Supabase's already paginated data
+  const products: ProductAPI[] = (data as SupabaseProduct[]).map((p) => ({
+    id: p.id,
+    name: p.name,
+    price: p.discountPercentage > 0
+      ? Math.round((p.price * (1 - (p.discountPercentage ?? 0) / 100)) * 100) / 100
+      : p.price,
+    originalPrice: p.price,
+    images: parseImages(p.images),
+    discountPercentage: p.discountPercentage ?? 0,
+    createdAt: p.createdAt,
+    viewCount: p.viewCount ?? 0,
+    rating: p.rating ?? 0,
+    reviewCount: p.reviewCount ?? 0,
+    category: parseCategory(p.category),
+    seller: parseSeller(p.seller),
+    link: `/products/${p.id}`,
+    isFavorite: favoriteIds.has(p.id),
+  }));
+
+  const response: ProductsResponse = {
+    products,
+    total: data.length, // or use count from Supabase if available
+    page,
+    limit,
+    totalPages: Math.ceil((data.length || 1) / limit),
+  };
+
+      return NextResponse.json(response);
   }
+} // <-- Add this brace here
+catch (error) {
+  console.error("Error fetching products:", error);
+  return NextResponse.json(
+    { error: "An error occurred while fetching products" },
+    { status: 500 }
+  );
+}
 }

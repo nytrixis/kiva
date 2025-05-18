@@ -11,6 +11,16 @@ interface Review {
   User?: { name: string; image?: string | null };
 }
 
+interface ApiReview {
+  id: string;
+  rating: number;
+  reviewtext: string;
+  createdat: string;
+  userid: string;
+  User?: { name: string; image?: string | null };
+}
+
+
 function StarIcon({ filled = false, className = "w-5 h-5" }) {
   return (
     <svg
@@ -38,7 +48,7 @@ export default function ProductReviewSection({
   const [loading, setLoading] = useState(true);
 
   // Map API fields to camelCase
-  const mapReview = (r: any): Review => ({
+  const mapReview = (r: ApiReview): Review => ({
     ...r,
     reviewText: r.reviewtext,
     createdAt: r.createdat,
@@ -56,7 +66,6 @@ export default function ProductReviewSection({
   const hasReviewed = !!reviews.find((r) => r.userId === userId);
   const isSeller = userId === sellerId;
 
-  const avgRating =
     reviews.length > 0
       ? (
           reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length

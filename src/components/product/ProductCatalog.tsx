@@ -90,8 +90,8 @@ const [products, setProducts] = useState<Product[]>(initialProducts || []);  con
         });        
         const data = await response.json();
         
-        setProducts(data.products);
-        setTotalProducts(data.total);
+        setProducts(data.products ?? []);
+        setTotalProducts(data.total ?? 0);
         
         // Count active filters
         let filterCount = 0;
@@ -243,8 +243,8 @@ const [products, setProducts] = useState<Product[]>(initialProducts || []);  con
         <div className="hidden md:flex justify-between items-center mb-6">
           <div>
             <p className="text-gray-500">
-              Showing <span className="font-medium text-gray-900">{products.length}</span> of{" "}
-              <span className="font-medium text-gray-900">{totalProducts}</span> products
+              Showing <span className="font-medium text-gray-900">{products.length ?? 0}</span> of{" "}
+              <span className="font-medium text-gray-900">{totalProducts ?? 0}</span> products
             </p>
           </div>
           
