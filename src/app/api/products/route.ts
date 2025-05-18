@@ -228,12 +228,12 @@ export async function GET(request: Request) {
     if (category) {
       query = query.eq("categoryId", category);
     }
-    if (minPrice) {
-      query = query.gte("price", parseFloat(minPrice));
-    }
-    if (maxPrice) {
-      query = query.lte("price", parseFloat(maxPrice));
-    }
+    // if (minPrice) {
+    //   query = query.gte("price", parseFloat(minPrice));
+    // }
+    // if (maxPrice) {
+    //   query = query.lte("price", parseFloat(maxPrice));
+    // }
     if (searchQuery) {
       query = query.or(
         `name.ilike.%${searchQuery}%,description.ilike.%${searchQuery}%`
@@ -269,12 +269,24 @@ export async function GET(request: Request) {
     }
 
     let filteredProducts = data as SupabaseProduct[];
-if (minRating) {
-  const min = parseFloat(minRating);
-  filteredProducts = filteredProducts.filter(
-    (p) => (p.rating ?? 0) >= min
-  );
-}
+
+// Filter by discounted price
+    if (minPrice || maxPrice) {
+      const min = minPrice ? parseFloat(minPrice) : undefined;
+      const max = maxPrice ? parseFloat(maxPrice) : undefined;
+      filteredProducts = filteredProducts.filter((p) => {
+        const discounted = p.price * (1 - (p.discountPercentage ?? 0) / 100);
+        if (min !== undefined && discounted < min) return false;
+        if (max !== undefined && discounted > max) return false;
+        return true;
+      });
+    }
+    if (minRating) {
+      const min = parseFloat(minRating);
+      filteredProducts = filteredProducts.filter(
+        (p) => (p.rating ?? 0) >= min
+      );
+    }
 
 // Paginate AFTER filtering
 const paginatedProducts = filteredProducts.slice((page - 1) * limit, page * limit);
