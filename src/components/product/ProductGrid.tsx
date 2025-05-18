@@ -191,7 +191,7 @@ function ProductCard({ product, index }: ProductCardProps) {
       }
 
       // ...toast...
-    } catch (error) {
+    } catch {
       // Revert optimistic update
       setIsFavorite(isFavorite);
       toast({
