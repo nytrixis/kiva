@@ -66,11 +66,12 @@ export default function ProductReviewSection({
   const hasReviewed = !!reviews.find((r) => r.userId === userId);
   const isSeller = userId === sellerId;
 
-    reviews.length > 0
-      ? (
-          reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length
-        ).toFixed(1)
-      : "0.0";
+  // const avgRating =
+  //   reviews.length > 0
+  //     ? (
+  //         reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length
+  //       ).toFixed(1)
+  //     : "0.0";
 
   const handleSubmit = async () => {
     setSubmitting(true);

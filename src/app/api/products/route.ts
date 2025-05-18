@@ -196,7 +196,7 @@ export async function GET(request: Request) {
     const category = searchParams.get("category");
     const minPrice = searchParams.get("minPrice");
     const maxPrice = searchParams.get("maxPrice");
-    const minRating = searchParams.get("minRating");
+    // const minRating = searchParams.get("minRating");
     const sort = searchParams.get("sort") || "newest";
     const page = parseInt(searchParams.get("page") || "1");
     const limit = parseInt(searchParams.get("limit") || "12");
