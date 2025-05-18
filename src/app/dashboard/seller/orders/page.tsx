@@ -39,8 +39,8 @@ interface Order {
   items: {
     id: string;
     product?: { name?: string | null };
-    quantity: number;
-    price: number;
+    quantity: number; 
+     price: number;
   }[];
   orderNumber: string;
   customerName: string;
@@ -158,30 +158,31 @@ export default async function SellerOrdersPage() {
   }
 
   // Filter orders to only those that have at least one item with a productId in productIds
-  const orders = (ordersData ?? []).filter((order: any) =>
-    (order.items ?? []).some((item: any) => {
-      const pid = item.product?.id ?? item.productId;
-      return pid !== undefined && productIds.includes(pid);
-    })
-  );
+  const orders = (ordersData as OrderData[] ?? []).filter((order) =>
+  (order.items ?? []).some((item) => {
+    const pid = item.product?.id ?? item.productId;
+    return pid !== undefined && productIds.includes(pid);
+  })
+);
+
+const formattedOrders = orders.map((order) => ({
+  id: order.id,
+  createdAt: order.createdAt,
+  total: order.total,
+  status: (order.status?.toLowerCase() === 'paid' ? 'processing' : order.status?.toLowerCase()) as OrderStatus,
+  user: { name: order.user?.name || 'Anonymous' },
+  items: (order.items ?? []).map((item) => ({
+    id: item.id,
+    productName: item.product?.name ?? 'Unknown',
+    quantity: item.quantity,
+    price: item.price
+  })),
+  orderNumber: order.id,
+  customerName: order.user?.name || 'Anonymous',
+  date: new Date(order.createdAt),
+}));
 
   // Format orders for the OrdersTable component
-  const formattedOrders = orders.map((order: any) => ({
-    id: order.id,
-    createdAt: order.createdAt,
-    total: order.total,
-    status: (order.status?.toLowerCase() === 'paid' ? 'processing' : order.status?.toLowerCase()) as OrderStatus,
-    user: { name: order.user?.name || 'Anonymous' },
-    items: (order.items ?? []).map((item: any) => ({
-      id: item.id,
-      product: { name: item.product?.name ?? 'Unknown' },
-      quantity: item.quantity,
-      price: item.price
-    })),
-    orderNumber: order.id,
-    customerName: order.user?.name || 'Anonymous',
-    date: new Date(order.createdAt),
-  }));
 
   // Format data for charts
   const revenueData = formatOrdersDataForChart(formattedOrders, "revenue");

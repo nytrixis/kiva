@@ -10,6 +10,20 @@ export const metadata = {
   description: "Manage your products in the Kiva marketplace",
 };
 
+interface Product {
+  id: string;
+  name: string;
+  price: number;
+  discountPercentage: number;
+  images: string[] | string;
+  stock: number;
+  category?: { name: string };
+  createdAt: Date;
+  viewCount: number;
+  reviewCount: number;
+  rating: number;
+}
+
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
@@ -28,10 +42,17 @@ export default async function SellerProductsPage() {
     .eq("sellerId", session.user.id)
     .order("createdAt", { ascending: false });
 
-  // Convert createdAt to Date if needed
-  const formattedProducts = (products ?? []).map((p: any) => ({
+  // Convert createdAt to Date if needed and ensure images is always an array or Record
+  // Also ensure category is always defined
+  const formattedProducts = (products ?? []).map((p: Product) => ({
     ...p,
-    createdAt: p.createdAt ? new Date(p.createdAt) : null,
+    createdAt: p.createdAt ? new Date(p.createdAt) : new Date(0),
+    images: Array.isArray(p.images)
+      ? p.images
+      : typeof p.images === "string"
+      ? [p.images]
+      : [],
+    category: p.category ?? { name: "Uncategorized" },
   }));
 
   return (
