@@ -53,7 +53,7 @@ export async function GET(req: NextRequest) {
 
   // After fetching reels, add this:
 const userIds = [...new Set((reels ?? []).map(reel => reel.user?.id).filter(Boolean))];
-let sellerProfiles: Record<string, { businessName: string; logoImage: string | null; id: string }> = {};
+const sellerProfiles: Record<string, { businessName: string; logoImage: string | null; id: string }> = {};
 if (userIds.length > 0) {
   const { data: profiles } = await supabase
     .from("SellerProfile")
