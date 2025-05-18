@@ -126,7 +126,7 @@ export default function ProductFilters({
                 value={priceRange}
                 min={0}
                 max={10000}
-                step={100}
+                step={50}
                 onValueChange={handlePriceChange}
                 onValueCommit={handlePriceChangeEnd}
                 className="my-6"
@@ -134,12 +134,11 @@ export default function ProductFilters({
             </div>
             
             <div className="flex items-center justify-between">
-              <div className="px-3 py-1 bg-gray-100 rounded-md">
-                <span className="text-xs text-gray-800">₹{priceRange[0]}</span>
-              </div>
-              <div className="px-3 py-1 bg-gray-100 rounded-md">
-                <span className="text-xs text-gray-800">₹{priceRange[1]}</span>
-              </div>
+              <div className="flex items-center justify-between">
+  <span className="text-xs text-gray-800">
+    Price: ₹{priceRange[0]} – ₹{priceRange[1]}
+  </span>
+</div>
             </div>
           </div>
         )}
