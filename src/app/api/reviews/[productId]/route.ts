@@ -8,9 +8,9 @@ const supabase = createClient(
 
 export async function GET(
   req: NextRequest,
-  context: { params: { productId: string } }
+  context: { params: Promise<{ productId: string }> }
 ) {
-  const { productId } = context.params;
+  const { productId } = await context.params;
 
   const { data, error } = await supabase
     .from("productreview")
