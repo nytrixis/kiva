@@ -59,9 +59,9 @@ export default async function ReelsPage() {
 
   // Fetch initial reels for server-side rendering via new API
   const reelsRes = await fetch(
-    `${process.env.NEXT_PUBLIC_BASE_URL || ""}/api/reels/feed?limit=5`,
-    { cache: "no-store" }
-  );
+  `${process.env.NEXT_PUBLIC_BASE_URL || ""}/api/reels/feed?limit=5&userId=${session.user.id}`,
+  { cache: "no-store" }
+);
   const { reels: initialReels = [] } = reelsRes.ok ? await reelsRes.json() : { reels: [] };
 
   // If user is a seller, fetch their products for the upload form via Supabase REST API
