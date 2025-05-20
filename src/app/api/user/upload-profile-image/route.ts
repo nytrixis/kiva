@@ -14,7 +14,7 @@ export async function POST(req: NextRequest) {
     // Upload to Cloudinary using your helper
     const result = await uploadToCloudinary(buffer, "image", "kiva/profile");
     return NextResponse.json({ url: result.secure_url });
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: "Upload failed" }, { status: 500 });
   }
 }

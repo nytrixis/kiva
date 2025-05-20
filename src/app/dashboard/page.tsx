@@ -78,13 +78,13 @@ interface Order {
   items: OrderItem[];
 }
 
-interface ExtendedUser {
-  id: string;
-  name?: string | null;
-  email?: string | null;
-  phone?: string | null;
-  location?: string | null;
-}
+// interface ExtendedUser {
+//   id: string;
+//   name?: string | null;
+//   email?: string | null;
+//   phone?: string | null;
+//   location?: string | null;
+// }
 
 interface WishlistItem {
   id: string;
@@ -178,7 +178,7 @@ const handleProfileSave = async () => {
     });
     if (!res.ok) throw new Error("Failed to update profile");
     setProfileSuccess("Profile updated!");
-  } catch (err) {
+  } catch {
     setProfileError("Could not update profile. Try again.");
   } finally {
     setProfileLoading(false);
