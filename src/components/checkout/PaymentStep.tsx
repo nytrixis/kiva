@@ -22,39 +22,9 @@ export default function PaymentStep() {
   };
   
   
+
+
   
-  const loadPaymentDetails = useCallback(async () => {
-  try {
-    const response = await fetch("/api/checkout", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ orderId }),
-    });
-    
-    if (!response.ok) {
-      throw new Error("Failed to load payment details");
-    }
-    
-    const data = await response.json();
-    
-    if (data.success) {
-      initializeRazorpay(data.order as PaymentOrderData);
-    }
-  } catch (error) {
-    console.error("Error loading payment details:", error);
-    setPaymentError("Failed to load payment details. Please try again.");
-  }
-}, [orderId, initializeRazorpay]);
-
-
-  useEffect(() => {
-    // Load payment details when component mounts
-    if (orderId) {
-    loadPaymentDetails();
-  }
-}, [orderId, loadPaymentDetails]);
 
 interface PaymentOrderData {
   amount: number;
@@ -181,6 +151,38 @@ const handlePaymentCancel = useCallback(async () => {
     setPaymentError("Failed to initialize payment. Please try again.");
   }
 }, [handlePaymentSuccess, handlePaymentCancel]);
+
+  const loadPaymentDetails = useCallback(async () => {
+  try {
+    const response = await fetch("/api/checkout", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ orderId }),
+    });
+    
+    if (!response.ok) {
+      throw new Error("Failed to load payment details");
+    }
+    
+    const data = await response.json();
+    
+    if (data.success) {
+      initializeRazorpay(data.order as PaymentOrderData);
+    }
+  } catch (error) {
+    console.error("Error loading payment details:", error);
+    setPaymentError("Failed to load payment details. Please try again.");
+  }
+}, [orderId, initializeRazorpay]);
+
+useEffect(() => {
+    // Load payment details when component mounts
+    if (orderId) {
+    loadPaymentDetails();
+  }
+}, [orderId, loadPaymentDetails]);
  
   
   if (paymentSuccess) {

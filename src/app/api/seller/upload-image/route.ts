@@ -45,10 +45,10 @@ export async function POST(req: NextRequest) {
     
     // Determine folder based on type
     const folder = type === "logo" 
-      ? "kiva/seller/logos" 
+      ? "image" 
       : type === "banner" 
-        ? "kiva/seller/banners" 
-        : "kiva/seller/images";
+        ? "image" 
+        : "image";
     
     // Upload to Cloudinary
     const result = await uploadToCloudinary(buffer, folder);
@@ -65,5 +65,4 @@ export async function POST(req: NextRequest) {
       { status: 500 }
     );
   }
-}
- 
+} 

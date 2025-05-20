@@ -42,16 +42,16 @@ export default function SignInPage() {
           </p>
           <div className="grid grid-cols-3 gap-6 max-w-md">
             <div className="bg-white/80 backdrop-blur-sm p-4 rounded-lg shadow-sm">
-              <p className="font-bold text-primary text-xl">8+</p>
-              <p className="text-sm text-gray-600">Years Experience</p>
+              <p className="font-bold text-primary text-xl">50+</p>
+              <p className="text-sm text-gray-600">Owners Surveyed</p>
             </div>
             <div className="bg-white/80 backdrop-blur-sm p-4 rounded-lg shadow-sm">
-              <p className="font-bold text-primary text-xl">4k+</p>
-              <p className="text-sm text-gray-600">Best Clients</p>
+              <p className="font-bold text-primary text-xl">10+</p>
+              <p className="text-sm text-gray-600">Sellers Onboarded</p>
             </div>
             <div className="bg-white/80 backdrop-blur-sm p-4 rounded-lg shadow-sm">
-              <p className="font-bold text-primary text-xl">4.9</p>
-              <p className="text-sm text-gray-600">Customer Rating</p>
+              <p className="font-bold text-primary text-xl">4.5+</p>
+              <p className="text-sm text-gray-600">Average Rating (Beta)</p>
             </div>
           </div>
         </div>

@@ -1,50 +1,72 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { prisma } from "@/lib/db";
-import { UserRole, SellerStatus } from "@prisma/client";
+import { createClient } from "@supabase/supabase-js";
+
+enum UserRole {
+  ADMIN = "ADMIN",
+  SELLER = "SELLER",
+  CUSTOMER = "CUSTOMER",
+  INFLUENCER = "INFLUENCER",
+}
+enum SellerStatus {
+  PENDING = "PENDING",
+  APPROVED = "APPROVED",
+  REJECTED = "REJECTED",
+  SUSPENDED = "SUSPENDED",
+}
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string; action: string } }
+  { params }: { params: Promise<{ id: string; action: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session?.user || session.user.role !== UserRole.ADMIN) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    
-    const { id, action } = params;
-    
+
+    const { id, action } = await params;
+
     // Validate the seller exists
-    const seller = await prisma.user.findUnique({
-      where: { id },
-      include: { sellerProfile: true },
-    });
-    
-    if (!seller || !seller.sellerProfile) {
+    const { data: seller, error: sellerError } = await supabase
+      .from("user")
+      .select("*, sellerProfile:SellerProfile(*)")
+      .eq("id", id)
+      .single();
+
+    if (
+      sellerError ||
+      !seller ||
+      !Array.isArray(seller.sellerProfile) ||
+      !seller.sellerProfile[0]
+    ) {
       return NextResponse.json({ error: "Seller not found" }, { status: 404 });
     }
-    
+
     let newStatus: SellerStatus;
-    let isVerified = seller.sellerProfile.isVerified;
-    
+    let isVerified = seller.sellerProfile[0].isVerified;
+
     // Determine the action to take
     switch (action) {
       case "approve":
-        newStatus = "APPROVED";
+        newStatus = SellerStatus.APPROVED;
         isVerified = true;
         break;
       case "reject":
-        newStatus = "REJECTED";
+        newStatus = SellerStatus.REJECTED;
         isVerified = false;
         break;
       case "suspend":
-        newStatus = "SUSPENDED";
+        newStatus = SellerStatus.SUSPENDED;
         break;
       case "reset":
-        newStatus = "PENDING";
+        newStatus = SellerStatus.PENDING;
         break;
       default:
         return NextResponse.json(
@@ -52,20 +74,22 @@ export async function GET(
           { status: 400 }
         );
     }
-    
+
     // Update the seller profile
-    //removed this part 
-    //const sellerProfile =
-    await prisma.sellerProfile.update({
-      where: { userId: id },
-      data: {
+    const { error: updateError } = await supabase
+      .from("SellerProfile")
+      .update({
         status: newStatus,
         isVerified,
-        verifiedAt: isVerified ? new Date() : null,
+        verifiedAt: isVerified ? new Date().toISOString() : null,
         verifiedBy: isVerified ? session.user.id : null,
-      },
-    });
-    
+      })
+      .eq("userId", id);
+
+    if (updateError) {
+      throw updateError;
+    }
+
     // Redirect back to the sellers page
     return NextResponse.redirect(new URL("/admin/sellers", req.url));
   } catch (error) {

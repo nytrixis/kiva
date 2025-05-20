@@ -1,8 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { UserRole } from "@prisma/client";
 import { uploadToCloudinary } from "@/lib/cloudinary";
+
+enum UserRole {
+  ADMIN = "ADMIN",
+  SELLER = "SELLER",
+  CUSTOMER = "CUSTOMER",
+  INFLUENCER = "INFLUENCER",
+}
 
 export async function POST(req: NextRequest) {
   try {
@@ -25,7 +31,7 @@ export async function POST(req: NextRequest) {
     const buffer = Buffer.from(await file.arrayBuffer());
     
     // Upload to Cloudinary
-    const result = await uploadToCloudinary(buffer, "kiva/categories");
+    const result = await uploadToCloudinary(buffer, "image");
     
     return NextResponse.json({
       success: true,

@@ -2,12 +2,18 @@
 import { motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
-import { Heart, ShoppingCart, Star, Check, AlertCircle } from "lucide-react";
+import { Heart, ShoppingCart, Check, AlertCircle } from "lucide-react";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/use-auth";
+import ProductAverageRating from "./ProductAverageRating";
 
 interface Seller {
   name: string | null;
+  id: string;
+  sellerProfile?: {
+    businessName: string;
+  };
 }
 
 interface Category {
@@ -24,7 +30,7 @@ interface Product {
   reviewCount: number;
   category: Category;
   seller: Seller;
-  isInWishlist?: boolean;
+  isFavorite?: boolean;
   stock?: number;
 }
 
@@ -85,8 +91,9 @@ interface ProductCardProps {
 function ProductCard({ product, index }: ProductCardProps) {
   const [isWishlistHovered, setIsWishlistHovered] = useState(false);
   const [isAddingToCart, setIsAddingToCart] = useState(false);
-  const [isInWishlist, setIsInWishlist] = useState(product.isInWishlist || false);
+  const [isFavorite, setIsFavorite] = useState(product.isFavorite || false);  
   const { toast } = useToast();
+  const { isAuthenticated } = useAuth();
 
   // Calculate discounted price based on discountPercentage
   const discountPrice = product.discountPercentage > 0 
@@ -96,6 +103,15 @@ function ProductCard({ product, index }: ProductCardProps) {
   const addToCart = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+
+    if (!isAuthenticated) {
+    toast({
+      title: "Please sign in",
+      description: "You need to be signed in to add items to your cart",
+      variant: "destructive",
+    });
+    return;
+  }
     
     setIsAddingToCart(true);
     
@@ -146,11 +162,20 @@ function ProductCard({ product, index }: ProductCardProps) {
   const toggleWishlist = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    
+
+    if (!isAuthenticated) {
+      toast({
+        title: "Please sign in",
+        description: "You need to be signed in to use wishlist",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Optimistic UI update
+    setIsFavorite(!isFavorite);
+
     try {
-      // Optimistic UI update
-      setIsInWishlist(!isInWishlist);
-      
       // API call to toggle wishlist
       const response = await fetch('/api/wishlist', {
         method: 'POST',
@@ -161,37 +186,19 @@ function ProductCard({ product, index }: ProductCardProps) {
           productId: product.id,
         }),
       });
-      
+
       if (!response.ok) {
         throw new Error('Failed to update wishlist');
       }
-      
-      // Show success toast notification
-      toast({
-        title: isInWishlist ? "Removed from Wishlist" : "Added to Wishlist",
-        description: isInWishlist
-          ? `${product.name} has been removed from your wishlist.`
-          : `${product.name} has been added to your wishlist.`,
-        variant: "success",
-        icon: <Check className="h-4 w-4" />,
-        action: isInWishlist ? null : (
-          <Link href="/wishlist" className="text-xs underline">
-            View Wishlist
-          </Link>
-        ),
-      });
-    } catch (error) {
-      console.error('Error updating wishlist:', error);
-      
+
+      // ...toast...
+    } catch {
       // Revert optimistic update
-      setIsInWishlist(!isInWishlist);
-      
-      // Show error toast notification
+      setIsFavorite(isFavorite);
       toast({
         title: "Error",
         description: "Could not update wishlist. Please try again.",
         variant: "destructive",
-        icon: <AlertCircle className="h-4 w-4" />,
       });
     }
   };
@@ -234,11 +241,11 @@ function ProductCard({ product, index }: ProductCardProps) {
                 onMouseEnter={() => setIsWishlistHovered(true)}
                 onMouseLeave={() => setIsWishlistHovered(false)}
                 className="p-2 bg-white/90 backdrop-blur-sm rounded-full shadow-sm hover:bg-white transition-colors"
-                aria-label={isInWishlist ? "Remove from wishlist" : "Add to wishlist"}
+                aria-label={isFavorite ? "Remove from wishlist" : "Add to wishlist"}
               >
                 <Heart
                   className={`h-5 w-5 transition-all ${
-                    isWishlistHovered || isInWishlist
+                    isWishlistHovered || isFavorite
                       ? 'fill-primary text-primary'
                       : 'text-gray-600'
                   }`}
@@ -268,8 +275,15 @@ function ProductCard({ product, index }: ProductCardProps) {
             <h3 className="font-medium text-gray-800 mb-1 line-clamp-1 group-hover:text-primary transition-colors duration-200">
               {product.name}
             </h3>
-            <div className="text-xs text-gray-500 mb-2">{product.seller.name || 'Unknown Seller'}</div>
-            
+{product.seller?.id ? (
+  <p className="text-xs text-primary font-medium mb-2">
+    {product.seller.sellerProfile?.businessName || product.seller.name}
+  </p>
+) : (
+  <div className="text-xs text-gray-500 mb-2">
+    {product.seller.sellerProfile?.businessName || product.seller.name || 'Unknown Seller'}
+  </div>
+)}         
             {/* Price */}
             <div className="flex items-center space-x-2">
               <span className="font-semibold text-gray-900">
@@ -284,15 +298,7 @@ function ProductCard({ product, index }: ProductCardProps) {
             </div>
             
             {/* Rating */}
-            <div className="flex items-center mt-2">
-              <div className="flex items-center text-amber-500">
-                <Star className="h-3 w-3 fill-current" />
-                <span className="text-xs ml-1 font-medium">{product.rating}</span>
-              </div>
-              <span className="text-xs text-gray-500 ml-2">
-                ({product.reviewCount} reviews)
-              </span>
-            </div>
+            <ProductAverageRating productId={product.id} />
           </div>
         </div>
       </Link>

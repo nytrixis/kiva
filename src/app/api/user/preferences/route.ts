@@ -1,12 +1,16 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
-import { prisma } from "@/lib/db";
+import { createClient } from "@supabase/supabase-js";
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 export async function GET() {
   try {
     const session = await getServerSession(authOptions);
-    
+
     // Check if user is authenticated
     if (!session || !session.user) {
       return NextResponse.json(
@@ -14,16 +18,16 @@ export async function GET() {
         { status: 401 }
       );
     }
-    
+
     // Fetch user preferences
-    const userPreferences = await prisma.userPreference.findUnique({
-      where: {
-        userId: session.user.id,
-      },
-    });
-    
+    const { data: userPreferences, error } = await supabase
+      .from("user_preference")
+      .select("*")
+      .eq("userId", session.user.id)
+      .single();
+
     // If no preferences exist yet, return empty defaults
-    if (!userPreferences) {
+    if (error || !userPreferences) {
       return NextResponse.json({
         preferences: {
           categories: [],
@@ -32,7 +36,7 @@ export async function GET() {
         }
       });
     }
-    
+
     return NextResponse.json({ preferences: userPreferences });
   } catch (error) {
     console.error("Error fetching user preferences:", error);

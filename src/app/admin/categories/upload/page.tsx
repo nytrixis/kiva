@@ -91,13 +91,19 @@ export default function CategoryImageUpload() {
             <p className="text-sm font-mono">{uploadedUrl}</p>
           </div>
           <p className="mt-2 text-sm text-gray-600">
-            Copy this URL and add it to the category in Prisma Studio
+            Copy this URL and add it to the category in P Studio
           </p>
           
           <div className="mt-4">
             <h3 className="text-md font-medium mb-2">Preview:</h3>
             <div className="border border-gray-200 rounded-md overflow-hidden">
-              <Image src={uploadedUrl} alt="Uploaded banner" className="w-full" />
+              <Image
+  src={uploadedUrl}
+  alt="Uploaded banner"
+  width={1920}
+  height={384}
+  className="w-full"
+/>
             </div>
           </div>
         </div>

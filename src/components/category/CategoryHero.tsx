@@ -25,7 +25,7 @@ export default function CategoryHero({ category }: CategoryHeroProps) {
           className="object-cover"
           priority
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-black/70 to-black/30"></div>
+        <div className="absolute inset-0"></div>
       </div>
       
       {/* Content */}
@@ -35,19 +35,24 @@ export default function CategoryHero({ category }: CategoryHeroProps) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <h1 className="text-3xl md:text-5xl font-heading font-bold text-white mb-4">
+          {/* <h1 className="text-3xl md:text-5xl font-heading font-bold text-white mb-4">
             {category.name}
           </h1>
           
           <p className="text-white/90 max-w-xl text-sm md:text-base">
             {category.description}
-          </p>
+          </p> */}
           
           {category.productCount && (
-            <div className="mt-4 inline-block bg-white/20 backdrop-blur-sm px-3 py-1 rounded-full text-white text-sm">
-              {category.productCount} products
-            </div>
-          )}
+      <div
+        className="absolute left-5 md:left-11"
+        style={{ bottom: 50 }}
+      >
+        <div className="mb-0 inline-block bg-black/20 backdrop-blur-sm px-3 py-1 rounded-full text-white text-sm">
+          {category.productCount} products
+        </div>
+      </div>
+    )}
         </motion.div>
       </div>
     </div>

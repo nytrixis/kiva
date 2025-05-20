@@ -28,29 +28,34 @@ interface Product {
     name: string;
   };
   seller: {
-    name: string;
+    id: string;
+    name: string | null;
+    sellerProfile?: {
+      businessName: string;
+    };
   };
   stock?: number;
-  isInWishlist?: boolean;
+  isFavorite?: boolean;
 }
 
 interface ProductCatalogProps {
   categories: Category[];
   initialCategory?: string | null;
   searchQuery?: string | null;
+  products: Product[];
 }
 
 export default function ProductCatalog({
   categories,
   initialCategory = null,
-  searchQuery = null
+  searchQuery = null,
+  products: initialProducts
 }: ProductCatalogProps) {
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
  
-  const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
+const [products, setProducts] = useState<Product[]>(initialProducts || []);  const [loading, setLoading] = useState(true);
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [totalProducts, setTotalProducts] = useState(0);
   const [activeFilters, setActiveFilters] = useState(0);
@@ -61,6 +66,7 @@ export default function ProductCatalog({
   const maxPrice = searchParams.get("maxPrice");
   const sortBy = searchParams.get("sort") || "newest";
   const page = parseInt(searchParams.get("page") || "1");
+  const minRating = searchParams.get("minRating");
  
   // Fetch products based on filters
   useEffect(() => {
@@ -76,13 +82,16 @@ export default function ProductCatalog({
         if (maxPrice) params.append("maxPrice", maxPrice);
         if (sortBy) params.append("sort", sortBy);
         if (page) params.append("page", page.toString());
+        if (minRating) params.append("minRating", minRating);
         if (searchQuery) params.append("q", searchQuery);
         
-        const response = await fetch(`/api/products?${params.toString()}`);
+        const response = await fetch(`/api/products?${params.toString()}`, {
+          credentials: "include", // <-- Add this line!
+        });        
         const data = await response.json();
         
-        setProducts(data.products);
-        setTotalProducts(data.total);
+        setProducts(data.products ?? []);
+        setTotalProducts(data.total ?? 0);
         
         // Count active filters
         let filterCount = 0;
@@ -98,12 +107,13 @@ export default function ProductCatalog({
     };
     
     fetchProducts();
-  }, [categoryParam, minPrice, maxPrice, sortBy, page, searchQuery]);
+  }, [categoryParam, minPrice, maxPrice, sortBy, page, minRating, searchQuery]);
  
   // Update URL with filters
   type FilterValue = string | number | null | undefined;
 
   const updateFilters = (filters: { [key: string]: FilterValue }) => {
+    setLoading(true);
     const params = new URLSearchParams(searchParams.toString());
     
     // Update params based on filters
@@ -128,6 +138,7 @@ export default function ProductCatalog({
  
   // Clear all filters
   const clearFilters = () => {
+    setLoading(true);
     const params = new URLSearchParams();
     if (searchQuery) params.set("q", searchQuery);
     router.push(`${pathname}?${params.toString()}`);
@@ -221,6 +232,7 @@ export default function ProductCatalog({
             selectedCategory={categoryParam}
             minPrice={minPrice}
             maxPrice={maxPrice}
+            minRating={minRating ? Number(minRating) : undefined}
             onFilterChange={updateFilters}
           />
         </div>
@@ -231,8 +243,8 @@ export default function ProductCatalog({
         <div className="hidden md:flex justify-between items-center mb-6">
           <div>
             <p className="text-gray-500">
-              Showing <span className="font-medium text-gray-900">{products.length}</span> of{" "}
-              <span className="font-medium text-gray-900">{totalProducts}</span> products
+              Showing <span className="font-medium text-gray-900">{products.length ?? 0}</span> of{" "}
+              <span className="font-medium text-gray-900">{totalProducts ?? 0}</span> products
             </p>
           </div>
           
@@ -241,11 +253,19 @@ export default function ProductCatalog({
             onChange={(value) => updateFilters({ sort: value })}
           />
         </div>
-        
-        <ProductGrid
-          products={products}
-          loading={loading}
-        />
+
+        {loading && (
+          <div className="flex justify-center items-center py-12">
+            <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-primary"></div>
+            <span className="ml-4 text-primary">Loading products...</span>
+          </div>
+        )}
+        {!loading && (
+          <ProductGrid
+            products={products}
+            loading={loading}
+          />
+        )}
         
         {/* Pagination */}
         {totalProducts > 0 && (

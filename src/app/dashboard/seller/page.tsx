@@ -1,63 +1,69 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { prisma } from "@/lib/db";
+import { createClient } from "@supabase/supabase-js";
 import { format } from "date-fns";
 import Image from "next/image";
 import Link from "next/link";
-import { 
-  ShoppingBag, 
-  Package, 
-  DollarSign, 
-  TrendingUp, 
-  Users, 
-  Star 
+import {
+  ShoppingBag,
+  Package,
+  DollarSign,
+  TrendingUp,
+  Users,
+  Star
 } from "lucide-react";
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
+interface Category {
+  name: string;
+}
+
+interface Product {
+  id: string;
+  name: string;
+  price: number;
+  images: string[] | string;
+  rating: number;
+  viewCount: number;
+  reviewCount: number;
+  category?: Category;
+}
 
 export default async function SellerDashboardPage() {
   const session = await getServerSession(authOptions);
   const userId = session?.user?.id;
-  
+
   // Fetch seller profile
-  const sellerProfile = await prisma.sellerProfile.findUnique({
-    where: { userId: userId as string },
-    include: {
-      user: {
-        select: {
-          name: true,
-          email: true,
-          image: true,
-          createdAt: true,
-        },
-      },
-    },
-  });
-  
-  // Fetch top 5 products by sales
-  const topProducts = await prisma.product.findMany({
-    where: { sellerId: userId as string },
-    orderBy: [
-      { viewCount: 'desc' },
-      { reviewCount: 'desc' },
-    ],
-    take: 5,
-    include: {
-      category: true,
-    },
-  });
-  
-  // Fetch recent orders (placeholder - you'll need to implement this based on your schema)
-  // This is a simplified example
-  // const recentOrders = []; // You'll need to implement this based on your schema
-  
+  const { data: sellerProfile } = await supabase
+    .from("SellerProfile")
+    .select(
+      "*,user:User(id,name,email,image,createdAt)"
+    )
+    .eq("userId", userId)
+    .single();
+
+  // Fetch top 5 products by sales/views
+  const { data: topProducts = [] } = await supabase
+    .from("Product")
+    .select("*,category:Category(*),seller:User(id,name)")
+    .eq("sellerId", userId)
+    .order("viewCount", { ascending: false })
+    .order("reviewCount", { ascending: false })
+    .limit(5);
+
   // Calculate total products
-  const totalProducts = await prisma.product.count({
-    where: { sellerId: userId as string },
-  });
-  
+  const { count: totalProducts = 0 } = await supabase
+    .from("Product")
+    .select("id", { count: "exact", head: true })
+    .eq("sellerId", userId);
+
   return (
     <div>
       <h1 className="text-3xl font-heading text-primary mb-6">Seller Dashboard</h1>
-      
+
       {/* Stats Overview */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <div className="bg-white rounded-xl shadow-sm p-6">
@@ -71,7 +77,7 @@ export default async function SellerDashboardPage() {
             </div>
           </div>
         </div>
-        
+
         <div className="bg-white rounded-xl shadow-sm p-6">
           <div className="flex items-center">
             <div className="p-3 bg-accent/30 rounded-full">
@@ -83,7 +89,7 @@ export default async function SellerDashboardPage() {
             </div>
           </div>
         </div>
-        
+
         <div className="bg-white rounded-xl shadow-sm p-6">
           <div className="flex items-center">
             <div className="p-3 bg-green-100 rounded-full">
@@ -95,7 +101,7 @@ export default async function SellerDashboardPage() {
             </div>
           </div>
         </div>
-        
+
         <div className="bg-white rounded-xl shadow-sm p-6">
           <div className="flex items-center">
             <div className="p-3 bg-blue-100 rounded-full">
@@ -108,7 +114,7 @@ export default async function SellerDashboardPage() {
           </div>
         </div>
       </div>
-      
+
       {/* Profile Overview */}
       <div className="bg-white rounded-xl shadow-sm p-6 mb-8">
         <div className="flex flex-col md:flex-row items-start md:items-center">
@@ -121,7 +127,7 @@ export default async function SellerDashboardPage() {
               sizes="96px"
             />
           </div>
-          
+
           <div className="md:ml-6">
             <h2 className="text-2xl font-heading text-gray-800">
               {sellerProfile?.businessName || "Your Business"}
@@ -130,7 +136,7 @@ export default async function SellerDashboardPage() {
               {sellerProfile?.businessType || "Individual Seller"}
             </p>
             <div className="flex flex-wrap gap-2 mt-2">
-              {sellerProfile?.categories?.map((category, index) => (
+              {sellerProfile?.categories?.map((category: string, index: number) => (
                 <span
                   key={index}
                   className="px-3 py-1 bg-accent/30 text-primary text-xs rounded-full"
@@ -140,7 +146,7 @@ export default async function SellerDashboardPage() {
               ))}
             </div>
           </div>
-          
+
           <div className="mt-4 md:mt-0 md:ml-auto">
             <Link
               href="/dashboard/seller/profile"
@@ -150,7 +156,7 @@ export default async function SellerDashboardPage() {
             </Link>
           </div>
         </div>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6 pt-6 border-t border-gray-100">
           <div>
             <p className="text-sm text-gray-500">Location</p>
@@ -158,7 +164,7 @@ export default async function SellerDashboardPage() {
               {sellerProfile?.city}, {sellerProfile?.state}, {sellerProfile?.country}
             </p>
           </div>
-          
+
           <div>
             <p className="text-sm text-gray-500">Member Since</p>
             <p className="font-medium">
@@ -167,7 +173,7 @@ export default async function SellerDashboardPage() {
                 : "N/A"}
             </p>
           </div>
-          
+
           <div>
             <p className="text-sm text-gray-500">Verification Status</p>
             <p className={`font-medium ${
@@ -182,7 +188,7 @@ export default async function SellerDashboardPage() {
           </div>
         </div>
       </div>
-      
+
       {/* Top Products */}
       <div className="bg-white rounded-xl shadow-sm overflow-hidden mb-8">
         <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center">
@@ -194,10 +200,10 @@ export default async function SellerDashboardPage() {
             View All
           </Link>
         </div>
-        
-        {topProducts.length > 0 ? (
+
+        {(topProducts ?? []).length > 0 ? (
           <div className="divide-y divide-gray-100">
-            {topProducts.map((product) => (
+            {(topProducts ?? []).map((product: Product) => (
               <div key={product.id} className="p-4 hover:bg-gray-50 transition-colors">
                 <div className="flex items-center">
                   <div className="relative h-16 w-16 rounded-md overflow-hidden bg-gray-100">
@@ -211,18 +217,18 @@ export default async function SellerDashboardPage() {
                       sizes="64px"
                     />
                   </div>
-                  
+
                   <div className="ml-4 flex-1">
                     <h4 className="font-medium text-gray-900">{product.name}</h4>
                     <p className="text-sm text-gray-500">
-                      {product.category?.name} • ₹{product.price.toFixed(2)}
+                      {product.category?.name} • ₹{product.price?.toFixed(2)}
                     </p>
                   </div>
-                  
+
                   <div className="text-right">
                     <div className="flex items-center justify-end mb-1">
                       <Star className="h-4 w-4 text-yellow-400 fill-yellow-400 mr-1" />
-                      <span className="text-sm font-medium">{product.rating.toFixed(1)}</span>
+                      <span className="text-sm font-medium">{Number(product.rating ?? 0).toFixed(1)}</span>
                     </div>
                     <p className="text-xs text-gray-500">
                       {product.viewCount} views • {product.reviewCount} reviews
@@ -230,7 +236,8 @@ export default async function SellerDashboardPage() {
                   </div>
                 </div>
               </div>
-            ))}          </div>
+            ))}
+          </div>
         ) : (
           <div className="p-6 text-center">
             <div className="inline-flex items-center justify-center p-4 bg-gray-50 rounded-full mb-4">
@@ -249,7 +256,7 @@ export default async function SellerDashboardPage() {
           </div>
         )}
       </div>
-      
+
       {/* Quick Actions */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <div className="bg-white rounded-xl shadow-sm p-6">
@@ -262,7 +269,7 @@ export default async function SellerDashboardPage() {
               <Package className="h-5 w-5 text-primary mr-3" />
               <span>Add New Product</span>
             </Link>
-            
+
             <Link
               href="/dashboard/seller/profile"
               className="flex items-center p-3 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors"
@@ -270,7 +277,7 @@ export default async function SellerDashboardPage() {
               <Users className="h-5 w-5 text-primary mr-3" />
               <span>Update Profile</span>
             </Link>
-            
+
             <Link
               href="/dashboard/seller/orders"
               className="flex items-center p-3 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors"
@@ -280,10 +287,10 @@ export default async function SellerDashboardPage() {
             </Link>
           </div>
         </div>
-        
+
         <div className="bg-white rounded-xl shadow-sm p-6 md:col-span-2">
           <h3 className="font-heading text-lg mb-4">Store Status</h3>
-          
+
           {sellerProfile?.status === "APPROVED" ? (
             <div className="bg-green-50 border border-green-100 rounded-lg p-4">
               <div className="flex items-start">
@@ -354,4 +361,3 @@ export default async function SellerDashboardPage() {
     </div>
   );
 }
-

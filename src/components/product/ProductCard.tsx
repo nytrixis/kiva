@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Heart, ShoppingBag } from "lucide-react";
@@ -24,7 +24,12 @@ interface ProductCardProps {
       id: string;
       name: string | null;
       image: string | null;
+      sellerProfile?: {
+    businessName: string;
+  };
+      
     };
+    isFavorite: boolean;
   };
 }
 
@@ -32,13 +37,15 @@ export default function ProductCard({ product }: ProductCardProps) {
   const { toast } = useToast();
   const { isAuthenticated } = useAuth();
   const [isWishlistHovered, setIsWishlistHovered] = useState(false);
-  const [isInWishlist, setIsInWishlist] = useState(false);
+  const [isFavorite, setIsFavorite] = useState(product.isFavorite || false);
   const [isAddingToCart, setIsAddingToCart] = useState(false);
   const [isAddingToWishlist, setIsAddingToWishlist] = useState(false);
   
   // Get the first image or placeholder
-  const productImage = Array.isArray(product.images) && product.images.length > 0
-    ? product.images[0]
+  const productImage =
+  Array.isArray(product.images)
+    ? product.images.find((img) => typeof img === "string" && img.trim() !== "")
+      || "https://via.placeholder.com/300"
     : "https://via.placeholder.com/300";
   
   // Calculate sale price if there's a discount
@@ -72,7 +79,7 @@ export default function ProductCard({ product }: ProductCardProps) {
         throw new Error("Failed to add to wishlist");
       }
       
-      setIsInWishlist(true);
+      setIsFavorite(true);
       toast({
         title: "Added to wishlist",
         description: "Product has been added to your wishlist",
@@ -130,24 +137,6 @@ export default function ProductCard({ product }: ProductCardProps) {
       }
     };
     
-    // Check if product is in wishlist on component mount
-    useEffect(() => {
-      if (isAuthenticated) {
-        const checkWishlist = async () => {
-          try {
-            const response = await fetch(`/api/wishlist/check?productId=${product.id}`);
-            if (response.ok) {
-              const data = await response.json();
-              setIsInWishlist(data.inWishlist);
-            }
-          } catch (error) {
-            console.error("Error checking wishlist:", error);
-          }
-        };
-        
-        checkWishlist();
-      }
-    }, [isAuthenticated, product.id]);
   
     return (
       <div className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 h-full flex flex-col">
@@ -171,13 +160,13 @@ export default function ProductCard({ product }: ProductCardProps) {
             onClick={handleAddToWishlist}
             disabled={isAddingToWishlist}
             className="absolute top-3 right-3 p-2 bg-white/80 backdrop-blur-sm rounded-full shadow-sm hover:bg-white transition-colors z-10"
-            aria-label={isInWishlist ? "Remove from favorites" : "Add to favorites"}
+            aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
             onMouseEnter={() => setIsWishlistHovered(true)}
             onMouseLeave={() => setIsWishlistHovered(false)}
           >
             <Heart 
               className={`h-4 w-4 ${
-                isInWishlist 
+                isFavorite
                   ? 'text-primary fill-primary' 
                   : isWishlistHovered
                     ? 'text-primary'
@@ -218,8 +207,8 @@ export default function ProductCard({ product }: ProductCardProps) {
           </Link>
           
           {product.seller?.name && (
-            <Link href={`/sellers/${product.seller.id}`} className="text-xs text-gray-500 mb-2 hover:text-primary">
-              {product.seller.name}
+            <Link href={`/shops/${product.seller.id}`} className="text-xs text-gray-500 mb-2 hover:text-primary">
+              {product.seller?.sellerProfile?.businessName || product.seller?.name}
             </Link>
           )}
           

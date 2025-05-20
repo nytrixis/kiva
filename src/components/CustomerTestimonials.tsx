@@ -4,6 +4,7 @@ import { useRef, useEffect } from "react";
 import Image from "next/image";
 import { motion, useAnimation, useInView } from "framer-motion";
 import { Star, Quote } from "lucide-react";
+import Link from "next/link";
 
 // Testimonial data
 const testimonials = [
@@ -226,9 +227,12 @@ export default function CustomerTestimonials() {
           <p className="mt-4 text-gray-600 max-w-2xl mx-auto">
             Join thousands of satisfied customers who have discovered the beauty of authentic craftsmanship
           </p>
-          <button className="mt-6 bg-primary hover:bg-primary/90 text-white px-6 py-3 rounded-full transition-colors">
-            Shop Our Collections
-          </button>
+          <Link
+  href="/marketplace"
+  className="mt-6 bg-primary hover:bg-primary/90 text-white px-6 py-3 rounded-full transition-colors inline-block"
+>
+  Shop Our Collections
+</Link>
         </motion.div>
       </div>
       

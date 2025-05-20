@@ -4,11 +4,10 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/use-auth";
 import { motion } from "framer-motion";
 import { Loader2, Check, ChevronRight } from "lucide-react";
-import Image from "next/image";
+// import Image from "next/image";
 import Link from "next/link";
-import { UserRole } from "@prisma/client";
 
-// Define types based on Prisma schema
+// Define types for onboarding
 interface UserPreferences {
   categories: string[];
   notifications: boolean;
@@ -17,7 +16,7 @@ interface UserPreferences {
 
 interface OnboardingData {
   preferences: UserPreferences;
-  role: UserRole;
+  role: "CUSTOMER";
 }
 
 export default function CustomerOnboardingPage() {
@@ -55,7 +54,6 @@ export default function CustomerOnboardingPage() {
       const newCategories = prev.categories.includes(categoryId)
         ? prev.categories.filter(id => id !== categoryId)
         : [...prev.categories, categoryId];
-      
       return { ...prev, categories: newCategories };
     });
   };
@@ -80,17 +78,18 @@ export default function CustomerOnboardingPage() {
     setCurrentStep(prev => prev - 1);
   };
 
-  // Complete onboarding
+  // Complete onboarding using Supabase REST API
   const completeOnboarding = async () => {
     setIsSubmitting(true);
-    
+
     try {
-      // Save preferences to user profile
+      // Save preferences to user profile via Supabase REST API
       const onboardingData: OnboardingData = {
         preferences,
-        role: "CUSTOMER" as UserRole,
+        role: "CUSTOMER",
       };
 
+      // Replace this endpoint with your Supabase Edge Function or REST endpoint
       const response = await fetch("/api/user/onboarding", {
         method: "POST",
         headers: {
@@ -98,9 +97,8 @@ export default function CustomerOnboardingPage() {
         },
         body: JSON.stringify(onboardingData),
       });
-      
+
       if (response.ok) {
-        // Redirect to dashboard or home page
         router.push("/dashboard");
         router.refresh();
       } else {
@@ -121,27 +119,18 @@ export default function CustomerOnboardingPage() {
           <div className="flex items-center justify-between">
             <Link href="/" className="flex items-center">
               <div className="relative h-10 w-10 overflow-hidden border border-[#E6E6FA]">
-                <Image
-                  src="/images/logob.png"
-                  alt="Kiva Logo"
-                  fill
-                  className="object-cover"
-                  sizes="40px"
-                  priority
-                />
               </div>
             </Link>
-            
             <div className="flex items-center space-x-2">
               {[1, 2, 3].map((step) => (
                 <div
                   key={step}
                   className={`w-8 h-1 rounded-full ${
                     step === currentStep
-                      ? 'bg-primary'
+                      ? "bg-primary"
                       : step < currentStep
-                        ? 'bg-primary/50'
-                        : 'bg-gray-200'
+                      ? "bg-primary/50"
+                      : "bg-gray-200"
                   }`}
                 />
               ))}
@@ -149,7 +138,7 @@ export default function CustomerOnboardingPage() {
           </div>
         </div>
       </header>
-      
+
       <main className="container mx-auto px-4 py-12 max-w-4xl">
         {/* Step 1: Welcome */}
         {currentStep === 1 && (
@@ -167,10 +156,8 @@ export default function CustomerOnboardingPage() {
                 Let&apos;s personalize your experience to help you discover unique local products you&apos;ll love.
               </p>
             </div>
-            
             <div className="bg-white p-8 rounded-xl shadow-sm">
               <h2 className="text-xl font-medium mb-6">Select categories that interest you</h2>
-              
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 {categories.map((category) => (
                   <button
@@ -178,8 +165,8 @@ export default function CustomerOnboardingPage() {
                     onClick={() => toggleCategory(category.id)}
                     className={`p-4 rounded-lg border text-center transition-all ${
                       preferences.categories.includes(category.id)
-                        ? 'border-primary bg-primary/5 text-primary'
-                        : 'border-gray-200 hover:border-gray-300 text-gray-700'
+                        ? "border-primary bg-primary/5 text-primary"
+                        : "border-gray-200 hover:border-gray-300 text-gray-700"
                     }`}
                   >
                     {preferences.categories.includes(category.id) && (
@@ -190,7 +177,6 @@ export default function CustomerOnboardingPage() {
                 ))}
               </div>
             </div>
-            
             <div className="flex justify-end">
               <button
                 onClick={nextStep}
@@ -203,7 +189,7 @@ export default function CustomerOnboardingPage() {
             </div>
           </motion.div>
         )}
-        
+
         {/* Step 2: Location */}
         {currentStep === 2 && (
           <motion.div
@@ -220,7 +206,6 @@ export default function CustomerOnboardingPage() {
                 This helps us show you products and artisans in your area.
               </p>
             </div>
-            
             <div className="bg-white p-8 rounded-xl shadow-sm">
               <div className="space-y-4">
                 <label htmlFor="location" className="block text-sm font-medium text-gray-700">
@@ -239,7 +224,6 @@ export default function CustomerOnboardingPage() {
                 </p>
               </div>
             </div>
-            
             <div className="flex justify-between">
               <button
                 onClick={prevStep}
@@ -247,7 +231,6 @@ export default function CustomerOnboardingPage() {
               >
                 Back
               </button>
-              
               <button
                 onClick={nextStep}
                 disabled={!preferences.location}
@@ -259,7 +242,7 @@ export default function CustomerOnboardingPage() {
             </div>
           </motion.div>
         )}
-        
+
         {/* Step 3: Notifications and Finish */}
         {currentStep === 3 && (
           <motion.div
@@ -276,7 +259,6 @@ export default function CustomerOnboardingPage() {
                 Just a few more preferences to complete your profile.
               </p>
             </div>
-            
             <div className="bg-white p-8 rounded-xl shadow-sm">
               <div className="space-y-6">
                 <div className="flex items-center justify-between">
@@ -286,39 +268,34 @@ export default function CustomerOnboardingPage() {
                       Receive updates about new products and local events
                     </p>
                   </div>
-                  
                   <button
                     onClick={toggleNotifications}
                     className={`w-12 h-6 rounded-full transition-colors ${
-                      preferences.notifications ? 'bg-primary' : 'bg-gray-300'
+                      preferences.notifications ? "bg-primary" : "bg-gray-300"
                     } relative`}
                   >
                     <span
                       className={`absolute top-1 ${
-                        preferences.notifications ? 'right-1' : 'left-1'
+                        preferences.notifications ? "right-1" : "left-1"
                       } w-4 h-4 rounded-full bg-white transition-all`}
                     />
                   </button>
                 </div>
-                
                 <div className="pt-4 border-t border-gray-100">
                   <h3 className="font-medium mb-4">Your selected preferences:</h3>
-                  
                   <div className="space-y-2">
                     <p className="text-sm">
                       <span className="font-medium">Categories:</span>{" "}
                       {preferences.categories.length > 0
-                        ? preferences.categories.map(id =>
-                            categories.find(c => c.id === id)?.name
-                          ).join(", ")
+                        ? preferences.categories
+                            .map(id => categories.find(c => c.id === id)?.name)
+                            .join(", ")
                         : "None selected"}
                     </p>
-                    
                     <p className="text-sm">
                       <span className="font-medium">Location:</span>{" "}
                       {preferences.location || "Not specified"}
                     </p>
-                    
                     <p className="text-sm">
                       <span className="font-medium">Notifications:</span>{" "}
                       {preferences.notifications ? "Enabled" : "Disabled"}
@@ -327,7 +304,6 @@ export default function CustomerOnboardingPage() {
                 </div>
               </div>
             </div>
-            
             <div className="flex justify-between">
               <button
                 onClick={prevStep}
@@ -335,7 +311,6 @@ export default function CustomerOnboardingPage() {
               >
                 Back
               </button>
-              
               <button
                 onClick={completeOnboarding}
                 disabled={isSubmitting}

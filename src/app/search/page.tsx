@@ -1,7 +1,6 @@
 import { Metadata } from "next";
 import { redirect } from "next/navigation";
 import ProductCatalog from "@/components/product/ProductCatalog";
-import { prisma } from "@/lib/db";
 
 export const metadata: Metadata = {
   title: "Search Results | Kiva",
@@ -9,34 +8,28 @@ export const metadata: Metadata = {
 };
 
 interface SearchPageProps {
-  searchParams: {
-    q?: string;
-  };
+  searchParams: Promise<{ q?: string }>;
 }
 
-interface Category {
-  id: string;
-  name: string;
-}
+// interface Category {
+//   id: string;
+//   name: string;
+// }
 
 export default async function SearchPage({ searchParams }: SearchPageProps) {
-  const query = searchParams.q;
-  
+  const { q: query } = await searchParams;
+
   if (!query) {
     redirect("/collections");
   }
-  
-  // Fetch categories for filters
-  const categories = await prisma.category.findMany({
-    select: {
-      id: true,
-      name: true,
-    },
-    orderBy: {
-      name: 'asc',
-    },
-  }) as Category[];
-  
+
+  // Fetch categories for filters via Supabase REST API
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_BASE_URL || ""}/api/categories`,
+    { cache: "no-store" }
+  );
+const categoriesData = res.ok ? await res.json() : { categories: [] };
+const categories = Array.isArray(categoriesData.categories) ? categoriesData.categories : [];
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-12">
@@ -47,6 +40,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
         <ProductCatalog
           categories={categories}
           searchQuery={query}
+          products={[]}
         />
       </div>
     </div>

@@ -2,7 +2,6 @@ import { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { prisma } from "@/lib/db";
 import Link from "next/link";
 import { CheckCircle2, Package, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -18,36 +17,28 @@ export default async function CheckoutSuccessPage({
   searchParams: { orderId?: string };
 }) {
   const session = await getServerSession(authOptions);
-  
+
   if (!session?.user) {
     redirect("/sign-in?callbackUrl=/checkout/success");
   }
-  
+
   const { orderId } = searchParams;
-  
+
   if (!orderId) {
     redirect("/dashboard");
   }
-  
-  const order = await prisma.order.findUnique({
-    where: {
-      id: orderId,
-      userId: session.user.id,
-    },
-    include: {
-      items: {
-        include: {
-          product: true,
-        },
-      },
-      address: true,
-    },
-  });
-  
+
+  // Fetch order via Supabase REST API
+  const orderRes = await fetch(
+    `${process.env.NEXT_PUBLIC_BASE_URL || ""}/api/supabase/order/${orderId}?userId=${session.user.id}`,
+    { cache: "no-store" }
+  );
+  const order = orderRes.ok ? await orderRes.json() : null;
+
   if (!order) {
     redirect("/dashboard");
   }
-  
+
   return (
     <div className="container mx-auto py-12 px-4">
       <div className="max-w-2xl mx-auto bg-white rounded-lg shadow-sm p-8">
@@ -60,7 +51,7 @@ export default async function CheckoutSuccessPage({
             Thank you for your purchase. Your order has been placed successfully.
           </p>
         </div>
-        
+
         <div className="border rounded-lg p-4 mb-6">
           <div className="flex justify-between items-center mb-4">
             <div className="flex items-center">
@@ -71,7 +62,7 @@ export default async function CheckoutSuccessPage({
               {new Date(order.createdAt).toLocaleDateString()}
             </span>
           </div>
-          
+
           <div className="space-y-2 text-sm">
             <div className="flex justify-between">
               <span className="text-gray-600">Order ID</span>
@@ -91,7 +82,7 @@ export default async function CheckoutSuccessPage({
             </div>
           </div>
         </div>
-        
+
         {order.address && (
           <div className="border rounded-lg p-4 mb-6">
             <h3 className="text-md font-medium mb-2">Shipping Address</h3>
@@ -107,14 +98,14 @@ export default async function CheckoutSuccessPage({
             </div>
           </div>
         )}
-        
+
         <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0 mt-8">
           <Link href="/marketplace">
             <Button variant="outline" className="w-full md:w-auto">
               Continue Shopping
             </Button>
           </Link>
-          
+
           <Link href={`/orders/${order.id}`}>
             <Button className="w-full md:w-auto bg-primary hover:bg-primary/90 flex items-center">
               View Order Details

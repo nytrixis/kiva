@@ -1,65 +1,60 @@
-// src/app/dashboard/seller/products/page.tsx
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { prisma } from "@/lib/db";
 import Link from "next/link";
 import { Plus } from "lucide-react";
 import { ProductsTable } from "@/components/dashboard/seller/ProductsTable";
+import { createClient } from "@supabase/supabase-js";
 
 export const metadata = {
   title: "Manage Products | Seller Dashboard | Kiva",
   description: "Manage your products in the Kiva marketplace",
 };
 
-// Define a type that matches what ProductsTable expects
 interface Product {
   id: string;
   name: string;
   price: number;
   discountPercentage: number;
+  images: string[] | string;
   stock: number;
-  images: string[] | Record<string, unknown>;
+  category?: { name: string };
   createdAt: Date;
   viewCount: number;
   reviewCount: number;
   rating: number;
-  category: {
-    name: string;
-  };
 }
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 export default async function SellerProductsPage() {
   const session = await getServerSession(authOptions);
-  const userId = session?.user?.id;
-  
-  // Fetch seller's products
-  const prismaProducts = await prisma.product.findMany({
-    where: { sellerId: userId as string },
-    include: {
-      category: true,
-    },
-    orderBy: { createdAt: "desc" },
-  });
-  
-  // Transform the products to match the expected type
-  const products: Product[] = prismaProducts.map(product => ({
-    id: product.id,
-    name: product.name,
-    price: product.price,
-    discountPercentage: product.discountPercentage,
-    stock: product.stock,
-    images: Array.isArray(product.images)
-      ? product.images.filter((img): img is string => typeof img === 'string')
-      : product.images as Record<string, unknown>,
-    createdAt: product.createdAt,
-    viewCount: product.viewCount,
-    reviewCount: product.reviewCount,
-    rating: product.rating,
-    category: {
-      name: product.category.name
-    }
+  if (!session?.user) {
+    // Optionally redirect to sign-in if not authenticated
+    return null;
+  }
+
+  // Fetch seller's products directly from Supabase
+  const { data: products = [] } = await supabase
+    .from("Product")
+    .select("*, category:categoryId(name)")
+    .eq("sellerId", session.user.id)
+    .order("createdAt", { ascending: false });
+
+  // Convert createdAt to Date if needed and ensure images is always an array or Record
+  // Also ensure category is always defined
+  const formattedProducts = (products ?? []).map((p: Product) => ({
+    ...p,
+    createdAt: p.createdAt ? new Date(p.createdAt) : new Date(0),
+    images: Array.isArray(p.images)
+      ? p.images
+      : typeof p.images === "string"
+      ? [p.images]
+      : [],
+    category: p.category ?? { name: "Uncategorized" },
   }));
-  
+
   return (
     <div>
       <div className="flex justify-between items-center mb-6">
@@ -69,7 +64,7 @@ export default async function SellerProductsPage() {
             Manage your product listings in the marketplace
           </p>
         </div>
-        
+
         <Link
           href="/dashboard/seller/products/new"
           className="flex items-center px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors"
@@ -78,9 +73,9 @@ export default async function SellerProductsPage() {
           Add Product
         </Link>
       </div>
-      
-      {products.length > 0 ? (
-        <ProductsTable products={products} />
+
+      {formattedProducts.length > 0 ? (
+        <ProductsTable products={formattedProducts} />
       ) : (
         <div className="bg-white rounded-xl shadow-sm p-12 text-center">
           <div className="inline-flex items-center justify-center p-6 bg-gray-50 rounded-full mb-6">

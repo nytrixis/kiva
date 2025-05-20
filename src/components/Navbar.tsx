@@ -7,6 +7,7 @@ import { motion } from "framer-motion";
 import { ShoppingCart, Heart, Menu, X, Globe, ChevronDown, Search, User, Grid } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
+import { useRouter } from "next/navigation";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -65,6 +66,7 @@ export default function Navbar() {
   const [isMobileCategoriesOpen, setIsMobileCategoriesOpen] = useState(false);
   const [wishlistCount, setWishlistCount] = useState(0);
   const [cartCount, setCartCount] = useState(0);
+  const router = useRouter();
   
   // Fetch categories for the dropdown
   useEffect(() => {
@@ -136,23 +138,10 @@ export default function Navbar() {
 
   const handleSearchSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // This would connect to your backend search functionality
-    // For now, just log the search query
-    console.log("Search query:", searchQuery);
-    
-    /*
-    // Uncomment this when you have backend integration
-    const searchProducts = async () => {
-      try {
-        const response = await fetch(`/api/search?q=${encodeURIComponent(searchQuery)}`);
-        const data = await response.json();
-        // Handle search results
-      } catch (error) {
-        console.error("Error searching products:", error);
-      }
-    };
-    searchProducts();
-    */
+    if (searchQuery.trim()) {
+      router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+      setIsMenuOpen(false); // Optionally close mobile menu on search
+    }
   };
   
   return (
@@ -193,10 +182,10 @@ export default function Navbar() {
                       <ChevronDown className="ml-1 h-4 w-4" />
                     </button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="start" className="w-56">
-                    {categories.length > 0 ? (
+                  <DropdownMenuContent align="start" className="w-56 bg-accent border-accent">
+                    {(categories || []).length > 0 ? (
                       categories.map((category) => (
-                        <DropdownMenuItem key={category.id} asChild>
+                        <DropdownMenuItem key={category.id} asChild className="hover:bg-white focus:bg-white">
                           <Link href={`/categories/${category.slug}`} className="w-full">
                             {category.name}
                           </Link>
@@ -214,8 +203,8 @@ export default function Navbar() {
                   Xplore
                 </Link>
                 
-                <Link href="/brands" className="text-gray-600 hover:text-primary transition-colors">
-                  Reels
+                <Link href="/reels" className="text-gray-600 hover:text-primary transition-colors">
+                  Peeks
                 </Link>
                 
                 <Link href="/shops" className="text-gray-600 hover:text-primary transition-colors">
@@ -223,7 +212,7 @@ export default function Navbar() {
                 </Link>
                 
                 <Link href="/about" className="text-gray-600 hover:text-primary transition-colors">
-                  Reels
+                  About
                 </Link>
               </nav>
             </div>
@@ -274,15 +263,15 @@ export default function Navbar() {
                       <User className="h-5 w-5 text-gray-600" />
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-48">
+                  <DropdownMenuContent align="end" className="w-48 bg-accent border-accent">
                     <DropdownMenuItem className="cursor-default font-medium">
                       {user?.name || 'User'}
                     </DropdownMenuItem>
                     <DropdownMenuItem>
-                      <Link href="/dashboard" className="w-full">Dashboard</Link>
+                      <Link href="/dashboard" className="w-full hover:bg-white focus:bg-white">Dashboard</Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem>
-                      <Link href="/profile" className="w-full">Profile</Link>
+                      <Link href="/profile" className="w-full hover:bg-white focus:bg-white">Profile</Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={logout}>
                       Sign Out
@@ -404,7 +393,7 @@ export default function Navbar() {
               
               {isMobileCategoriesOpen && (
                 <div className="mt-2 pl-6 space-y-2">
-                  {categories.length > 0 ? (
+                  {(categories || []).length > 0 ? (
                     categories.map((category) => (
                       <Link
                         key={category.id}
@@ -426,10 +415,10 @@ export default function Navbar() {
               Xplore
             </Link>
             
-            <Link href="/brands" className="block text-gray-600 hover:text-primary">
-              Reels
+            <Link href="/reels" className="block text-gray-600 hover:text-primary">
+              Peeks
             </Link>
-            <Link href="/new" className="block text-gray-600 hover:text-primary">
+            <Link href="/about" className="block text-gray-600 hover:text-primary">
               About
             </Link>
             {/* <Link href="/sales" className="block text-gray-600 hover:text-primary">

@@ -1,7 +1,35 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/db";
-import { Prisma } from "@prisma/client";
+import { createClient } from "@supabase/supabase-js";
 
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
+interface SellerProfile {
+  status: string;
+}
+
+interface Seller {
+  id: string;
+  name: string;
+  image?: string;
+  seller_profile?: SellerProfile[];
+}
+
+interface Category {
+  id: string;
+  name: string;
+  slug?: string;
+}
+
+interface Product {
+  id: string;
+  name: string;
+  price: number;
+  images: string[] | string;
+  seller?: Seller;
+  category?: Category;
+}
 
 export async function GET(req: NextRequest) {
   try {
@@ -10,57 +38,53 @@ export async function GET(req: NextRequest) {
     const categoryId = url.searchParams.get("categoryId");
     const page = parseInt(url.searchParams.get("page") || "1");
     const limit = parseInt(url.searchParams.get("limit") || "12");
-    const skip = (page - 1) * limit;
-    
-    // Build where clause
-    
-    const where: Prisma.ProductWhereInput = {
-      seller: {
-        sellerProfile: {
-          status: "APPROVED",
-        },
-      },
-    };
-    
+    const from = (page - 1) * limit;
+    const to = from + limit - 1;
+
+    // Build filter for verified sellers
+    let query = supabase
+      .from("product")
+      .select(
+        `
+        *,
+        category:category(id, name, slug),
+        seller:user(id, name, image, seller_profile: seller_profile(status))
+      `,
+        { count: "exact" }
+      )
+      .order("createdAt", { ascending: false })
+      .range(from, to);
+
     // Add category filter if provided
     if (categoryId) {
-      where.categoryId = categoryId;
+      query = query.eq("categoryId", categoryId);
     }
-    
-    // Fetch products from verified sellers
-    const products = await prisma.product.findMany({
-      where,
-      include: {
-        category: true,
-        seller: {
-          select: {
-            id: true,
-            name: true,
-            image: true,
-          },
-        },
-      },
-      orderBy: {
-        createdAt: "desc",
-      },
-      skip,
-      take: limit,
-    });
-    
-    // Get total count for pagination
-    const totalCount = await prisma.product.count({ where });
-    
-    return NextResponse.json({ 
-      success: true, 
+
+    // Only products where seller's seller_profile.status is APPROVED
+    // Supabase can't filter on joined tables directly, so filter in JS after fetch
+    const { data: products, count: totalCount, error } = await query;
+
+    if (error) throw error;
+
+    // Filter products where seller's seller_profile.status === "APPROVED"
+    const filteredProducts = (products || []).filter(
+      (product: Product) =>
+        product.seller?.seller_profile &&
+        Array.isArray(product.seller.seller_profile) &&
+        product.seller.seller_profile[0]?.status === "APPROVED"
+    );
+
+    return NextResponse.json({
+      success: true,
       data: {
-        products,
+        products: filteredProducts,
         pagination: {
-          total: totalCount,
+          total: totalCount ?? 0,
           page,
           limit,
-          pages: Math.ceil(totalCount / limit),
-        }
-      }
+          pages: Math.ceil((totalCount ?? 0) / limit),
+        },
+      },
     });
   } catch (error) {
     console.error("Error fetching verified products:", error);
