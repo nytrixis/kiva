@@ -97,7 +97,13 @@ export default function CategoryImageUpload() {
           <div className="mt-4">
             <h3 className="text-md font-medium mb-2">Preview:</h3>
             <div className="border border-gray-200 rounded-md overflow-hidden">
-              <Image src={uploadedUrl} alt="Uploaded banner" className="w-full" />
+              <Image
+  src={uploadedUrl}
+  alt="Uploaded banner"
+  width={1920}
+  height={384}
+  className="w-full"
+/>
             </div>
           </div>
         </div>

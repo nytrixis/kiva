@@ -10,7 +10,11 @@ import { Badge } from "@/components/ui/badge";
 // import { formatCurrency } from "@/lib/utils";
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { ChangeEvent } from "react";
 import {
+  Camera,
+  Eye,
+  EyeOff,
   ShoppingBag,
   Heart,
   User,
@@ -104,8 +108,140 @@ export default function DashboardPage() {
   const [recentlyViewedLoading, setRecentlyViewedLoading] = useState(false);
   const [ordersLoading, setOrdersLoading] = useState(false);
   const [recommendedLoading, setRecommendedLoading] = useState(false);
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  // ...existing code...
+  const [profileLoading, setProfileLoading] = useState(false);
+  const [profileSuccess, setProfileSuccess] = useState<string | null>(null);
+  const [profileError, setProfileError] = useState<string | null>(null);
+
+  const [showPasswordForm, setShowPasswordForm] = useState(false);
+  const [passwords, setPasswords] = useState({ current: "", new: "", confirm: "" });
+  const [passwordMsg, setPasswordMsg] = useState<string | null>(null);
+
+  const [profile, setProfile] = useState({
+      name: "",
+      email: "",
+      phone: "",
+      location: "",
+      bio: "",
+      image: "",
+      role: "",
+      isOnboarded: false,
+    });
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      setProfileLoading(true);
+      try {
+        const res = await fetch("/api/user/me");
+        const data = await res.json();
+        if (res.ok && data.user) {
+          setProfile({
+            name: data.user.name || "",
+            email: data.user.email || "",
+            phone: data.user.phone || "",
+            location: data.user.location || "",
+            bio: data.user.bio || "",
+            image: data.user.image || "",
+            role: data.user.role || "",
+            isOnboarded: data.user.isOnboarded || false,
+          });
+        }
+      } catch {
+        setProfileError("Could not load profile.");
+      } finally {
+        setProfileLoading(false);
+      }
+    };
+    fetchProfile();
+  }, []);
+
+const handleProfileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  setProfile({ ...profile, [e.target.name]: e.target.value });
+};
+
+const handleProfileTextAreaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+  setProfile({ ...profile, [e.target.name]: e.target.value });
+};
+
+const handleProfileSave = async () => {
+  setProfileLoading(true);
+  setProfileSuccess(null);
+  setProfileError(null);
+  try {
+    const res = await fetch("/api/user/profile", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(profile),
+    });
+    if (!res.ok) throw new Error("Failed to update profile");
+    setProfileSuccess("Profile updated!");
+  } catch (err) {
+    setProfileError("Could not update profile. Try again.");
+  } finally {
+    setProfileLoading(false);
+  }
+};
+
+const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  setPasswords({ ...passwords, [e.target.name]: e.target.value });
+};
+
+const handlePasswordSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+  setPasswordMsg(null);
+
+  if (!passwords.current || !passwords.new || !passwords.confirm) {
+    setPasswordMsg("Please fill all fields.");
+    return;
+  }
+  if (passwords.new !== passwords.confirm) {
+    setPasswordMsg("New passwords do not match.");
+    return;
+  }
+
+  setPasswordMsg("Changing password...");
+  try {
+    const res = await fetch("/api/user/change-password", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        currentPassword: passwords.current,
+        newPassword: passwords.new,
+      }),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      setPasswordMsg(data.error || "Failed to change password.");
+    } else {
+      setPasswordMsg("Password changed successfully!");
+      setPasswords({ current: "", new: "", confirm: "" });
+    }
+  } catch {
+    setPasswordMsg("Something went wrong. Try again.");
+  }
+};
+
+const handleImageUpload = async (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const formData = new FormData();
+    formData.append("file", file);
+
+    // Upload to your own API route that uses cloudinary
+    const res = await fetch("/api/user/upload-profile-image", {
+      method: "POST",
+      body: formData,
+    });
+    const data = await res.json();
+    if (res.ok && data.url) {
+      setProfile((prev) => ({ ...prev, image: data.url }));
+      await handleProfileSave();
+    }
+  };
+
 
 function RecentlyViewedProductCard({ product }: { product: Product }) {
   const salePrice = product.discountPrice ?? product.price;
@@ -554,111 +690,111 @@ function RecentlyViewedProductCard({ product }: { product: Product }) {
 
             {/* Wishlist Tab */}
 
-{activeTab === "wishlist" && (
-  <div className="space-y-8">
-    <div className="bg-white rounded-xl shadow-sm p-6">
-      <h2 className="text-xl font-medium mb-6">Your Wishlist</h2>
-      {wishlistLoading ? (
-        <div>Loading...</div>
-      ) : wishlist.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
-          {wishlist.map(item => {
-            const product = item.product;
-            if (!product) return null;
-            const salePrice = product.discountPrice ?? product.price;
-            const hasSignificantDiscount = (product.discountPercentage ?? 0) > 40;
-            const productImages = Array.isArray(product.images) ? product.images : [];
+            {activeTab === "wishlist" && (
+              <div className="space-y-8">
+                <div className="bg-white rounded-xl shadow-sm p-6">
+                  <h2 className="text-xl font-medium mb-6">Your Wishlist</h2>
+                  {wishlistLoading ? (
+                    <div>Loading...</div>
+                  ) : wishlist.length > 0 ? (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
+                      {wishlist.map(item => {
+                        const product = item.product;
+                        if (!product) return null;
+                        const salePrice = product.discountPrice ?? product.price;
+                        const hasSignificantDiscount = (product.discountPercentage ?? 0) > 40;
+                        const productImages = Array.isArray(product.images) ? product.images : [];
 
-            return (
-              <div
-                key={item.id}
-                className="bg-white rounded-xl shadow p-4 flex flex-col items-stretch"
-              >
-                {/* Product Image */}
-                <Link href={`/products/${product.id}`} className="block">
-                  <div className="relative w-full aspect-[4/3] rounded-lg overflow-hidden mb-4">
-                    <ProductImageGallery
-                      images={productImages}
-                      productName={product.name}
-                    />
-                  </div>
-                </Link>
-                {/* Product Details */}
-                <div className="flex-1 flex flex-col justify-between">
-                  {/* Category */}
-                  <div>
-                    <Link
-                      href={`/categories/${product.category?.id}`}
-                      className="text-xs text-primary hover:underline"
-                    >
-                      {product.category?.name || "Uncategorized"}
-                    </Link>
-                  </div>
-                  {/* Name */}
-                  <Link href={`/products/${product.id}`}>
-                    <h2 className="text-lg font-bold text-gray-900 mt-1 hover:text-primary transition-colors">
-                      {product.name}
-                    </h2>
-                  </Link>
-                  {/* Seller */}
-                  <div className="text-xs text-gray-500 mb-2">
-                    Sold by{" "}
-                    <Link
-                      href={`/sellers/${product.seller?.id}`}
-                      className="text-primary hover:underline"
-                    >
-                      {product.seller?.name || "Unknown Seller"}
-                    </Link>
-                  </div>
-                  {/* Price & Discount */}
-                  <div className="flex items-center space-x-2 mb-2">
-                    {product.discountPercentage && product.discountPercentage > 0 ? (
-                      <>
-                        <span className="text-base font-bold text-gray-900">
-                          ₹{salePrice.toFixed(2)}
-                        </span>
-                        <span className="text-sm text-gray-500 line-through">
-                          ₹{product.price.toFixed(2)}
-                        </span>
-                        <Badge className={`${hasSignificantDiscount ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'} px-2 py-1`}>
-                          {Math.round(product.discountPercentage)}% OFF
-                        </Badge>
-                      </>
-                    ) : (
-                      <span className="text-base font-bold text-gray-900">
-                        ₹{product.price.toFixed(2)}
-                      </span>
-                    )}
-                  </div>
-                  {/* Add to Cart Button */}
-                  <div className="mt-3">
-                    <AddToCartButton productId={product.id} stock={product.stock ?? 1} />
-                  </div>
+                        return (
+                          <div
+                            key={item.id}
+                            className="bg-white rounded-xl shadow p-4 flex flex-col items-stretch"
+                          >
+                            {/* Product Image */}
+                            <Link href={`/products/${product.id}`} className="block">
+                              <div className="relative w-full aspect-[4/3] rounded-lg overflow-hidden mb-4">
+                                <ProductImageGallery
+                                  images={productImages}
+                                  productName={product.name}
+                                />
+                              </div>
+                            </Link>
+                            {/* Product Details */}
+                            <div className="flex-1 flex flex-col justify-between">
+                              {/* Category */}
+                              <div>
+                                <Link
+                                  href={`/categories/${product.category?.id}`}
+                                  className="text-xs text-primary hover:underline"
+                                >
+                                  {product.category?.name || "Uncategorized"}
+                                </Link>
+                              </div>
+                              {/* Name */}
+                              <Link href={`/products/${product.id}`}>
+                                <h2 className="text-lg font-bold text-gray-900 mt-1 hover:text-primary transition-colors">
+                                  {product.name}
+                                </h2>
+                              </Link>
+                              {/* Seller */}
+                              <div className="text-xs text-gray-500 mb-2">
+                                Sold by{" "}
+                                <Link
+                                  href={`/sellers/${product.seller?.id}`}
+                                  className="text-primary hover:underline"
+                                >
+                                  {product.seller?.name || "Unknown Seller"}
+                                </Link>
+                              </div>
+                              {/* Price & Discount */}
+                              <div className="flex items-center space-x-2 mb-2">
+                                {product.discountPercentage && product.discountPercentage > 0 ? (
+                                  <>
+                                    <span className="text-base font-bold text-gray-900">
+                                      ₹{salePrice.toFixed(2)}
+                                    </span>
+                                    <span className="text-sm text-gray-500 line-through">
+                                      ₹{product.price.toFixed(2)}
+                                    </span>
+                                    <Badge className={`${hasSignificantDiscount ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'} px-2 py-1`}>
+                                      {Math.round(product.discountPercentage)}% OFF
+                                    </Badge>
+                                  </>
+                                ) : (
+                                  <span className="text-base font-bold text-gray-900">
+                                    ₹{product.price.toFixed(2)}
+                                  </span>
+                                )}
+                              </div>
+                              {/* Add to Cart Button */}
+                              <div className="mt-3">
+                                <AddToCartButton productId={product.id} stock={product.stock ?? 1} />
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <div className="text-center py-12">
+                      <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <Heart className="h-8 w-8 text-gray-400" />
+                      </div>
+                      <h3 className="text-lg font-medium text-gray-800 mb-2">Your wishlist is empty</h3>
+                      <p className="text-gray-500 max-w-md mx-auto mb-6">
+                        Save items you love to your wishlist. Review them anytime and easily move them to your cart.
+                      </p>
+                      <Link
+                        href="/collections"
+                        className="inline-block px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors"
+                      >
+                        Discover Products
+                      </Link>
+                    </div>
+                  )}
                 </div>
               </div>
-            );
-          })}
-        </div>
-      ) : (
-        <div className="text-center py-12">
-          <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Heart className="h-8 w-8 text-gray-400" />
-          </div>
-          <h3 className="text-lg font-medium text-gray-800 mb-2">Your wishlist is empty</h3>
-          <p className="text-gray-500 max-w-md mx-auto mb-6">
-            Save items you love to your wishlist. Review them anytime and easily move them to your cart.
-          </p>
-          <Link
-            href="/collections"
-            className="inline-block px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors"
-          >
-            Discover Products
-          </Link>
-        </div>
-      )}
-    </div>
-  </div>
-)}
+            )}
 
             {/* Recently Viewed Tab */}
             {activeTab === "history" && (
@@ -683,101 +819,244 @@ function RecentlyViewedProductCard({ product }: { product: Product }) {
 
             {/* Settings Tab */}
             {activeTab === "settings" && (
-              <div className="space-y-8">
-                <div className="bg-white rounded-xl shadow-sm p-6">
-                  <h2 className="text-xl font-medium mb-6">Account Settings</h2>
-                  <div className="space-y-8">
-                    {/* Profile Information */}
-                    <div className="border-b pb-6">
-                      <h3 className="text-lg font-medium mb-4">Profile Information</h3>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Full Name
-                          </label>
-                          <input
-                            type="text"
-                            defaultValue={user.name || ""}
-                            className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Email Address
-                          </label>
-                          <input
-                            type="email"
-                            defaultValue={user.email || ""}
-                            disabled
-                            className="w-full px-4 py-2 border border-gray-200 rounded-lg bg-gray-50 cursor-not-allowed"
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Phone Number
-                          </label>
-                          <input
-                            type="tel"
-                            defaultValue={(user as ExtendedUser)?.phone ?? ""}
-                            className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Location
-                          </label>
-                          <input
-                            type="text"
-                            defaultValue={(user as ExtendedUser)?.location ?? ""}
-                            className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                          />
-                        </div>
-                      </div>
-                    </div>
-                    {/* Preferences */}
-                    <div className="border-b pb-6">
-                      <h3 className="text-lg font-medium mb-4">Preferences</h3>
-                      <div className="space-y-4">
-                        <div className="flex items-center justify-between">
+                <div className="space-y-8">
+                  <div className="bg-white rounded-xl shadow-sm p-6">
+                    <h2 className="text-xl font-medium mb-6">Account Settings</h2>
+                    <div className="space-y-8">
+                      {/* Profile Information */}
+                      <div className="border-b pb-6">
+                        <h3 className="text-lg font-medium mb-4">Profile Information</h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          {/* Profile Image */}
                           <div>
-                            <h4 className="font-medium">Email Notifications</h4>
-                            <p className="text-sm text-gray-500">
-                              Receive updates about your account, orders, and promotions
-                            </p>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                              Profile Picture
+                            </label>
+                            <div className="flex flex-col items-start gap-2">
+                              <div className="relative w-20 h-20">
+                                {profile.image ? (
+                                  <img
+                                    src={profile.image}
+                                    alt="Profile"
+                                    className="w-20 h-20 rounded-full object-cover border border-gray-200"
+                                  />
+                                ) : (
+                                  <div className="w-20 h-20 rounded-full bg-gray-200 flex items-center justify-center border border-gray-200">
+                                    <User className="w-10 h-10 text-gray-400" />
+                                  </div>
+                                )}
+                                <label
+                                  htmlFor="profile-image-upload"
+                                  className="absolute top-0 right-0 bg-white rounded-full p-1 shadow cursor-pointer border border-gray-200 hover:bg-gray-50 transition"
+                                  title="Change profile picture"
+                                  style={{ transform: "translate(30%, -30%)" }}
+                                >
+                                  <Camera className="w-5 h-5 text-gray-600" />
+                                  <input
+                                    id="profile-image-upload"
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={handleImageUpload}
+                                    className="hidden"
+                                  />
+                                </label>
+                              </div>
+                              <span className="text-xs text-gray-500 ml-1">Recommended: 1x1 image, max 2MB</span>
+                            </div>
                           </div>
-                          <div className="w-12 h-6 rounded-full bg-primary relative">
-                            <span className="absolute top-1 right-1 w-4 h-4 rounded-full bg-white"></span>
-                          </div>
-                        </div>
-                        <div className="flex items-center justify-between">
                           <div>
-                            <h4 className="font-medium">SMS Notifications</h4>
-                            <p className="text-sm text-gray-500">
-                              Receive text messages for order updates and promotions
-                            </p>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                              Full Name
+                            </label>
+                            <input
+                              type="text"
+                              name="name"
+                              value={profile.name}
+                              onChange={handleProfileChange}
+                              className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                            />
                           </div>
-                          <div className="w-12 h-6 rounded-full bg-gray-300 relative">
-                            <span className="absolute top-1 left-1 w-4 h-4 rounded-full bg-white"></span>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                              Email Address
+                            </label>
+                            <input
+                              type="email"
+                              value={profile.email}
+                              disabled
+                              className="w-full px-4 py-2 border border-gray-200 rounded-lg bg-gray-50 cursor-not-allowed"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                              Phone Number
+                            </label>
+                            <input
+                              type="tel"
+                              name="phone"
+                              value={profile.phone}
+                              onChange={handleProfileChange}
+                              className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                              Location
+                            </label>
+                            <input
+                              type="text"
+                              name="location"
+                              value={profile.location}
+                              onChange={handleProfileChange}
+                              className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                            />
+                          </div>
+                          <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                              Bio
+                            </label>
+                            <textarea
+                              name="bio"
+                              value={profile.bio}
+                              onChange={handleProfileTextAreaChange}
+                              className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                              rows={3}
+                            />
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    </div>
-                    {/* Security */}
-                    <div>
-                      <h3 className="text-lg font-medium mb-4">Security</h3>
-                      <button className="px-4 py-2 border border-gray-200 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">
-                        Change Password
-                      </button>
-                    </div>
-                    {/* Save Button */}
-                    <div className="flex justify-end">
-                      <button className="px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors">
-                        Save Changes
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
+                                </div>
+                                <div className="flex justify-end mt-4">
+                                  <button
+                                    className="px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors"
+                                    onClick={handleProfileSave}
+                                    disabled={profileLoading}
+                                  >
+                                    {profileLoading ? "Saving..." : "Save Changes"}
+                                  </button>
+                                </div>
+                                {profileSuccess && <div className="text-green-600 mt-2">{profileSuccess}</div>}
+                                {profileError && <div className="text-red-600 mt-2">{profileError}</div>}
+                              </div>
+                              {/* Preferences */}
+                              <div className="border-b pb-6">
+                                <h3 className="text-lg font-medium mb-4">Preferences</h3>
+                                <div className="space-y-4">
+                                  <div className="flex items-center justify-between">
+                                    <div>
+                                      <h4 className="font-medium">Email Notifications</h4>
+                                      <p className="text-sm text-gray-500">
+                                        Receive updates about your account, orders, and promotions
+                                      </p>
+                                    </div>
+                                    <div className="w-12 h-6 rounded-full bg-primary relative">
+                                      <span className="absolute top-1 right-1 w-4 h-4 rounded-full bg-white"></span>
+                                    </div>
+                                  </div>
+                                  <div className="flex items-center justify-between">
+                                    <div>
+                                      <h4 className="font-medium">SMS Notifications</h4>
+                                      <p className="text-sm text-gray-500">
+                                        Receive text messages for order updates and promotions
+                                      </p>
+                                    </div>
+                                    <div className="w-12 h-6 rounded-full bg-gray-300 relative">
+                                      <span className="absolute top-1 left-1 w-4 h-4 rounded-full bg-white"></span>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                              {/* Security */}
+                            <div>
+                              <h3 className="text-lg font-medium mb-4">Security</h3>
+                              <button
+                                className="px-4 py-2 border border-gray-200 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+                                onClick={() => setShowPasswordForm((v) => !v)}
+                              >
+                                Change Password
+                              </button>
+                              {showPasswordForm && (
+                                <form className="mt-4 space-y-3 max-w-md" onSubmit={handlePasswordSubmit}>
+                                  {/* Current Password */}
+                                  <div className="relative">
+                                    <input
+                                      type={showCurrentPassword ? "text" : "password"}
+                                      name="current"
+                                      value={passwords.current}
+                                      onChange={handlePasswordChange}
+                                      placeholder="Current Password"
+                                      className="w-full px-4 py-2 border border-gray-200 rounded-lg pr-10"
+                                    />
+                                    <button
+                                      type="button"
+                                      className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400"
+                                      tabIndex={-1}
+                                      onClick={() => setShowCurrentPassword((v) => !v)}
+                                    >
+                                      {showCurrentPassword ? (
+                                        <EyeOff className="w-5 h-5" />
+                                      ) : (
+                                        <Eye className="w-5 h-5" />
+                                      )}
+                                    </button>
+                                  </div>
+                                  {/* New Password */}
+                                  <div className="relative">
+                                    <input
+                                      type={showNewPassword ? "text" : "password"}
+                                      name="new"
+                                      value={passwords.new}
+                                      onChange={handlePasswordChange}
+                                      placeholder="New Password"
+                                      className="w-full px-4 py-2 border border-gray-200 rounded-lg pr-10"
+                                    />
+                                    <button
+                                      type="button"
+                                      className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400"
+                                      tabIndex={-1}
+                                      onClick={() => setShowNewPassword((v) => !v)}
+                                    >
+                                      {showNewPassword ? (
+                                        <EyeOff className="w-5 h-5" />
+                                      ) : (
+                                        <Eye className="w-5 h-5" />
+                                      )}
+                                    </button>
+                                  </div>
+                                  {/* Confirm New Password */}
+                                  <div className="relative">
+                                    <input
+                                      type={showConfirmPassword ? "text" : "password"}
+                                      name="confirm"
+                                      value={passwords.confirm}
+                                      onChange={handlePasswordChange}
+                                      placeholder="Confirm New Password"
+                                      className="w-full px-4 py-2 border border-gray-200 rounded-lg pr-10"
+                                    />
+                                    <button
+                                      type="button"
+                                      className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400"
+                                      tabIndex={-1}
+                                      onClick={() => setShowConfirmPassword((v) => !v)}
+                                    >
+                                      {showConfirmPassword ? (
+                                        <EyeOff className="w-5 h-5" />
+                                      ) : (
+                                        <Eye className="w-5 h-5" />
+                                      )}
+                                    </button>
+                                  </div>
+                                  <button
+                                    type="submit"
+                                    className="px-4 py-2 bg-primary text-white rounded"
+                                  >
+                                    Change Password
+                                  </button>
+                                  {passwordMsg && <div className="text-red-600">{passwordMsg}</div>}
+                                </form>
+                              )}
+                            </div>
+                            </div>
             )}
           </main>
         </div>

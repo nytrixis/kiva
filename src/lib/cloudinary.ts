@@ -26,12 +26,12 @@ export async function uploadToCloudinary(
 ) {
   return new Promise<CloudinaryUploadResult>((resolve, reject) => {
     const uploadOptions = {
-      folder,
-      resource_type: resourceType,
-      transformation: resourceType === "video" 
-        ? [{ width: 720, crop: "limit" }, { quality: "auto" }]
-        : [{ width: 1000, crop: "limit" }, { quality: "auto:good" }],
-    };
+  folder,
+  resource_type: resourceType,
+  ...(resourceType === "video"
+    ? { transformation: [{ width: 720, crop: "limit" }, { quality: "auto" }] }
+    : {}),
+};
 
     const uploadStream = cloudinary.uploader.upload_stream(
       uploadOptions,
