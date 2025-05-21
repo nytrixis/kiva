@@ -45,7 +45,7 @@ export default function CategoryHero({ category }: CategoryHeroProps) {
           
           {category.productCount && (
       <div
-        className="absolute left-5 md:left-11"
+        className="absolute left-5 md:left-20"
         style={{ bottom: 50 }}
       >
         <div className="mb-0 inline-block bg-black/20 backdrop-blur-sm px-3 py-1 rounded-full text-white text-sm">
