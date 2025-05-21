@@ -4,7 +4,7 @@ import { authOptions } from "@/lib/auth";
 import Link from "next/link";
 import { formatDistanceToNow } from "date-fns";
 import Image from "next/image";
-import { createClient } from "@supabase/supabase-js";
+// import { createClient } from "@supabase/supabase-js";
 import { cookies } from "next/headers";
 
 enum UserRole {
@@ -34,8 +34,8 @@ export const metadata = {
   title: "Manage Sellers | Admin Dashboard | Kiva",
 };
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+// const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+// const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 // const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 export default async function AdminSellersPage() {
