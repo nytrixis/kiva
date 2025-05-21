@@ -160,9 +160,7 @@ export async function GET(request: Request) {
       const products: ProductAPI[] = (data as SupabaseProduct[]).map((p) => ({
         id: p.id,
         name: p.name,
-        price: p.discountPercentage > 0
-          ? Math.round((p.price * (1 - p.discountPercentage / 100)) * 100) / 100
-          : p.price,
+        price: p.price,
         originalPrice: p.price,
         images: parseImages(p.images),
         discountPercentage: p.discountPercentage ?? 0,
@@ -318,9 +316,7 @@ const response: ProductsResponse = {
   const products: ProductAPI[] = (data as SupabaseProduct[]).map((p) => ({
     id: p.id,
     name: p.name,
-    price: p.discountPercentage > 0
-      ? Math.round((p.price * (1 - (p.discountPercentage ?? 0) / 100)) * 100) / 100
-      : p.price,
+    price: p.price,
     originalPrice: p.price,
     images: parseImages(p.images),
     discountPercentage: p.discountPercentage ?? 0,
