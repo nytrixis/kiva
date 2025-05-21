@@ -14,19 +14,20 @@ enum UserRole {
   INFLUENCER = "INFLUENCER",
 }
 
-type Seller = {
+type SellerProfileWithUser = {
   id: string;
-  name: string;
-  email: string;
-  image?: string;
-  sellerProfile?: {
-    businessName?: string;
-    businessType?: string;
-    status?: string;
-    identityDocument?: string;
-    businessDocument?: string;
+  businessName?: string;
+  businessType?: string;
+  status?: string;
+  identityDocument?: string;
+  businessDocument?: string;
+  logoImage?: string;
+  user?: {
+    id: string;
+    name?: string;
+    email?: string;
+    createdAt?: string;
   };
-  createdAt?: string;
 };
 
 export const metadata = {
@@ -35,7 +36,7 @@ export const metadata = {
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-const supabase = createClient(supabaseUrl, supabaseAnonKey);
+// const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 export default async function AdminSellersPage() {
   const session = await getServerSession(authOptions);
@@ -107,7 +108,7 @@ const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/admin/sellers`,
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-  {sellers.map((sellerProfile: any) => (
+  {sellers.map((sellerProfile: SellerProfileWithUser) => (
     <tr key={sellerProfile.id}>
       <td className="px-6 py-4 whitespace-nowrap">
         <div className="flex items-center">
