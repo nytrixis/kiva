@@ -34,9 +34,9 @@ export async function GET(req: NextRequest) {
 
     // Build filter
     let query = supabase
-      .from("user")
-      .select("*, sellerProfile:SellerProfile(*)")
-      .eq("role", UserRole.SELLER);
+  .from("SellerProfile")
+  .select("*, user:User(*)")
+  .eq("user.role", UserRole.SELLER);
 
     if (status) {
       query = query.filter("SellerProfile.status", "eq", status);

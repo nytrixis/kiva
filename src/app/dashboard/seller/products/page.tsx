@@ -66,7 +66,7 @@ export default async function SellerProductsPage() {
         </div>
 
         <Link
-          href="/dashboard/seller/products/new"
+          href="/seller/products/new"
           className="flex items-center px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors"
         >
           <Plus className="h-5 w-5 mr-2" />
@@ -99,7 +99,7 @@ export default async function SellerProductsPage() {
             Start adding products to your store to begin selling on Kiva marketplace.
           </p>
           <Link
-            href="/dashboard/seller/products/new"
+            href="/seller/products/new"
             className="inline-flex items-center px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors"
           >
             <Plus className="h-5 w-5 mr-2" />

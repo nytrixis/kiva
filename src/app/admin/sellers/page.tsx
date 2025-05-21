@@ -5,6 +5,7 @@ import Link from "next/link";
 import { formatDistanceToNow } from "date-fns";
 import Image from "next/image";
 import { createClient } from "@supabase/supabase-js";
+import { cookies } from "next/headers";
 
 enum UserRole {
   ADMIN = "ADMIN",
@@ -44,16 +45,15 @@ export default async function AdminSellersPage() {
   }
 
   // Fetch all sellers with their profiles
-  const { data: users } = await supabase
-    .from("user")
-    .select(`
-      *,
-      sellerProfile: SellerProfile(*)
-    `)
-    .eq("role", UserRole.SELLER)
-    .order("createdAt", { ascending: false });
 
-  const sellers = users || [];
+   const cookieStore = await cookies();
+const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/admin/sellers`, {
+  cache: "no-store",
+  headers: {
+    Cookie: cookieStore.toString(),
+  },
+});
+  const { data: sellers = [] } = await res.json();
 
   return (
     <div className="container mx-auto py-8 px-4">
@@ -107,140 +107,136 @@ export default async function AdminSellersPage() {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {sellers.map((seller: Seller) => (
-                <tr key={seller.id}>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center">
-                      <div className="flex-shrink-0 h-10 w-10">
-                        <Image 
-                          className="h-10 w-10 rounded-full" 
-                          src={seller.image || "https://via.placeholder.com/40"} 
-                          alt={seller.name || "Seller"} 
-                        />
-                      </div>
-                      <div className="ml-4">
-                        <div className="text-sm font-medium text-gray-900">
-                          {seller.name}
-                        </div>
-                        <div className="text-sm text-gray-500">
-                          {seller.email}
-                        </div>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    {seller.sellerProfile ? (
-                      <div>
-                        <div className="text-sm font-medium text-gray-900">
-                          {seller.sellerProfile.businessName}
-                        </div>
-                        <div className="text-sm text-gray-500">
-                          {seller.sellerProfile.businessType}
-                        </div>
-                      </div>
-                    ) : (
-                      <span className="text-sm text-gray-500">Not provided</span>
-                    )}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    {seller.sellerProfile?.status ? (
-                      <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                        seller.sellerProfile.status === "APPROVED" 
-                          ? "bg-green-100 text-green-800" 
-                          : seller.sellerProfile.status === "PENDING" 
-                            ? "bg-yellow-100 text-yellow-800" 
-                            : "bg-red-100 text-red-800"
-                      }`}>
-                        {seller.sellerProfile.status}
-                      </span>
-                    ) : (
-                      <span className="text-sm text-gray-500">Incomplete</span>
-                    )}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {seller.createdAt ? formatDistanceToNow(new Date(seller.createdAt), { addSuffix: true }) : "Unknown"}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {seller.sellerProfile ? (
-                      <div className="flex space-x-2">
-                        {seller.sellerProfile.identityDocument && (
-                          <a 
-                            href={seller.sellerProfile.identityDocument} 
-                            target="_blank" 
-                            rel="noopener noreferrer"
-                            className="text-primary hover:text-primary/80"
-                          >
-                            ID Document
-                          </a>
-                        )}
-                        {seller.sellerProfile.businessDocument && (
-                          <a 
-                            href={seller.sellerProfile.businessDocument} 
-                            target="_blank" 
-                            rel="noopener noreferrer"
-                            className="text-primary hover:text-primary/80"
-                          >
-                            Business Document
-                          </a>
-                        )}
-                        {!seller.sellerProfile.identityDocument && !seller.sellerProfile.businessDocument && (
-                          <span>No documents</span>
-                        )}
-                      </div>
-                    ) : (
-                      <span>N/A</span>
-                    )}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    {seller.sellerProfile?.status === "PENDING" && (
-                      <div className="flex space-x-2">
-                        <Link 
-                          href={`/api/admin/sellers/${seller.id}/approve`}
-                          className="text-green-600 hover:text-green-900"
-                        >
-                          Approve
-                        </Link>
-                        <Link 
-                          href={`/api/admin/sellers/${seller.id}/reject`}
-                          className="text-red-600 hover:text-red-900"
-                        >
-                          Reject
-                        </Link>
-                      </div>
-                    )}
-                    {seller.sellerProfile?.status === "APPROVED" && (
-                      <Link 
-                        href={`/api/admin/sellers/${seller.id}/suspend`}
-                        className="text-yellow-600 hover:text-yellow-900"
-                      >
-                        Suspend
-                      </Link>
-                    )}
-                    {seller.sellerProfile?.status === "REJECTED" && (
-                      <Link 
-                        href={`/api/admin/sellers/${seller.id}/reset`}
-                        className="text-blue-600 hover:text-blue-900"
-                      >
-                        Reset Status
-                      </Link>
-                    )}
-                    <Link 
-                      href={`/admin/sellers/${seller.id}`}
-                      className="ml-2 text-primary hover:text-primary/80"
-                    >
-                      View Details
-                    </Link>
-                  </td>
-                </tr>
-              ))}
-              {sellers.length === 0 && (
-                <tr>
-                  <td colSpan={6} className="px-6 py-4 text-center text-sm text-gray-500">
-                    No sellers found
-                  </td>
-                </tr>
-              )}
-            </tbody>
+  {sellers.map((sellerProfile: any) => (
+    <tr key={sellerProfile.id}>
+      <td className="px-6 py-4 whitespace-nowrap">
+        <div className="flex items-center">
+          <div className="flex-shrink-0 h-10 w-10">
+            <Image
+              className="h-10 w-10 rounded-full"
+              src={sellerProfile.logoImage || "https://via.placeholder.com/40"}
+              alt={sellerProfile.businessName || "Business Logo"}
+              width={40}
+              height={40}
+            />
+          </div>
+          <div className="ml-4">
+            <div className="text-sm font-medium text-gray-900">
+              {sellerProfile.user?.name}
+            </div>
+            <div className="text-sm text-gray-500">
+              {sellerProfile.user?.email}
+            </div>
+          </div>
+        </div>
+      </td>
+      <td className="px-6 py-4 whitespace-nowrap">
+        <div>
+          <div className="text-sm font-medium text-gray-900">
+            {sellerProfile.businessName || <span className="text-gray-500">Not provided</span>}
+          </div>
+          <div className="text-sm text-gray-500">
+            {sellerProfile.businessType || ""}
+          </div>
+        </div>
+      </td>
+      <td className="px-6 py-4 whitespace-nowrap">
+        {sellerProfile.status ? (
+          <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+            sellerProfile.status === "APPROVED"
+              ? "bg-green-100 text-green-800"
+              : sellerProfile.status === "PENDING"
+                ? "bg-yellow-100 text-yellow-800"
+                : "bg-red-100 text-red-800"
+          }`}>
+            {sellerProfile.status}
+          </span>
+        ) : (
+          <span className="text-sm text-gray-500">Incomplete</span>
+        )}
+      </td>
+      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+        {sellerProfile.user?.createdAt
+          ? formatDistanceToNow(new Date(sellerProfile.user.createdAt), { addSuffix: true })
+          : "Unknown"}
+      </td>
+      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+        <div className="flex space-x-2">
+          {sellerProfile.identityDocument && (
+            <a
+              href={sellerProfile.identityDocument}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-primary hover:text-primary/80"
+            >
+              ID Document
+            </a>
+          )}
+          {sellerProfile.businessDocument && (
+            <a
+              href={sellerProfile.businessDocument}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-primary hover:text-primary/80"
+            >
+              Business Document
+            </a>
+          )}
+          {!sellerProfile.identityDocument && !sellerProfile.businessDocument && (
+            <span>No documents</span>
+          )}
+        </div>
+      </td>
+      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+        {sellerProfile.status === "PENDING" && (
+          <div className="flex space-x-2">
+            <Link
+              href={`/api/admin/sellers/${sellerProfile.user?.id}/approve`}
+              className="text-green-600 hover:text-green-900"
+            >
+              Approve
+            </Link>
+            <Link
+              href={`/api/admin/sellers/${sellerProfile.user?.id}/reject`}
+              className="text-red-600 hover:text-red-900"
+            >
+              Reject
+            </Link>
+          </div>
+        )}
+        {sellerProfile.status === "APPROVED" && (
+          <Link
+            href={`/api/admin/sellers/${sellerProfile.user?.id}/suspend`}
+            className="text-yellow-600 hover:text-yellow-900"
+          >
+            Suspend
+          </Link>
+        )}
+        {sellerProfile.status === "REJECTED" && (
+          <Link
+            href={`/api/admin/sellers/${sellerProfile.user?.id}/reset`}
+            className="text-blue-600 hover:text-blue-900"
+          >
+            Reset Status
+          </Link>
+        )}
+        <Link
+          href={`/admin/sellers/${sellerProfile.user?.id}`}
+          className="ml-2 text-primary hover:text-primary/80"
+        >
+          View Details
+        </Link>
+      </td>
+    </tr>
+  ))}
+  {sellers.length === 0 && (
+    <tr>
+      <td colSpan={6} className="px-6 py-4 text-center text-sm text-gray-500">
+        No sellers found
+      </td>
+    </tr>
+  )}
+</tbody>
           </table>
         </div>
       </div>

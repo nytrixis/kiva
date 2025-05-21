@@ -162,7 +162,12 @@ export default async function SellerProductsPage({
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="text-sm text-gray-900">
-                            ₹{discountedPrice ? discountedPrice.toFixed(2) : product.price.toFixed(2)}
+                            ₹
+                            {typeof discountedPrice === "number"
+                              ? discountedPrice.toFixed(2)
+                              : typeof product.price === "number"
+                                ? product.price.toFixed(2)
+                                : "0.00"}
                           </div>
                           {discountedPrice && (
                             <div className="text-xs text-gray-500 line-through">

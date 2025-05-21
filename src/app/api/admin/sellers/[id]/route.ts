@@ -28,7 +28,7 @@ export async function GET(
     const { id } = await params;
 
     const { data: seller, error } = await supabase
-      .from("user")
+      .from("User")
       .select("*, sellerProfile:SellerProfile(*)")
       .eq("id", id)
       .single();
@@ -63,7 +63,7 @@ export async function PATCH(
 
     // Fetch seller and profile
     const { data: seller, error: sellerError } = await supabase
-      .from("user")
+      .from("User")
       .select("*, sellerProfile:SellerProfile(*)")
       .eq("id", id)
       .single();

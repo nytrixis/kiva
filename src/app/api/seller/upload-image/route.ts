@@ -6,21 +6,23 @@ import { uploadToCloudinary } from "@/lib/cloudinary";
 export async function POST(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    
-   
+
     // Parse form data
     const formData = await req.formData();
     const file = formData.get("file") as File;
     const type = formData.get("type") as string;
-    
+
     if (!file) {
       return NextResponse.json({ error: "No file provided" }, { status: 400 });
     }
-    
+
+    // Log file info for debugging
+    console.log("Uploading file:", file.name, file.type, file.size);
+
     // Validate file type
     const validTypes = ["image/jpeg", "image/png", "image/webp", "image/gif"];
     if (!validTypes.includes(file.type)) {
@@ -29,7 +31,7 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
-    
+
     // Validate file size (max 5MB)
     const maxSize = 5 * 1024 * 1024; // 5MB
     if (file.size > maxSize) {
@@ -38,21 +40,21 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
-    
+
     // Convert file to buffer
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
-    
+
     // Determine folder based on type
-    const folder = type === "logo" 
-      ? "image" 
-      : type === "banner" 
-        ? "image" 
-        : "image";
-    
+    const folder = type === "logo"
+      ? "kiva/seller/logo"
+      : type === "banner"
+        ? "kiva/seller/banner"
+        : "kiva/seller/other";
+
     // Upload to Cloudinary
-    const result = await uploadToCloudinary(buffer, folder);
-    
+    const result = await uploadToCloudinary(buffer, "image", folder);
+
     return NextResponse.json({
       success: true,
       url: result.secure_url,
@@ -65,4 +67,4 @@ export async function POST(req: NextRequest) {
       { status: 500 }
     );
   }
-} 
+}

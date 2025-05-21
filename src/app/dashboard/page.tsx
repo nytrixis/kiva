@@ -26,6 +26,7 @@ import {
   Star,
   Calendar,
   MapPin,
+  Shield,
 } from "lucide-react";
 
 interface UserPreferences {
@@ -431,6 +432,28 @@ function RecentlyViewedProductCard({ product }: { product: Product }) {
                   <Settings className="h-5 w-5" />
                   <span>Settings</span>
                 </button>
+                {(user.role === "SELLER" || profile.role === "SELLER") && (
+                  <button
+                    onClick={() => router.push("/dashboard/seller")}
+                    className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
+                      activeTab === "seller" ? "bg-primary text-white" : "text-gray-700 hover:bg-gray-100"
+                    }`}
+                  >
+                    <Package className="h-5 w-5" />
+                    <span>Seller Dashboard</span>
+                  </button>
+                )}
+                {(user.role === "ADMIN" || profile.role === "ADMIN") && (
+                  <button
+                    onClick={() => router.push("/admin/sellers")}
+                    className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
+                      activeTab === "admin" ? "bg-primary text-white" : "text-gray-700 hover:bg-gray-100"
+                    }`}
+                  >
+                    <Shield className="h-5 w-5" />
+                    <span>Admin</span>
+                  </button>
+                )}
                 <button onClick={logout} className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-red-600 hover:bg-red-50 transition-colors">
                   <LogOut className="h-5 w-5" />
                   <span>Logout</span>
