@@ -78,6 +78,8 @@ export default async function ReelPage({ params }: ReelPageProps) {
   }
 
   const isSeller = session.user.role === "SELLER";
+  const isInfluencer = session.user.role === "INFLUENCER";
+
 
   // Fetch the specific reel (basic data)
   const reelRes = await fetch(
@@ -165,6 +167,22 @@ export default async function ReelPage({ params }: ReelPageProps) {
         ? JSON.parse(product.images)
         : [],
     }));
+  } else if (isInfluencer) {
+    const productsRes = await fetch(
+      `${process.env.NEXT_PUBLIC_BASE_URL || ""}/api/products`,
+      { cache: "no-store" }
+    );
+    const productsData = productsRes.ok ? await productsRes.json() : { products: [] };
+    const products = productsData.products || []; 
+    sellerProducts = products.map((product: Product) => ({
+      id: product.id,
+      name: product.name,
+      images: Array.isArray(product.images)
+        ? product.images
+        : typeof product.images === "string"
+        ? JSON.parse(product.images)
+        : [],
+    }));
   }
 
   return (
@@ -173,6 +191,7 @@ export default async function ReelPage({ params }: ReelPageProps) {
         <ReelsClient
           initialReels={allReels}
           isSeller={isSeller}
+          isInfluencer={isInfluencer}
           sellerProducts={sellerProducts}
         />
       </div>

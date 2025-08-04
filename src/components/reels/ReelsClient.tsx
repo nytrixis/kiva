@@ -44,6 +44,7 @@ interface SellerProduct {
 interface ReelsClientProps {
   initialReels: Reel[];
   isSeller: boolean;
+  isInfluencer: boolean;
   sellerProducts: SellerProduct[];
 }
 
@@ -54,6 +55,7 @@ interface ReelsClientProps {
 export default function ReelsClient({
   initialReels,
   isSeller,
+  isInfluencer,
   sellerProducts,
 }: ReelsClientProps) {
   const [showUploadModal, setShowUploadModal] = useState(false);
@@ -74,12 +76,14 @@ export default function ReelsClient({
       <ReelsViewer
         initialReels={initialReels}
         isSeller={isSeller}
+        isInfluencer={isInfluencer}
         onUpload={() => setShowUploadModal(true)}
       />
       
       {showUploadModal && (
         <ReelUpload
           products={sellerProducts}
+          isInfluencer={isInfluencer}
           onClose={() => setShowUploadModal(false)}
         />
       )}

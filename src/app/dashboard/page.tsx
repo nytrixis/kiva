@@ -454,6 +454,17 @@ function RecentlyViewedProductCard({ product }: { product: Product }) {
                     <span>Admin</span>
                   </button>
                 )}
+                {(user.role === "INFLUENCER" || profile.role === "INFLUENCER") && (
+                  <button
+                    onClick={() => router.push("/dashboard/influencer")}
+                    className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
+                      activeTab === "admin" ? "bg-primary text-white" : "text-gray-700 hover:bg-gray-100"
+                    }`}
+                  >
+                    <Star className="h-5 w-5" />
+                    <span>Influencer</span>
+                  </button>
+                )}
                 <button onClick={logout} className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-red-600 hover:bg-red-50 transition-colors">
                   <LogOut className="h-5 w-5" />
                   <span>Logout</span>
@@ -858,10 +869,13 @@ function RecentlyViewedProductCard({ product }: { product: Product }) {
                             <div className="flex flex-col items-start gap-2">
                               <div className="relative w-20 h-20">
                                 {profile.image ? (
-                                  <img
+                                  <Image
                                     src={profile.image}
                                     alt="Profile"
+                                    width={80}
+                                    height={80}
                                     className="w-20 h-20 rounded-full object-cover border border-gray-200"
+                                    priority
                                   />
                                 ) : (
                                   <div className="w-20 h-20 rounded-full bg-gray-200 flex items-center justify-center border border-gray-200">

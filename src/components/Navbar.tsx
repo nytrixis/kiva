@@ -185,7 +185,7 @@ export default function Navbar() {
                   <DropdownMenuContent align="start" className="w-56 bg-accent border-accent">
                     {(categories || []).length > 0 ? (
                       categories.map((category) => (
-                        <DropdownMenuItem key={category.id} asChild className="hover:bg-white focus:bg-white">
+                        <DropdownMenuItem key={category.id} asChild className="cursor-pointer hover:bg-primary/10 hover:text-primary focus:bg-primary/10 focus:text-primary">
                           <Link href={`/categories/${category.slug}`} className="w-full">
                             {category.name}
                           </Link>
@@ -268,12 +268,13 @@ export default function Navbar() {
                       {user?.name || 'User'}
                     </DropdownMenuItem>
                     <DropdownMenuItem>
-                      <Link href="/dashboard" className="w-full hover:bg-white focus:bg-white">Dashboard</Link>
+                      <Link href="/dashboard" className="cursor-pointer hover:text-primary focus:text-primary">Dashboard</Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem>
-                      <Link href="/profile" className="w-full hover:bg-white focus:bg-white">Profile</Link>
+                      <Link href="/profile" className="cursor-pointer hover:text-primary focus:text-primary">Profile</Link>
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={logout}>
+                    <DropdownMenuItem onClick={logout}
+                    className="cursor-pointer hover:bg-red-100 hover:text-red-600 focus:bg-red-100 focus:text-red-600">
                       Sign Out
                     </DropdownMenuItem>
                   </DropdownMenuContent>

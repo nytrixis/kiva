@@ -7,7 +7,7 @@ import { useToast } from "@/hooks/use-toast";
 import ReelCard from "./ReelCard";
 import ReelComments from "./ReelComments";
 import { Plus, Loader2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+// import { Button } from "@/components/ui/button";
 import { useSession } from "next-auth/react";
 interface Reel {
   id: string;
@@ -40,12 +40,14 @@ interface Reel {
 interface ReelsViewerProps {
   initialReels?: Reel[];
   isSeller?: boolean;
+  isInfluencer?: boolean;
   onUpload?: () => void;
 }
 
 export default function ReelsViewer({
   initialReels = [],
   isSeller = false,
+  isInfluencer = false,
   onUpload,
 }: ReelsViewerProps) {
   const [reels, setReels] = useState<Reel[]>(initialReels);
@@ -109,7 +111,7 @@ export default function ReelsViewer({
     console.log("Frontend session:", session);
     fetchReels();
   }
-}, [initialReels, fetchReels, status, session?.user?.id]);
+}, [initialReels, fetchReels, status, session, session?.user?.id]);
 
   // Load more reels when reaching the end
   const loadMoreReels = useCallback(() => {
@@ -264,13 +266,14 @@ if (status === "loading") {
                 ? "Start creating reels to showcase your products"
                 : "Check back later for new content"}
             </p>
-            {isSeller && onUpload && (
-              <Button
+            {(isSeller || isInfluencer) && onUpload && (
+              <button
                 onClick={onUpload}
-                className="bg-primary hover:bg-primary/90"
+                className="absolute bottom-6 right-6 z-10 bg-primary text-white p-3 rounded-full shadow-lg hover:bg-primary/90 transition-colors"
+                aria-label="Upload reel"
               >
-                Create Your First Reel
-              </Button>
+                <Plus className="h-6 w-6" />
+              </button>
             )}
           </div>
         )}
@@ -284,10 +287,10 @@ if (status === "loading") {
       </div>
       
       {/* Upload button for sellers */}
-      {isSeller && onUpload && (
+      {(isSeller || isInfluencer) && onUpload && (
         <button
           onClick={onUpload}
-          className="absolute bottom-6 right-6 z-10 bg-primary text-white p-3 rounded-full shadow-lg hover:bg-primary/90 transition-colors"
+          className="absolute bottom-7 right-3 z-10 bg-primary text-white p-3 rounded-full shadow-lg hover:bg-primary/90 transition-colors"
           aria-label="Upload reel"
         >
           <Plus className="h-6 w-6" />

@@ -56,24 +56,34 @@ export default async function ReelsPage() {
   }
 
   const isSeller = session.user.role === "SELLER";
+  const isInfluencer = session.user.role === "INFLUENCER";
 
-  // Fetch initial reels for server-side rendering via new API
-  const reelsRes = await fetch(
-  `${process.env.NEXT_PUBLIC_BASE_URL || ""}/api/reels/feed?limit=5&userId=${session.user.id}`,
-  { cache: "no-store" }
-);
-  const { reels: initialReels = [] } = reelsRes.ok ? await reelsRes.json() : { reels: [] };
-
-  // If user is a seller, fetch their products for the upload form via Supabase REST API
   let sellerProducts: SellerProduct[] = [];
 
   if (isSeller) {
+    // Fetch seller's products
     const productsRes = await fetch(
-      `${process.env.NEXT_PUBLIC_BASE_URL || ""}/api/supabase/seller-products?sellerId=${session.user.id}`,
+      `${process.env.NEXT_PUBLIC_BASE_URL || ""}/api/seller/products`,
       { cache: "no-store" }
     );
     const products = productsRes.ok ? await productsRes.json() : [];
-
+    sellerProducts = products.map((product: Product) => ({
+      id: product.id,
+      name: product.name,
+      images: Array.isArray(product.images)
+        ? product.images
+        : typeof product.images === "string"
+        ? JSON.parse(product.images)
+        : [],
+    }));
+  } else if (isInfluencer) {
+    // Fetch all products for influencers
+    const productsRes = await fetch(
+      `${process.env.NEXT_PUBLIC_BASE_URL || ""}/api/products`,
+      { cache: "no-store" }
+    );
+    const productsData = productsRes.ok ? await productsRes.json() : { products: [] };
+    const products = productsData.products || []; 
     sellerProducts = products.map((product: Product) => ({
       id: product.id,
       name: product.name,
@@ -85,12 +95,20 @@ export default async function ReelsPage() {
     }));
   }
 
+  // Fetch reels as usual
+  const reelsRes = await fetch(
+    `${process.env.NEXT_PUBLIC_BASE_URL || ""}/api/reels`,
+    { cache: "no-store" }
+  );
+  const reels = reelsRes.ok ? await reelsRes.json() : [];
+
   return (
-    <div className="fixed inset-0 bg-black flex items-center justify-center">
+    <div className="fixed inset-0 bg-black flex items-center justify-center overflow-hidden">
       <div className="w-full max-w-[calc(100vh*9/16)] h-[calc(100vh-120px)] my-[60px]">
         <ReelsClient
-          initialReels={initialReels}
+          initialReels={reels}
           isSeller={isSeller}
+          isInfluencer={isInfluencer}
           sellerProducts={sellerProducts}
         />
       </div>

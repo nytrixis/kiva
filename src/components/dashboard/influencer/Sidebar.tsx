@@ -4,74 +4,68 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
-import Image from "next/image";
 import {
   User,
-  Package,
-  ShoppingBag,
-  Settings,
-  ChevronRight,
+  Video,
+  BadgePercent,
+  FileText,
   Home,
   LogOut,
+  ChevronRight,
 } from "lucide-react";
 import { signOut } from "next-auth/react";
-import { createClient } from "@supabase/supabase-js";
-
-console.log("Sidebar component mounted");
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-const supabase = createClient(supabaseUrl, supabaseAnonKey);
+import Image from "next/image";
 
 const menuItems = [
-  { title: "Overview", icon: Home, href: "/dashboard/seller" },
-  { title: "Profile", icon: User, href: "/dashboard/seller/profile" },
-  { title: "Products", icon: Package, href: "/dashboard/seller/products" },
-  { title: "Orders", icon: ShoppingBag, href: "/dashboard/seller/orders" },
-  { title: "Settings", icon: Settings, href: "/dashboard/seller/settings" },
+  {
+    title: "Overview",
+    icon: Home,
+    href: "/dashboard/influencer",
+  },
+  {
+    title: "Profile",
+    icon: User,
+    href: "/dashboard/influencer/profile",
+  },
+  {
+    title: "Reels",
+    icon: Video,
+    href: "/dashboard/influencer/reels",
+  },
+  {
+    title: "Referrals",
+    icon: BadgePercent,
+    href: "/dashboard/influencer/referrals",
+  },
+  {
+    title: "KYC",
+    icon: FileText,
+    href: "/dashboard/influencer/kyc",
+  },
 ];
 
-export function Sidebar({ userId }: { userId: string }) {
+export function Sidebar() {
   const pathname = usePathname();
   const [isCollapsed, setIsCollapsed] = useState(false);
-  interface SellerProfile {
-    id: string;
-    userId: string;
-    businessName?: string;
-    logoImage?: string;
-    user?: {
-      id: string;
-      name?: string;
-      email?: string;
-      image?: string;
-      createdAt?: string;
-    };
-  }
-  
-  const [sellerProfile, setSellerProfile] = useState<SellerProfile | null>(null);
+  const [profile, setProfile] = useState<{ image?: string; name?: string } | null>(null);
 
   useEffect(() => {
-    async function fetchProfile() {
-      if (!userId) return;
-      const { data } = await supabase
-        .from("SellerProfile")
-        .select("*,user:User(id,name,email,image,createdAt)")
-        .eq("userId", userId)
-        .single();
-
-      let logoUrl = data?.logoImage;
-      console.log("Sidebar logoUrl:", logoUrl);
-      if (logoUrl && !logoUrl.startsWith("http")) {
-        logoUrl = `${supabaseUrl}/storage/v1/object/public/${logoUrl}`;
-      }
-
-      setSellerProfile({
-        ...data,
-        logoImage: logoUrl,
+    // Fetch influencer profile for sidebar avatar
+    fetch("/api/user/influencer-profile")
+      .then((res) => res.json())
+      .then((data) => {
+        setProfile({
+          image: data.profile?.image,
+          name: data.profile?.user?.name || "",
+        });
       });
-    }
-    fetchProfile();
-  }, [userId]);
+  }, []);
+
+  // Helper for fallback avatar
+  const getInitial = (name?: string) => {
+    if (!name) return "?";
+    return name.charAt(0).toUpperCase();
+  };
 
   return (
     <div
@@ -80,18 +74,24 @@ export function Sidebar({ userId }: { userId: string }) {
       }`}
     >
       <div className="flex flex-col h-full">
-        {/* Sidebar top: avatar and dashboard label */}
+        {/* Sidebar top: avatar, vertical dots icon and divider */}
         <div className="flex items-center justify-between p-4 border-b border-gray-200">
           <div className="flex items-center">
-            {/* Profile logo or fallback image */}
+            {/* Profile avatar or initial */}
             <div className="relative h-8 w-8 rounded-full overflow-hidden bg-primary/10 flex items-center justify-center">
-              <Image
-                src={sellerProfile?.logoImage || "/images/placeholder-user.jpg"}
-                alt={sellerProfile?.businessName || "Seller"}
-                fill
-                className="object-cover"
-                sizes="32px"
-              />
+              {profile?.image ? (
+                <Image
+                  src={profile.image}
+                  alt={profile.name || "Avatar"}
+                  fill
+                  className="object-cover"
+                  sizes="32px"
+                />
+              ) : (
+                <span className="text-primary font-bold text-lg">
+                  {getInitial(profile?.name)}
+                </span>
+              )}
             </div>
             {!isCollapsed && (
               <span className="ml-2 font-heading text-lg text-primary">
@@ -163,5 +163,5 @@ export function Sidebar({ userId }: { userId: string }) {
         </div>
       </div>
     </div>
-  );
+    );
 }

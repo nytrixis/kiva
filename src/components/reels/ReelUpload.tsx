@@ -1,13 +1,12 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { X, Film, Check } from "lucide-react";
+import { X, Film, Check, ChevronDown, Search } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-
 
 interface Product {
   id: string;
@@ -17,10 +16,11 @@ interface Product {
 
 interface ReelUploadProps {
   products: Product[];
+  isInfluencer?: boolean;
   onClose: () => void;
 }
 
-export default function ReelUpload({ products, onClose }: ReelUploadProps) {
+export default function ReelUpload({ products, isInfluencer, onClose }: ReelUploadProps) {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [videoPreview, setVideoPreview] = useState<string | null>(null);
   const [caption, setCaption] = useState("");
@@ -28,9 +28,68 @@ export default function ReelUpload({ products, onClose }: ReelUploadProps) {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
   const router = useRouter();
+
+  // Product search states
+  const [productSearch, setProductSearch] = useState("");
+  const [showProductDropdown, setShowProductDropdown] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   
+  // Filter products based on search (ID or name)
+  const filteredProducts = products.filter(product => {
+    if (!productSearch) return false;
+    
+    const searchLower = productSearch.toLowerCase();
+    const productIdMatch = product.id.toLowerCase().includes(searchLower);
+    const productNameMatch = product.name.toLowerCase().includes(searchLower);
+    
+    return productIdMatch || productNameMatch;
+  }).slice(0, 15); // Limit to 15 results for performance
+
+  // Handle clicking outside dropdown to close it
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setShowProductDropdown(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  // Handle product selection
+  const handleProductSelect = (product: Product) => {
+    setSelectedProduct(product);
+    setSelectedProductId(product.id);
+    setProductSearch(product.name);
+    setShowProductDropdown(false);
+  };
+
+  // Clear product selection
+  const clearProductSelection = () => {
+    setSelectedProduct(null);
+    setSelectedProductId("");
+    setProductSearch("");
+    setShowProductDropdown(false);
+  };
+
+  // Handle search input change
+  const handleSearchChange = (value: string) => {
+    setProductSearch(value);
+    setShowProductDropdown(true);
+    
+    // If search is cleared, clear selection
+    if (!value) {
+      setSelectedProduct(null);
+      setSelectedProductId("");
+    }
+  };
+
   // Handle file selection
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -219,22 +278,119 @@ export default function ReelUpload({ products, onClose }: ReelUploadProps) {
               </p>
             </div>
             
-            <div>
-              <Label htmlFor="product">Link to Product (Optional)</Label>
-              <select
-                id="product"
-                value={selectedProductId}
-                onChange={(e) => setSelectedProductId(e.target.value)}
-                className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary/50 focus:border-primary mt-1"
-                disabled={isUploading}
-              >
-                <option value="">Select a product</option>
-                {products.map((product) => (
-                  <option key={product.id} value={product.id}>
-                    {product.name}
-                  </option>
-                ))}
-              </select>
+            {/* Product Search/Selection */}
+            <div className="relative" ref={dropdownRef}>
+              <Label htmlFor="product">Tag Product (Optional)</Label>
+              <div className="relative mt-1">
+                <div className="relative">
+                  <input
+                    type="text"
+                    value={productSearch}
+                    onChange={(e) => handleSearchChange(e.target.value)}
+                    onFocus={() => setShowProductDropdown(true)}
+                    placeholder={
+                      isInfluencer 
+                        ? "Search by product ID or name..." 
+                        : "Search your products..."
+                    }
+                    className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary/50 focus:border-primary pr-10"
+                    disabled={isUploading}
+                  />
+                  <div className="absolute right-2 top-2.5 flex items-center space-x-1">
+                    {selectedProduct && (
+                      <button
+                        type="button"
+                        onClick={clearProductSelection}
+                        className="text-gray-400 hover:text-gray-600 p-0.5"
+                        disabled={isUploading}
+                      >
+                        <X className="h-4 w-4" />
+                      </button>
+                    )}
+                    <Search className="h-4 w-4 text-gray-400" />
+                  </div>
+                </div>
+                
+                {/* Dropdown */}
+                {showProductDropdown && productSearch && (
+                  <div className="absolute z-20 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
+                    {filteredProducts.length > 0 ? (
+                      filteredProducts.map((product) => (
+                        <div
+                          key={product.id}
+                          onClick={() => handleProductSelect(product)}
+                          className="flex items-center p-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0"
+                        >
+                          <div className="relative h-10 w-10 rounded-md overflow-hidden bg-gray-100 flex-shrink-0">
+                            {product.images && product.images.length > 0 ? (
+                              <img
+                                src={product.images[0]}
+                                alt={product.name}
+                                className="h-full w-full object-cover"
+                              />
+                            ) : (
+                              <div className="h-full w-full bg-gray-200 flex items-center justify-center">
+                                <Film className="h-4 w-4 text-gray-400" />
+                              </div>
+                            )}
+                          </div>
+                          <div className="ml-3 flex-1 min-w-0">
+                            <p className="text-sm font-medium text-gray-900 truncate">
+                              {product.name}
+                            </p>
+                            <p className="text-xs text-gray-500 truncate">
+                              ID: ...{product.id.slice(-12)}
+                            </p>
+                          </div>
+                          <ChevronDown className="h-4 w-4 text-gray-400 transform rotate-90" />
+                        </div>
+                      ))
+                    ) : (
+                      <div className="p-3 text-center">
+                        <p className="text-sm text-gray-500">No products found</p>
+                        <p className="text-xs text-gray-400 mt-1">
+                          Try searching by product name or ID
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+              
+              {/* Selected product display */}
+              {selectedProduct && (
+                <div className="mt-2 flex items-center p-2 bg-green-50 border border-green-200 rounded-md">
+                  <div className="relative h-8 w-8 rounded-md overflow-hidden bg-gray-100 flex-shrink-0">
+                    {selectedProduct.images && selectedProduct.images.length > 0 ? (
+                      <img
+                        src={selectedProduct.images[0]}
+                        alt={selectedProduct.name}
+                        className="h-full w-full object-cover"
+                      />
+                    ) : (
+                      <div className="h-full w-full bg-gray-200 flex items-center justify-center">
+                        <Film className="h-3 w-3 text-gray-400" />
+                      </div>
+                    )}
+                  </div>
+                  <div className="ml-2 flex-1 min-w-0">
+                    <p className="text-xs font-medium text-gray-900 truncate">
+                      {selectedProduct.name}
+                    </p>
+                    <p className="text-xs text-green-600">
+                      Product selected ✓
+                    </p>
+                  </div>
+                  <Check className="h-4 w-4 text-green-500" />
+                </div>
+              )}
+              
+              <p className="text-xs text-gray-500 mt-1">
+                {isInfluencer 
+                  ? "Type product ID (e.g., e502022e) or product name to search all marketplace products"
+                  : "Search from your uploaded products only"
+                }
+              </p>
             </div>
           </div>
           
@@ -242,7 +398,7 @@ export default function ReelUpload({ products, onClose }: ReelUploadProps) {
             <div className="mt-4">
               <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
                 <div
-                  className="h-full bg-primary"
+                  className="h-full bg-primary transition-all duration-300"
                   style={{ width: `${uploadProgress}%` }}
                 />
               </div>

@@ -112,7 +112,7 @@ const handleSellerClick = async (e: React.MouseEvent) => {
       </section>
       
       {/* Our Story Section */}
-      <section className="py-16 bg-white">
+      {/* <section className="py-16 bg-white">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
             <motion.div
@@ -191,7 +191,7 @@ const handleSellerClick = async (e: React.MouseEvent) => {
             </motion.div>
           </div>
         </div>
-      </section>
+      </section> */}
       
       {/* Our Mission Section */}
       <section className="py-16 bg-accent/10">

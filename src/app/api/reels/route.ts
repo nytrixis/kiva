@@ -189,9 +189,9 @@ export async function POST(req: NextRequest) {
     }
 
     // Check if user is a seller
-    if (session.user.role !== "SELLER") {
+    if (session.user.role !== "SELLER" && session.user.role !== "INFLUENCER") {
       return NextResponse.json(
-        { error: "Only sellers can upload reels" },
+        { error: "Only sellers and influencers can upload reels" },
         { status: 403 }
       );
     }

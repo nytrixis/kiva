@@ -22,7 +22,7 @@ export default async function SellerDashboardLayout({
 
   return (
     <div className="flex min-h-screen bg-background">
-      <Sidebar />
+      <Sidebar userId={session.user.id} />
       <div className="flex-1 p-8">{children}</div>
     </div>
   );
