@@ -13,11 +13,10 @@ enum UserRole {
   INFLUENCER = "INFLUENCER",
 }
 
-export default async function AdminInfluencerDetailPage({
-  params,
-}: {
-  params: { id: string };
-}) {
+export default async function AdminInfluencerDetailPage(
+  props: { params: Promise<{ id: string }> }
+) {
+  const { id } = await props.params;
   const session = await getServerSession(authOptions);
 
   if (!session?.user || session.user.role !== UserRole.ADMIN) {
@@ -26,7 +25,7 @@ export default async function AdminInfluencerDetailPage({
 
   const cookieStore = await cookies();
   const res = await fetch(
-    `${process.env.NEXT_PUBLIC_BASE_URL}/api/admin/influencers/${params.id}`,
+    `${process.env.NEXT_PUBLIC_BASE_URL}/api/admin/influencers/${id}`,
     {
       cache: "no-store",
       headers: {

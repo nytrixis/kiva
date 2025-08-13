@@ -23,6 +23,10 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid reel id" }, { status: 400 });
   }
 
+  // Get the `liked` parameter from request body
+  const body = await req.json().catch(() => ({}));
+  const { liked } = body;
+
   // Check if already liked
   const { data: existingLike } = await supabase
     .from("ReelLike")
@@ -31,12 +35,31 @@ export async function POST(req: NextRequest) {
     .eq("userId", userId)
     .maybeSingle();
 
-  if (existingLike) {
-    // Unlike
-    await supabase.from("ReelLike").delete().eq("id", existingLike.id);
+  let finalLiked: boolean;
+
+  if (typeof liked === 'boolean') {
+    // Use the provided liked state
+    if (liked && !existingLike) {
+      // Add like
+      await supabase.from("ReelLike").insert([{ reelId, userId }]);
+      finalLiked = true;
+    } else if (!liked && existingLike) {
+      // Remove like
+      await supabase.from("ReelLike").delete().eq("id", existingLike.id);
+      finalLiked = false;
+    } else {
+      // No change needed
+      finalLiked = !!existingLike;
+    }
   } else {
-    // Like
-    await supabase.from("ReelLike").insert([{ reelId, userId }]);
+    // Toggle behavior (fallback)
+    if (existingLike) {
+      await supabase.from("ReelLike").delete().eq("id", existingLike.id);
+      finalLiked = false;
+    } else {
+      await supabase.from("ReelLike").insert([{ reelId, userId }]);
+      finalLiked = true;
+    }
   }
 
   // Get new like count
@@ -46,7 +69,7 @@ export async function POST(req: NextRequest) {
     .eq("reelId", reelId);
 
   return NextResponse.json({
-    liked: !existingLike,
+    liked: finalLiked,
     likeCount: count ?? 0,
   });
 }

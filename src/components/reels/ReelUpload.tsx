@@ -208,7 +208,7 @@ export default function ReelUpload({ products, isInfluencer, onClose }: ReelUplo
     <div className="fixed inset-0 z-50 bg-black/70 flex justify-center items-center p-4">
       <div className="bg-white rounded-xl w-full max-w-md max-h-[90vh] flex flex-col">
         <div className="flex items-center justify-between p-4 border-b">
-          <h3 className="text-lg font-medium">Upload Reel</h3>
+          <h3 className="text-lg font-medium text-background">Upload Reel</h3>
           <button
             onClick={onClose}
             className="p-1 rounded-full hover:bg-gray-100"

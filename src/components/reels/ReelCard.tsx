@@ -29,6 +29,11 @@ interface ReelCardProps {
         logoImage: string | null;
         id: string;
       } | null;
+      influencerProfile?: {
+        id: string;
+        platform: string;
+        image: string | null;
+      } | null;
     };
     product?: {
       id: string;
@@ -198,9 +203,18 @@ const handleLike = async () => {
 
           </div>
           <div className="ml-2">
-            <Link href={`/shops/${reel.user.sellerProfile?.id}`} className="text-white font-medium hover:underline">
-            {reel.user.sellerProfile?.businessName || reel.user.name}
-          </Link>
+            <Link 
+              href={
+                reel.user.sellerProfile?.id 
+                  ? `/shops/${reel.user.sellerProfile.id}` 
+                  : reel.user.influencerProfile?.id 
+                    ? `/influencer/${reel.user.influencerProfile.id}`
+                    : `/influencer/${reel.user.id}` 
+              } 
+              className="text-white font-medium hover:underline"
+            >
+              {reel.user.sellerProfile?.businessName || reel.user.name}
+            </Link>
             <p className="text-xs text-gray-300">
               {formatDistanceToNow(new Date(reel.createdAt), { addSuffix: true })}
             </p>
@@ -244,7 +258,7 @@ const handleLike = async () => {
           className="flex flex-col items-center"
         >
           <div className={`p-2 bg-black/40 rounded-full ${isLiked ? 'text-primary' : 'text-white'}`}>
-            <Heart className={`h-6 w-6 ${isLiked ? 'fill-primary' : ''}`} />
+            <Heart className={`h-6 w-6 ${isLiked ? 'fill-primary text-primary' : ''}`} />
           </div>
           <span className="text-white text-xs mt-1">{likesCount}</span>
         </button>
