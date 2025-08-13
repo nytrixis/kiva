@@ -278,28 +278,25 @@ export async function GET(request: Request) {
       type ProductWithTrendingScore = SupabaseProduct & { trendingScore: number };
 
       filteredProducts = filteredProducts
+        .filter((product) => {
+          // ✅ ELIMINATE products with no reviews or ratings entirely
+          const rating = product.rating || 0;
+          const reviewCount = product.reviewCount || 0;
+          return reviewCount > 0 && rating > 0;
+        })
         .map((product): ProductWithTrendingScore => {
           const rating = product.rating || 0;
           const reviewCount = product.reviewCount || 0;
           const viewCount = product.viewCount || 0;
           
-          // Advanced trending score:
-          // 1. Rating weight (0-5) 
-          // 2. Review count importance using Wilson score interval
-          // 3. View count factor
-          // 4. Recency boost
-          
           const daysSinceCreated = (Date.now() - new Date(product.createdAt).getTime()) / (1000 * 60 * 60 * 24);
           const recencyBoost = daysSinceCreated <= 7 ? 1.5 : daysSinceCreated <= 30 ? 1.0 : 0.5;
           
-          // Wilson score for rating confidence
-          const wilsonScore = reviewCount > 0 
-            ? (rating + 1.96 * 1.96 / (2 * reviewCount) - 1.96 * Math.sqrt((rating * (5 - rating)) / reviewCount + 1.96 * 1.96 / (4 * reviewCount * reviewCount))) / (1 + 1.96 * 1.96 / reviewCount)
-            : 0;
+          // Since we already filtered out products without reviews, all products here have reviews
+          const wilsonScore = (rating + 1.96 * 1.96 / (2 * reviewCount) - 1.96 * Math.sqrt((rating * (5 - rating)) / reviewCount + 1.96 * 1.96 / (4 * reviewCount * reviewCount))) / (1 + 1.96 * 1.96 / reviewCount);
           
-          const trendingScore = reviewCount > 0 
-            ? (wilsonScore * Math.log(reviewCount + 1) * 2) + (Math.log(viewCount + 1) * 0.3) + recencyBoost
-            : Math.log(viewCount + 1) * 0.1; // Products with views but no reviews get small score
+          // Main score for products with reviews
+          const trendingScore = (wilsonScore * Math.log(reviewCount + 1) * 10) + (Math.log(viewCount + 1) * 0.5) + recencyBoost;
 
           return {
             ...product,
@@ -308,6 +305,32 @@ export async function GET(request: Request) {
         })
         .sort((a, b) => b.trendingScore - a.trendingScore)
         .slice(0, 15); // Top 15 trending products
+
+        const trendingProductsResponse: ProductAPI[] = filteredProducts.map((p) => ({
+        id: p.id,
+        name: p.name,
+        price: p.price,
+        originalPrice: p.price,
+        images: parseImages(p.images),
+        discountPercentage: p.discountPercentage ?? 0,
+        createdAt: p.createdAt,
+        viewCount: p.viewCount ?? 0,
+        rating: p.rating ?? 0,
+        reviewCount: p.reviewCount ?? 0,
+        category: parseCategory(p.category),
+        seller: parseSeller(p.seller),
+        link: `/products/${p.id}`,
+        isFavorite: favoriteIds.has(p.id),
+      }));
+
+      // ✅ RETURN here to prevent falling through to other logic
+      return NextResponse.json({
+        products: trendingProductsResponse,
+        total: trendingProductsResponse.length,
+        page: 1,
+        limit: 15,
+        totalPages: 1,
+      });
     }
 
 
