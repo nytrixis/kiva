@@ -72,9 +72,14 @@ export default function ReelCard({
 }: ReelCardProps) {
   const [isLiked, setIsLiked] = useState(reel.isLiked);
   const [likesCount, setLikesCount] = useState(reel.likeCount);
+  const [commentsCount, setCommentsCount] = useState(reel.commentCount);
   const videoRef = useRef<HTMLVideoElement>(null);
   const { toast } = useToast();
   const { isAuthenticated } = useAuth();
+
+  const handleOpenComments = () => {
+    onComment(reel.id);
+  };
 
   useEffect(() => {
     if (videoRef.current) {
@@ -89,12 +94,13 @@ export default function ReelCard({
         }
       }
     }
-  }, [isActive, isPaused]); 
+  }, [isActive, isPaused]);
   
   useEffect(() => {
     setIsLiked(reel.isLiked);
     setLikesCount(reel.likeCount);
-  }, [reel.id, reel.isLiked, reel.likeCount]);
+    setCommentsCount(reel.commentCount); 
+  }, [reel.id, reel.isLiked, reel.likeCount, reel.commentCount]);
 
   
   // Play/pause video based on visibility
@@ -334,13 +340,13 @@ const handleLike = async () => {
         </button>
         
         <button
-          onClick={() => onComment(reel.id)}
+          onClick={handleOpenComments}
           className="flex flex-col items-center"
         >
           <div className="p-2 bg-black/40 rounded-full text-white">
             <MessageCircle className="h-6 w-6" />
           </div>
-          <span className="text-white text-xs mt-1">{reel.commentCount ?? 0}</span>
+          <span className="text-white text-xs mt-1">{commentsCount}</span>
         </button>
         
         <button

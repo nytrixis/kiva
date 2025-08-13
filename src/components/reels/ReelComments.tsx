@@ -32,9 +32,10 @@ interface Comment {
 interface ReelCommentsProps {
   reelId: string;
   onClose: () => void;
+  onCommentAdded?: () => void;
 }
 
-export default function ReelComments({ reelId, onClose }: ReelCommentsProps) {
+export default function ReelComments({ reelId, onClose, onCommentAdded }: ReelCommentsProps) {
   const [comments, setComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -109,6 +110,10 @@ export default function ReelComments({ reelId, onClose }: ReelCommentsProps) {
       const data = await response.json();
       setComments(prev => [data.comment, ...prev]);
       setNewComment("");
+
+      if (onCommentAdded) {
+        onCommentAdded();
+      }
     } catch (error) {
       console.error("Error adding comment:", error);
       toast({

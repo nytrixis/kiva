@@ -204,14 +204,24 @@ export default function ReelsViewer({
 
   // Handle like action
   const handleLike = (reelId: string, liked: boolean, likeCount: number) => {
-  setReels(prev =>
-    prev.map(reel =>
-      reel.id === reelId
-        ? { ...reel, isLiked: liked, likeCount }
-        : reel
-    )
-  );
-};
+    setReels(prev =>
+      prev.map(reel =>
+        reel.id === reelId
+          ? { ...reel, isLiked: liked, likeCount }
+          : reel
+      )
+    );
+  };
+
+  const handleCommentAdded = (reelId: string) => {
+    setReels(prev =>
+      prev.map(reel =>
+        reel.id === reelId
+          ? { ...reel, commentCount: reel.commentCount + 1 }
+          : reel
+      )
+    );
+  };
 
   // Handle comment action
   const handleComment = (reelId: string) => {
@@ -329,6 +339,7 @@ if (status === "loading") {
         <ReelComments
           reelId={commentReelId}
           onClose={() => setCommentReelId(null)}
+          onCommentAdded={() => handleCommentAdded(commentReelId)}
         />
       )}
     </div>
