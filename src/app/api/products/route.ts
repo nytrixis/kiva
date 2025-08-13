@@ -8,6 +8,7 @@ const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 interface SellerProfile {
+  id: string;
   businessName: string;
 }
 
@@ -21,6 +22,7 @@ interface SellerAPI {
   id: string;
   name: string;
   sellerProfile: {
+    id: string;
     businessName: string;
   };
 }
@@ -55,11 +57,11 @@ type SupabaseCategory = CategoryAPI | CategoryAPI[] | null | undefined;
 type SupabaseSeller = {
   id?: string;
   name?: string;
-  sellerProfile?: SellerProfile | null;
+  sellerProfile?: SellerProfile | SellerProfile[] | null;
 } | {
   id?: string;
   name?: string;
-  sellerProfile?: SellerProfile | null;
+  sellerProfile?: SellerProfile | SellerProfile[] | null;
 }[] | null | undefined;
 
 type SupabaseProduct = {
@@ -93,19 +95,26 @@ function parseCategory(category: SupabaseCategory): CategoryAPI {
 
 function parseSeller(seller: SupabaseSeller): SellerAPI {
   const s = Array.isArray(seller) ? seller[0] : seller;
-  // Defensive: handle sellerProfile as array or object
+  
+  // Handle sellerProfile as array or object
   let businessName = "";
+  let sellerProfileId = "";
+  
   if (s?.sellerProfile) {
     if (Array.isArray(s.sellerProfile)) {
       businessName = s.sellerProfile[0]?.businessName || "";
+      sellerProfileId = s.sellerProfile[0]?.id || "";
     } else {
       businessName = s.sellerProfile?.businessName || "";
+      sellerProfileId = s.sellerProfile?.id || "";
     }
   }
+  
   return {
-    id: s?.id || "",
+    id: s?.id || "", // User ID
     name: s?.name || "",
     sellerProfile: {
+      id: sellerProfileId, // ✅ Add SellerProfile ID
       businessName,
     },
   };
@@ -132,7 +141,21 @@ export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
 
-    // RecentlyViewed logic
+    // Get session and user ID for favorites
+    const session = await getServerSession(authOptions);
+    const userId = session?.user?.id;
+
+    // Fetch wishlist product IDs for this user
+    let favoriteIds: Set<string> = new Set();
+    if (userId) {
+      const { data: wishlist } = await supabase
+        .from("Wishlist")
+        .select("productId")
+        .eq("userId", userId);
+      favoriteIds = new Set(wishlist?.map((w) => w.productId) || []);
+    }
+
+    // RecentlyViewed logic (when ?ids= is provided)
     const idsParam = searchParams.get("ids");
     if (idsParam) {
       const ids = idsParam.split(",");
@@ -144,7 +167,8 @@ export async function GET(request: Request) {
           category:categoryId (id, name, slug),
           seller:sellerId (
             id, name,
-            sellerProfile:SellerProfile (
+            sellerProfile:SellerProfile!SellerProfile_userId_fkey (
+              id,
               businessName
             )
           )
@@ -171,30 +195,16 @@ export async function GET(request: Request) {
         category: parseCategory(p.category),
         seller: parseSeller(p.seller),
         link: `/products/${p.id}`,
-        isFavorite: favoriteIds.has(p.id), 
+        isFavorite: favoriteIds.has(p.id),
       }));
 
       return NextResponse.json({ products });
-    }
-
-    const session = await getServerSession(authOptions);
-    const userId = session?.user?.id;
-
-    // 2. Fetch wishlist product IDs for this user
-    let favoriteIds: Set<string> = new Set();
-    if (userId) {
-      const { data: wishlist } = await supabase
-        .from("Wishlist")
-        .select("productId")
-        .eq("userId", userId);
-      favoriteIds = new Set(wishlist?.map((w) => w.productId));
     }
 
     // Marketplace & Trending logic
     const category = searchParams.get("category");
     const minPrice = searchParams.get("minPrice");
     const maxPrice = searchParams.get("maxPrice");
-    // const minRating = searchParams.get("minRating");
     const sort = searchParams.get("sort") || "newest";
     const page = parseInt(searchParams.get("page") || "1");
     const limit = parseInt(searchParams.get("limit") || "12");
@@ -213,25 +223,20 @@ export async function GET(request: Request) {
         category:categoryId (id, name, slug),
         seller:sellerId (
           id, name,
-      sellerProfile:SellerProfile!SellerProfile_userId_fkey (
-        businessName
+          sellerProfile:SellerProfile!SellerProfile_userId_fkey (
+            id,
+            businessName
           )
         )
         `,
         { count: "exact" }
       );
 
-      
-
+    // Apply filters
     if (category) {
       query = query.eq("categoryId", category);
     }
-    // if (minPrice) {
-    //   query = query.gte("price", parseFloat(minPrice));
-    // }
-    // if (maxPrice) {
-    //   query = query.lte("price", parseFloat(maxPrice));
-    // }
+
     if (searchQuery) {
       query = query.or(
         `name.ilike.%${searchQuery}%,description.ilike.%${searchQuery}%`
@@ -260,7 +265,7 @@ export async function GET(request: Request) {
     query = query.range(from, to);
 
     // Execute query
-    const { data, error } = await query;
+    const { data, error, count } = await query;
 
     if (error) {
       throw error;
@@ -268,84 +273,85 @@ export async function GET(request: Request) {
 
     let filteredProducts = data as SupabaseProduct[];
 
-// Filter by discounted price
+    // Filter by discounted price (client-side filtering)
     if (minPrice || maxPrice) {
-  const min = minPrice ? parseFloat(minPrice) : undefined;
-  const max = maxPrice ? parseFloat(maxPrice) : undefined;
-  filteredProducts = filteredProducts.filter((p) => {
-    const discounted = p.price * (1 - (p.discountPercentage ?? 0) / 100);
-    if (min !== undefined && discounted < min) return false;
-    if (max !== undefined && discounted > max) return false;
-    return true;
-  });
+      const min = minPrice ? parseFloat(minPrice) : undefined;
+      const max = maxPrice ? parseFloat(maxPrice) : undefined;
+      
+      filteredProducts = filteredProducts.filter((p) => {
+        const discounted = p.price * (1 - (p.discountPercentage ?? 0) / 100);
+        if (min !== undefined && discounted < min) return false;
+        if (max !== undefined && discounted > max) return false;
+        return true;
+      });
 
-  // Paginate AFTER price filtering
-  const paginatedProducts = filteredProducts.slice((page - 1) * limit, page * limit);
+      // Paginate AFTER price filtering
+      const paginatedProducts = filteredProducts.slice((page - 1) * limit, page * limit);
 
-const products: ProductAPI[] = paginatedProducts.map((p) => ({
-  id: p.id,
-  name: p.name,
-  price: p.price,
-  originalPrice:
-    p.discountPercentage > 0
-      ? Math.round((p.price / (1 - p.discountPercentage / 100)) * 100) / 100
-      : p.price,
-  images: parseImages(p.images),
-  discountPercentage: p.discountPercentage ?? 0,
-  createdAt: p.createdAt,
-  viewCount: p.viewCount ?? 0,
-  rating: p.rating ?? 0,
-  reviewCount: p.reviewCount ?? 0,
-  category: parseCategory(p.category),
-  seller: parseSeller(p.seller),
-  link: `/products/${p.id}`,
-  isFavorite: favoriteIds.has(p.id),
-}));
+      const products: ProductAPI[] = paginatedProducts.map((p) => ({
+        id: p.id,
+        name: p.name,
+        price: p.price,
+        originalPrice:
+          p.discountPercentage > 0
+            ? Math.round((p.price / (1 - p.discountPercentage / 100)) * 100) / 100
+            : p.price,
+        images: parseImages(p.images),
+        discountPercentage: p.discountPercentage ?? 0,
+        createdAt: p.createdAt,
+        viewCount: p.viewCount ?? 0,
+        rating: p.rating ?? 0,
+        reviewCount: p.reviewCount ?? 0,
+        category: parseCategory(p.category),
+        seller: parseSeller(p.seller),
+        link: `/products/${p.id}`,
+        isFavorite: favoriteIds.has(p.id),
+      }));
 
-const response: ProductsResponse = {
-    products,
-    total: filteredProducts.length,
-    page,
-    limit,
-    totalPages: Math.ceil(filteredProducts.length / limit),
-  };
-
-  return NextResponse.json(response);
-} else {
-  // If no price filter, use Supabase's already paginated data
-  const products: ProductAPI[] = (data as SupabaseProduct[]).map((p) => ({
-    id: p.id,
-    name: p.name,
-    price: p.price,
-    originalPrice: p.price,
-    images: parseImages(p.images),
-    discountPercentage: p.discountPercentage ?? 0,
-    createdAt: p.createdAt,
-    viewCount: p.viewCount ?? 0,
-    rating: p.rating ?? 0,
-    reviewCount: p.reviewCount ?? 0,
-    category: parseCategory(p.category),
-    seller: parseSeller(p.seller),
-    link: `/products/${p.id}`,
-    isFavorite: favoriteIds.has(p.id),
-  }));
-
-  const response: ProductsResponse = {
-    products,
-    total: data.length, // or use count from Supabase if available
-    page,
-    limit,
-    totalPages: Math.ceil((data.length || 1) / limit),
-  };
+      const response: ProductsResponse = {
+        products,
+        total: filteredProducts.length,
+        page,
+        limit,
+        totalPages: Math.ceil(filteredProducts.length / limit),
+      };
 
       return NextResponse.json(response);
+    } else {
+      // If no price filter, use Supabase's already paginated data
+      const products: ProductAPI[] = (data as SupabaseProduct[]).map((p) => ({
+        id: p.id,
+        name: p.name,
+        price: p.price,
+        originalPrice: p.price,
+        images: parseImages(p.images),
+        discountPercentage: p.discountPercentage ?? 0,
+        createdAt: p.createdAt,
+        viewCount: p.viewCount ?? 0,
+        rating: p.rating ?? 0,
+        reviewCount: p.reviewCount ?? 0,
+        category: parseCategory(p.category),
+        seller: parseSeller(p.seller),
+        link: `/products/${p.id}`,
+        isFavorite: favoriteIds.has(p.id),
+      }));
+
+      const response: ProductsResponse = {
+        products,
+        total: count || 0,
+        page,
+        limit,
+        totalPages: Math.ceil((count || 0) / limit),
+      };
+
+      return NextResponse.json(response);
+    }
+
+  } catch (error) {
+    console.error("Error fetching products:", error);
+    return NextResponse.json(
+      { error: "An error occurred while fetching products" },
+      { status: 500 }
+    );
   }
-} // <-- Add this brace here
-catch (error) {
-  console.error("Error fetching products:", error);
-  return NextResponse.json(
-    { error: "An error occurred while fetching products" },
-    { status: 500 }
-  );
-}
 }

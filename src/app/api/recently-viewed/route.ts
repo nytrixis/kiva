@@ -89,7 +89,8 @@ export async function GET() {
         category:categoryId (id, name, slug),
         seller:sellerId (
           id, name,
-          sellerProfile:SellerProfile (
+          sellerProfile:SellerProfile!SellerProfile_userId_fkey (
+            id,
             businessName
           )
         )
@@ -151,8 +152,12 @@ interface SellerInput {
   id?: string;
   name?: string;
   sellerProfile?: {
+    id?: string;   
     businessName?: string;
-  } | { businessName?: string }[]; // allow array or object
+  } | { 
+    id?: string;       
+    businessName?: string; 
+  }[];
 }
 type SellerInputType = SellerInput | SellerInput[] | null | undefined;
 
@@ -160,6 +165,7 @@ interface ParsedSeller {
   id: string;
   name: string;
   sellerProfile: {
+    id: string;
     businessName: string;
   };
 }
@@ -175,6 +181,7 @@ const parseSeller = (seller: SellerInputType): ParsedSeller => {
     id: s?.id || "",
     name: s?.name || "",
     sellerProfile: {
+      id: sellerProfileObj?.id || "",
       businessName: sellerProfileObj?.businessName || "",
     },
   };

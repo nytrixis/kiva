@@ -9,8 +9,26 @@ interface CartItemRequest {
 
 interface Product {
   id: string;
+  name: string;
   price: number;
   discountPercentage: number;
+  images: string[];
+  rating: number;
+  reviewCount: number;
+  category: {
+    name: string;
+  };
+  seller: {
+    id: string;
+    name: string | null;
+    sellerProfile?: {
+      id: string;
+      businessName: string;
+    };
+  };
+  stock?: number;
+  isFavorite?: boolean;
+  createdAt: string;
 }
 
 interface CartItem {
