@@ -232,6 +232,8 @@ export async function POST(req: NextRequest) {
         caption,
         userId: session.user.id,
         productId: productId || null,
+        createdAt: new Date().toISOString(),
+
       }])
       .select()
       .single();

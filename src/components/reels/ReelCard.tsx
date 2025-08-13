@@ -9,6 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
 import { formatDistanceToNow } from "date-fns";
 // import { Button } from "@/components/ui/button";
+import { toZonedTime } from 'date-fns-tz'; 
 
 interface ReelCardProps {
   reel: {
@@ -259,9 +260,34 @@ const handleLike = async () => {
             >
               {reel.user.sellerProfile?.businessName || reel.user.name}
             </Link>
-            <p className="text-xs text-gray-300">
-              {formatDistanceToNow(new Date(reel.createdAt), { addSuffix: true })}
-            </p>
+              <p className="text-xs text-gray-300">
+                {(() => {
+                  try {
+                    const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+                    
+                    // Handle different date formats from database
+                    let dateString = reel.createdAt;
+                    
+                    // If the date doesn't end with 'Z' and doesn't have timezone info, assume it's UTC
+                    if (!dateString.endsWith('Z') && !dateString.includes('+') && !dateString.includes('-', 10)) {
+                      dateString = dateString + 'Z';
+                    }
+                    
+                    const utcDate = new Date(dateString);
+                    
+                    // Check if date is valid
+                    if (isNaN(utcDate.getTime())) {
+                      return "Just now";
+                    }
+                    
+                    const localTime = toZonedTime(utcDate, userTimeZone);
+                    return formatDistanceToNow(localTime, { addSuffix: true });
+                  } catch (error) {
+                    console.error("Error formatting date:", error, "Date string:", reel.createdAt);
+                    return "Just now";
+                  }
+                })()}
+              </p>
           </div>
         </div>
         

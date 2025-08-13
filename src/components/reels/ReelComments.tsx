@@ -8,6 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 import { formatDistanceToNow } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { toZonedTime } from 'date-fns-tz'; 
 
 interface Comment {
   id: string;
@@ -163,8 +164,33 @@ export default function ReelComments({ reelId, onClose }: ReelCommentsProps) {
                       <p className="font-medium text-sm">{comment.user.name}</p>
                       <p className="text-sm">{comment.content}</p>
                     </div>
-                                        <p className="text-xs text-gray-500 mt-1">
-                      {formatDistanceToNow(new Date(comment.createdAt), { addSuffix: true })}
+                    <p className="text-xs text-gray-500 mt-1">
+                      {(() => {
+                        try {
+                          const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+                          
+                          // Handle different date formats from database
+                          let dateString = comment.createdAt;
+                          
+                          // If the date doesn't end with 'Z' and doesn't have timezone info, assume it's UTC
+                          if (!dateString.endsWith('Z') && !dateString.includes('+') && !dateString.includes('-', 10)) {
+                            dateString = dateString + 'Z';
+                          }
+                          
+                          const utcDate = new Date(dateString);
+                          
+                          // Check if date is valid
+                          if (isNaN(utcDate.getTime())) {
+                            return "Just now";
+                          }
+                          
+                          const localTime = toZonedTime(utcDate, userTimeZone);
+                          return formatDistanceToNow(localTime, { addSuffix: true });
+                        } catch (error) {
+                          console.error("Error formatting date:", error, "Date string:", comment.createdAt);
+                          return "Just now";
+                        }
+                      })()}
                     </p>
                   </div>
                 </div>

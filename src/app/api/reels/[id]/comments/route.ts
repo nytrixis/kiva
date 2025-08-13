@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
 
   const { data: comment, error } = await supabase
     .from("ReelComment")
-    .insert([{ reelId, userId, content }])
+    .insert([{ reelId, userId, content, createdAt: new Date().toISOString() }])
     .select(`
       id,
       content,
@@ -33,7 +33,8 @@ export async function POST(req: NextRequest) {
       user: userId (
         id,
         name,
-        image
+        image,
+        sellerProfile:SellerProfile(businessName, logoImage)
       )
     `)
     .single();
