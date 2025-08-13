@@ -57,7 +57,7 @@ export async function POST(req: NextRequest) {
     const fileName = `thumbnails/${reelId}_${Date.now()}.jpg`;
 
     // Upload to Supabase Storage
-    const { data: uploadData, error: uploadError } = await supabase.storage
+    const { error: uploadError } = await supabase.storage
       .from('reel-thumbnails')
       .upload(fileName, buffer, {
         contentType: 'image/jpeg',
