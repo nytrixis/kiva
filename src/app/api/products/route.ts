@@ -210,9 +210,9 @@ export async function GET(request: Request) {
     const limit = parseInt(searchParams.get("limit") || "12");
     const searchQuery = searchParams.get("q");
 
-    // Pagination
-    const from = (page - 1) * limit;
-    const to = from + limit - 1;
+    // // Pagination
+    // const from = (page - 1) * limit;
+    // const to = from + limit - 1;
 
     // Build query
     let query = supabase
@@ -257,12 +257,12 @@ export async function GET(request: Request) {
       case "popularity":
         query = query.order("viewCount", { ascending: false });
         break;
+      case "trending": 
+        query = query.order("createdAt", { ascending: false });
+        break;
       default:
         query = query.order("createdAt", { ascending: false });
     }
-
-    // Pagination
-    query = query.range(from, to);
 
     // Execute query
     const { data, error, count } = await query;
@@ -272,6 +272,44 @@ export async function GET(request: Request) {
     }
 
     let filteredProducts = data as SupabaseProduct[];
+
+    // ✅ Advanced trending algorithm (replace the above trending case)
+    if (sort === "trending") {
+      type ProductWithTrendingScore = SupabaseProduct & { trendingScore: number };
+
+      filteredProducts = filteredProducts
+        .map((product): ProductWithTrendingScore => {
+          const rating = product.rating || 0;
+          const reviewCount = product.reviewCount || 0;
+          const viewCount = product.viewCount || 0;
+          
+          // Advanced trending score:
+          // 1. Rating weight (0-5) 
+          // 2. Review count importance using Wilson score interval
+          // 3. View count factor
+          // 4. Recency boost
+          
+          const daysSinceCreated = (Date.now() - new Date(product.createdAt).getTime()) / (1000 * 60 * 60 * 24);
+          const recencyBoost = daysSinceCreated <= 7 ? 1.5 : daysSinceCreated <= 30 ? 1.0 : 0.5;
+          
+          // Wilson score for rating confidence
+          const wilsonScore = reviewCount > 0 
+            ? (rating + 1.96 * 1.96 / (2 * reviewCount) - 1.96 * Math.sqrt((rating * (5 - rating)) / reviewCount + 1.96 * 1.96 / (4 * reviewCount * reviewCount))) / (1 + 1.96 * 1.96 / reviewCount)
+            : 0;
+          
+          const trendingScore = reviewCount > 0 
+            ? (wilsonScore * Math.log(reviewCount + 1) * 2) + (Math.log(viewCount + 1) * 0.3) + recencyBoost
+            : Math.log(viewCount + 1) * 0.1; // Products with views but no reviews get small score
+
+          return {
+            ...product,
+            trendingScore
+          };
+        })
+        .sort((a, b) => b.trendingScore - a.trendingScore)
+        .slice(0, 15); // Top 15 trending products
+    }
+
 
     // Filter by discounted price (client-side filtering)
     if (minPrice || maxPrice) {
