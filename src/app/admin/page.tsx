@@ -50,12 +50,12 @@ export default async function AdminDashboard() {
     const sellers = sellersData.data || [];
     const influencers = influencersData.data || [];
 
-    // Debug logs
-    console.log("Sellers Response:", sellersData);
-    console.log("Sellers Array Length:", sellers.length);
-    console.log("First Seller:", sellers[0]);
-    console.log("Influencers Response:", influencersData);
-    console.log("Influencers Array Length:", influencers.length);
+    // // Debug logs
+    // console.log("Sellers Response:", sellersData);
+    // console.log("Sellers Array Length:", sellers.length);
+    // console.log("First Seller:", sellers[0]);
+    // console.log("Influencers Response:", influencersData);
+    // console.log("Influencers Array Length:", influencers.length);
 
     // Calculate stats with detailed logging
     const sellersStats = {
@@ -76,8 +76,8 @@ export default async function AdminDashboard() {
       rejected: influencers.filter((i: Account) => i.status === "REJECTED").length,
     };
 
-    console.log("Final Stats - Sellers:", sellersStats);
-    console.log("Final Stats - Influencers:", influencersStats);
+    // console.log("Final Stats - Sellers:", sellersStats);
+    // console.log("Final Stats - Influencers:", influencersStats);
 
 
 
