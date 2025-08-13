@@ -445,7 +445,7 @@ function RecentlyViewedProductCard({ product }: { product: Product }) {
                 )}
                 {(user.role === "ADMIN" || profile.role === "ADMIN") && (
                   <button
-                    onClick={() => router.push("/admin/sellers")}
+                    onClick={() => router.push("/admin")}
                     className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
                       activeTab === "admin" ? "bg-primary text-white" : "text-gray-700 hover:bg-gray-100"
                     }`}
