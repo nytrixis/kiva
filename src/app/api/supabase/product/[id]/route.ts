@@ -34,7 +34,6 @@ export async function GET(request: Request) {
   if (error) {
     console.error("Supabase error:", error);
   }
-  console.log("Supabase product result:", product);
 
   if (error || !product) {
     return NextResponse.json({ error: "Product not found" }, { status: 404 });
