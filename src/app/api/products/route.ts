@@ -255,8 +255,8 @@ export async function GET(request: Request) {
         query = query.order("rating", { ascending: false });
         break;
       case "popularity":
-        query = query.order("viewCount", { ascending: false });
-        break;
+      query = query.order("createdAt", { ascending: false }); 
+      break;
       case "trending": 
         query = query.order("createdAt", { ascending: false });
         break;
@@ -330,6 +330,66 @@ export async function GET(request: Request) {
         page: 1,
         limit: 15,
         totalPages: 1,
+      });
+    }
+
+    if (sort === "popularity") {
+      type ProductWithPopularityScore = SupabaseProduct & { popularityScore: number };
+
+      filteredProducts = filteredProducts
+        .map((product): ProductWithPopularityScore => {
+          const rating = product.rating || 0;
+          const reviewCount = product.reviewCount || 0;
+          const viewCount = product.viewCount || 0;
+          
+          let popularityScore = 0;
+          
+          if (reviewCount > 0 && rating > 0) {
+            // Products with reviews get priority scoring
+            // Wilson score for rating confidence + review count weight + view count
+            const wilsonScore = (rating + 1.96 * 1.96 / (2 * reviewCount) - 1.96 * Math.sqrt((rating * (5 - rating)) / reviewCount + 1.96 * 1.96 / (4 * reviewCount * reviewCount))) / (1 + 1.96 * 1.96 / reviewCount);
+            
+            // Main popularity score: rating quality + review volume + view engagement
+            popularityScore = (wilsonScore * Math.log(reviewCount + 1) * 5) + (Math.log(viewCount + 1) * 0.3);
+          } else {
+            // Products without reviews get much lower score (only view-based)
+            popularityScore = Math.log(viewCount + 1) * 0.1;
+          }
+
+          return {
+            ...product,
+            popularityScore
+          };
+        })
+        .sort((a, b) => b.popularityScore - a.popularityScore);
+
+      // Convert to response format and return
+      const popularProductsResponse: ProductAPI[] = filteredProducts.map((p) => ({
+        id: p.id,
+        name: p.name,
+        price: p.price,
+        originalPrice: p.price,
+        images: parseImages(p.images),
+        discountPercentage: p.discountPercentage ?? 0,
+        createdAt: p.createdAt,
+        viewCount: p.viewCount ?? 0,
+        rating: p.rating ?? 0,
+        reviewCount: p.reviewCount ?? 0,
+        category: parseCategory(p.category),
+        seller: parseSeller(p.seller),
+        link: `/products/${p.id}`,
+        isFavorite: favoriteIds.has(p.id),
+      }));
+
+      // Apply pagination to popularity results
+      const paginatedPopularProducts = popularProductsResponse.slice((page - 1) * limit, page * limit);
+
+      return NextResponse.json({
+        products: paginatedPopularProducts,
+        total: popularProductsResponse.length,
+        page,
+        limit,
+        totalPages: Math.ceil(popularProductsResponse.length / limit),
       });
     }
 
