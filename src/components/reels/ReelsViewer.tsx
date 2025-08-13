@@ -55,6 +55,9 @@ export default function ReelsViewer({
   const [isLoading, setIsLoading] = useState(false);
   const [nextCursor, setNextCursor] = useState<string | null>(null);
   const [commentReelId, setCommentReelId] = useState<string | null>(null);
+  const [globalMuted, setGlobalMuted] = useState(true);
+  const [isPaused, setIsPaused] = useState(false);
+  const [showPlayPause, setShowPlayPause] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const { isAuthenticated } = useAuth();
   const { toast } = useToast();
@@ -150,6 +153,25 @@ export default function ReelsViewer({
     preventScrollOnSwipe: true,
     trackMouse: false
   });
+
+  const toggleGlobalMute = () => {
+    setGlobalMuted(!globalMuted);
+  };
+
+  // ✅ Add play/pause functions
+  const togglePlayPause = () => {
+    setIsPaused(!isPaused);
+    setShowPlayPause(true);
+    
+    // Hide the play/pause button after 2 seconds
+    setTimeout(() => {
+      setShowPlayPause(false);
+    }, 2000);
+  };
+
+  const handleReelTap = () => {
+    togglePlayPause();
+  };
 
   // Handle scroll events to determine active reel
   useEffect(() => {
@@ -251,6 +273,11 @@ if (status === "loading") {
                 onComment={handleComment}
                 onShare={handleShare}
                 isActive={index === activeIndex}
+                globalMuted={globalMuted}
+                onToggleGlobalMute={toggleGlobalMute}
+                isPaused={isPaused}
+                onReelTap={handleReelTap}
+                showPlayPause={showPlayPause}
               />
             </div>
           ))

@@ -50,6 +50,11 @@ interface ReelCardProps {
   onComment: (reelId: string) => void;
   onShare: (reelId: string) => void;
   isActive: boolean;
+  globalMuted: boolean;
+  onToggleGlobalMute: () => void;
+  isPaused: boolean;
+  onReelTap: () => void;
+  showPlayPause: boolean;
 }
 
 export default function ReelCard({
@@ -58,13 +63,32 @@ export default function ReelCard({
   onComment,
   onShare,
   isActive,
+  globalMuted,
+  onToggleGlobalMute,
+  isPaused,
+  onReelTap,
+  showPlayPause,
 }: ReelCardProps) {
-  const [isMuted, setIsMuted] = useState(true);
   const [isLiked, setIsLiked] = useState(reel.isLiked);
   const [likesCount, setLikesCount] = useState(reel.likeCount);
   const videoRef = useRef<HTMLVideoElement>(null);
   const { toast } = useToast();
   const { isAuthenticated } = useAuth();
+
+  useEffect(() => {
+    if (videoRef.current) {
+      if (isActive && !isPaused) {
+        videoRef.current.play().catch(error => {
+          console.error("Error playing video:", error);
+        });
+      } else {
+        videoRef.current.pause();
+        if (!isActive) {
+          videoRef.current.currentTime = 0;
+        }
+      }
+    }
+  }, [isActive, isPaused]); 
   
   useEffect(() => {
     setIsLiked(reel.isLiked);
@@ -150,7 +174,7 @@ const handleLike = async () => {
   return (
     <div className="relative h-full w-full bg-black">
       {/* Video */}
-      <div className="absolute inset-0">
+      <div className="absolute inset-0" onClick={onReelTap}> {/* ✅ Add onClick handler */}
         {reel.thumbnailUrl && !isActive && (
           <Image
             src={reel.thumbnailUrl}
@@ -166,20 +190,40 @@ const handleLike = async () => {
           className="h-full w-full object-cover"
           loop
           playsInline
-          muted={isMuted}
+          muted={globalMuted} // ✅ Use globalMuted instead of isMuted
           poster={reel.thumbnailUrl || undefined}
         />
       </div>
       
       {/* Overlay gradient for better text visibility */}
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/70 pointer-events-none" />
+
+      {/* ✅ Add Play/Pause overlay */}
+      {showPlayPause && (
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+          <div className="bg-black/60 rounded-full p-4">
+            {isPaused ? (
+              <svg className="h-12 w-12 text-white" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M8 6.82v10.36c0 .79.87 1.27 1.54.84l8.14-5.18c.62-.39.62-1.29 0-1.68L9.54 5.98C8.87 5.55 8 6.03 8 6.82z"/>
+              </svg>
+            ) : (
+              <svg className="h-12 w-12 text-white" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z"/>
+              </svg>
+            )}
+          </div>
+        </div>
+      )}
       
       {/* Mute/unmute button */}
       <button
-        onClick={() => setIsMuted(!isMuted)}
+        onClick={(e) => {
+          e.stopPropagation(); // Prevent triggering the tap handler
+          onToggleGlobalMute();
+        }}
         className="absolute top-4 right-4 p-2 bg-black/40 rounded-full"
       >
-        {isMuted ? (
+        {globalMuted ? (
           <VolumeX className="h-5 w-5 text-white" />
         ) : (
           <Volume2 className="h-5 w-5 text-white" />
