@@ -34,7 +34,8 @@ export async function POST(req: NextRequest) {
         id,
         name,
         image,
-        sellerProfile:SellerProfile(businessName, logoImage)
+        sellerProfile:SellerProfile(businessName, logoImage),
+        influencerProfile:InfluencerProfile(id, platform, image)
       )
     `)
     .single();
@@ -63,7 +64,9 @@ export async function GET(req: NextRequest) {
       user: userId (
         id,
         name,
-        image
+        image,
+        sellerProfile:SellerProfile(businessName, logoImage),
+        influencerProfile:InfluencerProfile(id, platform, image)
       )
     `)
     .eq("reelId", reelId)

@@ -23,6 +23,11 @@ interface Reel {
       logoImage: string | null;
       id: string;
     } | null;
+    influencerProfile?: { 
+      id: string;
+      platform: string;
+      image: string | null;
+    } | null;
   };
   product?: {
     id: string;

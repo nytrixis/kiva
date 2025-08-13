@@ -25,7 +25,12 @@ interface Comment {
             businessName: true,
             logoImage: true,
           },
-        },
+        } | null;
+    influencerProfile?: { 
+      id: string;
+      platform: string;
+      image: string;
+    } | null;
   };
 }
 
@@ -154,15 +159,16 @@ export default function ReelComments({ reelId, onClose, onCommentAdded }: ReelCo
                 <div key={comment.id} className="flex">
                   <div className="relative h-8 w-8 rounded-full overflow-hidden flex-shrink-0">
                     <Image
-  src={
-    comment.user.sellerProfile?.logoImage || 
-    comment.user.image || 
-    "/images/placeholder-avatar.jpg"
-  }
-  alt={comment.user.sellerProfile?.businessName || comment.user.name || "User"}
-  fill
-  className="object-cover"
-/>
+                      src={
+                        comment.user.sellerProfile?.logoImage || 
+                        comment.user.influencerProfile?.image ||  
+                        comment.user.image || 
+                        "/images/placeholder-avatar.jpg"
+                      }
+                      alt={comment.user.sellerProfile?.businessName || comment.user.name || "User"}
+                      fill
+                      className="object-cover"
+                    />
                   </div>
                   <div className="ml-3 flex-1">
                     <div className="bg-gray-100 rounded-lg p-3">

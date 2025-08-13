@@ -244,6 +244,7 @@ const handleLike = async () => {
             <Image
                 src={
                     reel.user.sellerProfile?.logoImage || 
+                    reel.user.influencerProfile?.image ||
                     reel.user.image || 
                     "/images/placeholder-avatar.jpg"
                 }
