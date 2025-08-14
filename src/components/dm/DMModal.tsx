@@ -18,19 +18,19 @@ export default function DMModal({ onClose, onUnreadCountUpdate }: DMModalProps) 
   const [selectedConversation, setSelectedConversation] = useState<string | null>(null);
   const [showNewConversation, setShowNewConversation] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [isLoadingConversations, setIsLoadingConversations] = useState(true); 
 
   useEffect(() => {
     fetchConversations();
   }, []);
 
   const fetchConversations = async () => {
+    setIsLoadingConversations(true);
     try {
       const response = await fetch("/api/conversations");
       if (response.ok) {
         const data = await response.json();
         setConversations(data.conversations || []);
-        
-        // Update unread count
         const totalUnread = (data.conversations || []).reduce(
           (sum: number, conv: Conversation) => sum + (conv.unreadCount || 0), 
           0
@@ -39,6 +39,8 @@ export default function DMModal({ onClose, onUnreadCountUpdate }: DMModalProps) 
       }
     } catch (error) {
       console.error("Error fetching conversations:", error);
+    } finally {
+      setIsLoadingConversations(false); 
     }
   };
 
@@ -96,11 +98,18 @@ export default function DMModal({ onClose, onUnreadCountUpdate }: DMModalProps) 
 
           {/* Conversation List */}
           <div className="flex-1 overflow-y-auto">
+            {isLoadingConversations ? (
+              <div className="flex items-center justify-center h-32">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                <span className="ml-2 text-gray-500">Loading conversations...</span>
+              </div>
+            ) : (
             <ConversationList
-              conversations={filteredConversations}
-              selectedConversation={selectedConversation}
-              onSelectConversation={setSelectedConversation}
-            />
+                conversations={filteredConversations}
+                selectedConversation={selectedConversation}
+                onSelectConversation={setSelectedConversation}
+              />
+            )}
           </div>
         </div>
 
