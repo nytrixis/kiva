@@ -10,57 +10,27 @@ import Link from "next/link";
 const testimonials = [
   {
     id: 1,
-    name: "Priya Sharma",
-    location: "Mumbai, India",
-    avatar: "/images/testimonials/avatar-1.png",
+    name: "Saket Jha",
+    location: "Karnataka",
+    avatar: "/images/testimonials/avatar-1.jpg",
     rating: 5,
-    text: "The handcrafted jewelry I purchased is absolutely stunning. The attention to detail and quality is exceptional, and I love knowing that my purchase supports local artisans.",
-    product: "Silver Filigree Earrings"
+    text: "As a small business owner, I struggled for years with visibility and reaching customers beyond my local area. Traditional marketplaces either ignored us or charged hefty fees. Finally, a platform to showcase to a wider audience."
   },
   {
     id: 2,
-    name: "Raj Patel",
-    location: "Ahmedabad, Gujarat",
+    name: "Ashiya Parveen",
+    location: "Durgapur, West Bengal",
     avatar: "/images/testimonials/avatar-2.png",
     rating: 5,
-    text: "I've been searching for authentic, traditional home decor items for years. Ajyaa has connected me with incredible craftspeople whose work transforms my living space.",
-    product: "Hand-painted Ceramic Vase"
+    text: "When Ajyaa surveyed us about the challenges we face, I finally felt heard. No one else had asked about how difficult it is for small businesses like ours to get noticed. They understood our struggle for the spotlight and created a solution that actually works for us."
   },
   {
     id: 3,
-    name: "Ananya Desai",
-    location: "Bangalore, Karnataka",
-    avatar: "/images/testimonials/avatar-3.png",
-    rating: 4,
-    text: "The sustainable clothing options are not only eco-friendly but also incredibly stylish. I receive compliments every time I wear my Ajyaa purchases!",
-    product: "Organic Cotton Dress"
-  },
-  {
-    id: 4,
-    name: "Vikram Singh",
-    location: "Jaipur, Rajasthan",
+    name: "Pratyush Pandey",
+    location: "Durgapur, West Bengal",
     avatar: "/images/testimonials/avatar-4.png",
-    rating: 5,
-    text: "As someone who values heritage and tradition, I'm impressed by how Ajyaa preserves cultural craftsmanship while making it accessible to modern consumers.",
-    product: "Traditional Block Print Scarf"
-  },
-  {
-    id: 5,
-    name: "Meera Kapoor",
-    location: "Delhi, India",
-    avatar: "/images/testimonials/avatar-5.png",
-    rating: 5,
-    text: "The wellness products I ordered exceeded my expectations. Made with natural ingredients and traditional knowledge, they've become essential in my daily routine.",
-    product: "Ayurvedic Skincare Set"
-  },
-  {
-    id: 6,
-    name: "Arjun Mehta",
-    location: "Kolkata, West Bengal",
-    avatar: "/images/testimonials/avatar-6.png",
-    rating: 5,
-    text: "I purchased several items as gifts, and my family was blown away by the quality and uniqueness. The packaging was also beautiful and eco-friendly!",
-    product: "Handwoven Textile Wall Hanging"
+    rating: 4,
+    text: "I've always loved handmade items but finding authentic, quality pieces was such a hassle. Ajyaa is like having a curated gallery of the most beautiful handcrafted designs all in one place. It's exactly what I've been looking for!"
   }
 ];
 
@@ -203,10 +173,6 @@ export default function CustomerTestimonials() {
                   <p className="text-gray-700 mb-4 relative z-10">
                     &quot;{testimonial.text}&quot;
                   </p>
-                  
-                  <div className="text-sm text-primary font-medium">
-                    Purchased: {testimonial.product}
-                  </div>
                 </div>
               </motion.div>
             ))}
