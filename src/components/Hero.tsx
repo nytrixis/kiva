@@ -54,17 +54,6 @@ const carouselData = [
       { value: "4.5+", label: "Avg. Rating (Beta)" }
     ]
   },
-  {
-    id: 5,
-    heading: "Sustainable Fashion",
-    description: "Eco-friendly clothing that looks good and feels good for the planet.",
-    image: "/images/model333.png",
-    stats: [
-      { value: "60%", label: "Eco Materials" },
-      { value: "25%", label: "Lower Waste" },
-      { value: "0%", label: "Plastic Use" }
-    ]
-  }
 ];
 
 
@@ -105,8 +94,8 @@ export default function Hero() {
         <div className="hidden md:block md:w-[40%] bg-accent"></div>
       </div>
       
-      {/* Mobile-only background for the bottom part - moved up */}
-      <div className="absolute bottom-0 left-0 right-0 h-[50%] bg-accent md:hidden"></div>
+      {/* Mobile-only background for the bottom part - shifted up by 10% */}
+      <div className="absolute bottom-[5%] md:bottom-0 left-0 right-0 h-[50%] bg-accent md:hidden"></div>
       
       {/* AJYAA background pattern on the right side - hidden on small screens */}
       <div className="absolute right-0 top-0 w-[40%] h-full overflow-hidden hidden md:block">
@@ -122,20 +111,20 @@ export default function Hero() {
         </div>
       </div>
       
-      {/* Decorative elements for the right side - adjusted for mobile */}
+      {/* Decorative elements for the right side - shifted up for mobile */}
       <div className="absolute right-0 top-0 w-full md:w-[40%] h-full z-10 overflow-hidden">
-        {/* Floating circles with subtle animations - adjusted sizes for mobile */}
+        {/* Floating circles with subtle animations - shifted up by 10% for mobile */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 0.7, y: 0 }}
           transition={{ duration: 1.5, repeat: Infinity, repeatType: "reverse" }}
-          className="absolute top-[50%] right-[20%] md:top-[15%] w-10 h-10 md:w-16 md:h-16 rounded-full bg-white/30 backdrop-blur-sm"
+          className="absolute top-[45%] right-[20%] md:top-[15%] w-10 h-10 md:w-16 md:h-16 rounded-full bg-white/30 backdrop-blur-sm"
         />
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 0.5, y: 0 }}
           transition={{ duration: 2, repeat: Infinity, repeatType: "reverse", delay: 0.5 }}
-          className="absolute top-[60%] right-[40%] md:top-[35%] md:right-[10%] w-6 h-6 md:w-10 md:h-10 rounded-full bg-primary/20 backdrop-blur-sm"
+          className="absolute top-[85%] right-[40%] md:top-[35%] md:right-[10%] w-6 h-6 md:w-10 md:h-10 rounded-full bg-primary/20 backdrop-blur-sm"
         />
         <motion.div
           initial={{ opacity: 0, y: 10 }}
@@ -148,7 +137,8 @@ export default function Hero() {
       {/* White circle positioned at the division line - hidden on mobile */}
       <div className="hidden md:block absolute left-[60%] top-1/3 transform -translate-x-1/2 -translate-y-1/2 w-[350px] h-[350px] bg-white rounded-full z-10"></div>
       
-      <div className="container mx-auto px-4 md:px-10 h-full flex items-center relative z-20">
+      {/* Main content container - shifted up by 10% for mobile */}
+      <div className="container mx-auto px-4 md:px-10 h-full flex items-center relative z-20 -translate-y-[5%] md:translate-y-0">
         <AnimatePresence mode="wait">
           <motion.div
             key={currentSlide}
@@ -225,12 +215,12 @@ export default function Hero() {
               </div>
             </motion.div>
             
-            {/* Right Column - Image positioned to overlap the division - adjusted for mobile */}
+            {/* Right Column - Image positioned to overlap the division - shifted up by 10% for mobile */}
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.5, delay: 0.2 }}
-              className="relative order-1 md:order-2 -mt-12 md:mt-0"
+              className="relative order-1 md:order-2 -mt-0 md:mt-0"
             >
               <div className="relative h-[300px] md:h-[500px] lg:h-[610px] w-[100%] md:w-[60%] transform translate-x-0 md:-translate-x-[20%]">
                 <Image
