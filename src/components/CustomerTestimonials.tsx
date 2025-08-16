@@ -20,7 +20,7 @@ const testimonials = [
     id: 2,
     name: "Ashiya Parveen",
     location: "Durgapur, West Bengal",
-    avatar: "/images/testimonials/avatar-2.png",
+    avatar: "/images/testimonials/avatar-2.jpg",
     rating: 5,
     text: "When Ajyaa surveyed us about the challenges we face, I finally felt heard. No one else had asked about how difficult it is for small businesses like ours to get noticed. They understood our struggle for the spotlight and created a solution that actually works for us."
   },
