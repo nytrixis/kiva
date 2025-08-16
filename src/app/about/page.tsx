@@ -427,7 +427,7 @@ const handleSellerClick = async (e: React.MouseEvent) => {
         </div>
       </section>
       
-      {/* Meet the Team */}
+      {/* Meet the Team
       <section className="py-16 bg-white">
         <div className="container mx-auto px-4">
           <motion.div
@@ -496,7 +496,7 @@ const handleSellerClick = async (e: React.MouseEvent) => {
             ))}
           </div>
         </div>
-      </section>
+      </section> */}
       
       {/* Join Our Journey */}
       <section className="py-16 bg-primary/10 relative overflow-hidden">
