@@ -18,13 +18,13 @@ export async function generateMetadata({ params }: InfluencerPageProps): Promise
 
   if (!data?.profile) {
     return {
-      title: "Influencer Not Found | Kiva",
+      title: "Influencer Not Found | Ajyaa",
     };
   }
 
   return {
-    title: `${data.profile.name} (@${data.profile.platform}) | Kiva`,
-    description: data.profile.bio || `Check out ${data.profile.name}'s profile on Kiva`,
+    title: `${data.profile.name} (@${data.profile.platform}) | Ajyaa`,
+    description: data.profile.bio || `Check out ${data.profile.name}'s profile on Ajyaa`,
     openGraph: {
       images: [data.profile.image || "/images/placeholder-avatar.jpg"],
     },

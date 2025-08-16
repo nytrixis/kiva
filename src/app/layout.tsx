@@ -20,7 +20,7 @@ const giaza = localFont({
 })
 
 export const metadata = {
-  title: 'Kiva',
+  title: 'Ajyaa',
   description: 'Be the Brand.',
 }
 

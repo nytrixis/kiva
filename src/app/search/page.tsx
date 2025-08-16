@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import ProductCatalog from "@/components/product/ProductCatalog";
 
 export const metadata: Metadata = {
-  title: "Search Results | Kiva",
+  title: "Search Results | Ajyaa",
   description: "Find products from local artisans",
 };
 

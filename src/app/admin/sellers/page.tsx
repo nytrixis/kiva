@@ -31,7 +31,7 @@ type SellerProfileWithUser = {
 };
 
 export const metadata = {
-  title: "Manage Sellers | Admin Dashboard | Kiva",
+  title: "Manage Sellers | Admin Dashboard | Ajyaa",
 };
 
 // const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;

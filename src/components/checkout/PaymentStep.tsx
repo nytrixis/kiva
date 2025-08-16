@@ -126,8 +126,8 @@ const handlePaymentCancel = useCallback(async () => {
       key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
       amount: orderData.amount * 100, // Amount in paisa
       currency: orderData.currency,
-      name: "Kiva Marketplace",
-      description: "Purchase from Kiva",
+      name: "Ajyaa Marketplace",
+      description: "Purchase from Ajyaa",
       order_id: orderData.razorpayOrderId,
       prefill: {
         name: orderData.name,

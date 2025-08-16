@@ -4,7 +4,7 @@ import { authOptions } from "@/lib/auth";
 import { Sidebar } from "@/components/dashboard/seller/Sidebar";
 
 export const metadata = {
-  title: "Seller Dashboard | Kiva",
+  title: "Seller Dashboard | Ajyaa",
   description: "Manage your products, orders, and seller profile",
 };
 

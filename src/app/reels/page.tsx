@@ -44,7 +44,7 @@ interface SellerProduct {
 }
 
 export const metadata: Metadata = {
-  title: "Reels | Kiva",
+  title: "Reels | Ajyaa",
   description: "Discover products through short videos",
 };
 

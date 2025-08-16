@@ -58,12 +58,12 @@ export async function generateMetadata({ params }: ProductPageParams): Promise<M
 
   if (!product) {
     return {
-      title: "Product Not Found | Kiva",
+      title: "Product Not Found | Ajyaa",
     };
   }
 
   return {
-    title: `${product.name} | Kiva`,
+    title: `${product.name} | Ajyaa`,
     description: product.description || undefined,
   };
 }

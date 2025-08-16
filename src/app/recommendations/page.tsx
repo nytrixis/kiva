@@ -4,7 +4,7 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 
 export const metadata: Metadata = {
-  title: "Recommended For You | Kiva",
+  title: "Recommended For You | Ajyaa",
   description: "Products recommended for you based on your preferences.",
 };
 

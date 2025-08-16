@@ -45,12 +45,12 @@ export async function generateMetadata({ params }: ShopPageProps): Promise<Metad
 
   if (!shop) {
     return {
-      title: "Shop Not Found | Kiva",
+      title: "Shop Not Found | Ajyaa",
     };
   }
 
   return {
-    title: `${shop.businessName} | Kiva`,
+    title: `${shop.businessName} | Ajyaa`,
     description: shop.description || undefined,
   };
 }
@@ -146,7 +146,7 @@ export default async function ShopPage({ params, searchParams }: ShopPageProps) 
             />
           ) : (
             <div className="absolute inset-0 flex items-center justify-center opacity-20">
-              <span className="text-primary text-6xl font-heading">Kiva</span>
+              <span className="text-primary text-6xl font-heading">Ajyaa</span>
             </div>
           )}
 

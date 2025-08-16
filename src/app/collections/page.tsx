@@ -4,7 +4,7 @@ import ProductCatalog from "@/components/product/ProductCatalog";
 import { createClient } from "@supabase/supabase-js";
 
 export const metadata: Metadata = {
-  title: "Collections | Kiva",
+  title: "Collections | Ajyaa",
   description: "Explore our unique collection of handcrafted products from local artisans",
 };
 

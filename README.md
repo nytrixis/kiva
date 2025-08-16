@@ -1,7 +1,7 @@
 
-#  Kiva — Community-Powered Marketplace Platform
+#  Ajyaa — Community-Powered Marketplace Platform
 
-**Kiva** is a next-generation, role-based commerce platform that bridges sellers, customers, and influencers into a unified ecosystem. Built with scalability and user experience in mind, Kiva enables seamless onboarding, personalized dashboards, and media-rich product discovery powered by a modern tech stack.
+**Ajyaa** is a next-generation, role-based commerce platform that bridges sellers, customers, and influencers into a unified ecosystem. Built with scalability and user experience in mind, Ajyaa enables seamless onboarding, personalized dashboards, and media-rich product discovery powered by a modern tech stack.
 
 The project is currently in pre-launch phase with active development toward a commercial rollout. Partners, early adopters, and contributors are welcome to engage via the Issues tab or through direct contact.
 
@@ -52,8 +52,8 @@ The project is currently in pre-launch phase with active development toward a co
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/nytrixis/kiva.git
-cd kiva
+git clone https://github.com/nytrixis/ajyaa.git
+cd ajyaa
 ```
 
 ### 2. Install Dependencies

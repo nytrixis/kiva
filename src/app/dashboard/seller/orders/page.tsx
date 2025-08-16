@@ -7,7 +7,7 @@ import { format } from "date-fns";
 import { createClient } from "@supabase/supabase-js";
 
 export const metadata = {
-  title: "Orders | Seller Dashboard | Kiva",
+  title: "Orders | Seller Dashboard | Ajyaa",
   description: "Manage your orders and track your sales",
 };
 

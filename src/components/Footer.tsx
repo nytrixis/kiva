@@ -15,7 +15,7 @@ export default function Footer() {
               <div className="relative h-12 w-12 overflow-hidden rounded-full bg-white">
                 <Image
                   src="/images/logob.png"
-                  alt="Kiva Logo"
+                  alt="Ajyaa Logo"
                   fill
                   className="object-cover"
                   sizes="60px"
@@ -152,7 +152,7 @@ export default function Footer() {
         {/* Bottom Section */}
         <div className="flex flex-col md:flex-row justify-between items-center">
           <p className="text-sm text-gray-600">
-            &copy; {currentYear} Kiva. All rights reserved.
+            &copy; {currentYear} Ajyaa. All rights reserved.
           </p>
           <div className="flex space-x-6 mt-4 md:mt-0">
             <Link href="/terms" className="text-sm text-gray-600 hover:text-primary transition-colors">

@@ -5,7 +5,7 @@ import ProductForm from "@/components/seller/product/ProductForm";
 
 export const metadata = {
   title: "Create New Product | Seller Dashboard",
-  description: "Create a new product to sell on Kiva",
+  description: "Create a new product to sell on Ajyaa",
 };
 
 interface Category {

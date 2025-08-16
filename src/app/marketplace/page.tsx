@@ -3,8 +3,8 @@ import ProductCatalog from "@/components/product/ProductCatalog";
 import { createClient } from "@supabase/supabase-js";
 
 export const metadata: Metadata = {
-  title: "Marketplace | Kiva",
-  description: "Explore all products from verified sellers on Kiva",
+  title: "Marketplace | Ajyaa",
+  description: "Explore all products from verified sellers on Ajyaa",
 };
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;

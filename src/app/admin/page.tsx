@@ -13,7 +13,7 @@ enum UserRole {
 }
 
 export const metadata = {
-  title: "Admin Dashboard | Kiva",
+  title: "Admin Dashboard | Ajyaa",
 };
 
 export default async function AdminDashboard() {

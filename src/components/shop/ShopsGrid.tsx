@@ -65,7 +65,7 @@ function ShopCard({ shop, index }: { shop: Shop; index: number }) {
           />
         ) : (
           <div className="absolute inset-0 flex items-center justify-center opacity-20">
-            <span className="text-primary text-4xl font-heading">Kiva</span>
+            <span className="text-primary text-4xl font-heading">Ajyaa</span>
           </div>
         )}
       </div>

@@ -25,7 +25,7 @@ export default function InfluencerProgramPage() {
             >
               <h1 className="font-heading text-4xl md:text-6xl text-primary mb-6">
                 Become a <span className="relative">
-                  Kiva Influencer
+                  Ajyaa Influencer
                   <span className="absolute -bottom-2 left-0 w-full h-1 bg-accent"></span>
                 </span>
               </h1>
@@ -41,7 +41,7 @@ export default function InfluencerProgramPage() {
             >
               <Image
                 src="/images/influencer-hero.png"
-                alt="Kiva Influencer Program"
+                alt="Ajyaa Influencer Program"
                 fill
                 className="object-cover"
                 sizes="(max-width: 768px) 100vw, 1200px"
@@ -86,7 +86,7 @@ export default function InfluencerProgramPage() {
               {
                 icon: <Send className="h-10 w-10 text-primary" />,
                 title: "Share",
-                desc: "Get your unique link and share Kiva products with your followers."
+                desc: "Get your unique link and share Ajyaa products with your followers."
               },
               {
                 icon: <Gift className="h-10 w-10 text-primary" />,
@@ -124,7 +124,7 @@ export default function InfluencerProgramPage() {
             className="text-center max-w-3xl mx-auto mb-12"
           >
             <h2 className="font-heading text-3xl md:text-4xl text-primary mb-4">
-              Why Join the Kiva Influencer Program?
+              Why Join the Ajyaa Influencer Program?
             </h2>
             <p className="text-gray-700">
               Enjoy exclusive perks, community, and real rewards for your creativity.
@@ -145,7 +145,7 @@ export default function InfluencerProgramPage() {
               {
                 icon: <Sparkles className="h-8 w-8 text-blue-500" />,
                 title: "Community & Features",
-                desc: "Get featured on Kiva’s socials and join a vibrant creator community."
+                desc: "Get featured on Ajyaa’s socials and join a vibrant creator community."
               },
               {
                 icon: <Send className="h-8 w-8 text-purple-500" />,
@@ -189,7 +189,7 @@ export default function InfluencerProgramPage() {
               </h2>
               <div className="space-y-4 text-gray-700">
                 <p>
-                  Our influencers are storytellers, creators, and changemakers. By joining Kiva, you help artisans reach new audiences and inspire your followers to shop consciously.
+                  Our influencers are storytellers, creators, and changemakers. By joining Ajyaa, you help artisans reach new audiences and inspire your followers to shop consciously.
                 </p>
                 <p>
                   Whether you’re a micro-influencer or have a large following, your voice matters. We support you with resources, features, and a community that celebrates your creativity.
@@ -223,9 +223,9 @@ export default function InfluencerProgramPage() {
               </div>
               <div className="absolute -bottom-6 -right-6 bg-white rounded-lg shadow-lg p-4 max-w-xs">
                 <p className="text-gray-700 text-sm italic">
-                  “Kiva helped me turn my passion into purpose. The community is amazing and the rewards are real!”
+                  “Ajyaa helped me turn my passion into purpose. The community is amazing and the rewards are real!”
                 </p>
-                <p className="text-right text-primary font-medium mt-2">— A Kiva Influencer</p>
+                <p className="text-right text-primary font-medium mt-2">— A Ajyaa Influencer</p>
               </div>
             </motion.div>
           </div>
@@ -249,7 +249,7 @@ export default function InfluencerProgramPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-10 max-w-4xl mx-auto">
             {[
               {
-                q: "Who can join the Kiva Influencer Program?",
+                q: "Who can join the Ajyaa Influencer Program?",
                 a: "Anyone with an engaged audience on social media, a blog, or YouTube can apply. We welcome creators from all backgrounds!"
               },
               {
@@ -301,7 +301,7 @@ export default function InfluencerProgramPage() {
               Ready to Join?
             </h2>
             <p className="text-lg text-gray-700 mb-8">
-              Become a Kiva Influencer and start making an impact today.
+              Become a Ajyaa Influencer and start making an impact today.
             </p>
             <Link
               href="/influencer-program/apply"
@@ -312,7 +312,7 @@ export default function InfluencerProgramPage() {
             <div className="mt-12 flex items-center justify-center space-x-2">
               <Smile className="h-5 w-5 text-primary" />
               <p className="text-gray-700">
-                We can’t wait to welcome you to the Kiva family!
+                We can’t wait to welcome you to the Ajyaa family!
               </p>
             </div>
           </motion.div>

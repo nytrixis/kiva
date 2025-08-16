@@ -6,8 +6,8 @@ import { useRouter, useSearchParams, usePathname } from "next/navigation";
 
 
 // export const metadata: Metadata = {
-//   title: "Explore Shops | Kiva",
-//   description: "Discover unique local businesses and artisans on Kiva",
+//   title: "Explore Shops | Ajyaa",
+//   description: "Discover unique local businesses and artisans on Ajyaa",
 // };
 
 interface Category {

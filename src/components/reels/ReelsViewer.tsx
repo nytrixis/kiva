@@ -247,7 +247,7 @@ export default function ReelsViewer({
     try {
       if (navigator.share) {
         await navigator.share({
-          title: "Check out this reel on Kiva",
+          title: "Check out this reel on Ajyaa",
           url: `${window.location.origin}/reels/${reelId}`,
         });
       } else {

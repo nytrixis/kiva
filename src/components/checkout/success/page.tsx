@@ -7,7 +7,7 @@ import { CheckCircle2, Package, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export const metadata: Metadata = {
-  title: "Order Confirmation | Kiva",
+  title: "Order Confirmation | Ajyaa",
   description: "Your order has been placed successfully",
 };
 

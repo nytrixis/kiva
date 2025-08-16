@@ -53,7 +53,7 @@ export async function generateMetadata({ params }: ReelPageProps): Promise<Metad
 
   if (!reel) {
     return {
-      title: "Reel Not Found | Kiva",
+      title: "Reel Not Found | Ajyaa",
       description: "The requested reel could not be found",
     };
   }
@@ -61,8 +61,8 @@ export async function generateMetadata({ params }: ReelPageProps): Promise<Metad
   const sellerName = reel.user?.sellerProfile?.businessName || reel.user?.name || "Seller";
 
   return {
-    title: `${sellerName}'s Reel | Kiva`,
-    description: reel.caption || `Watch ${sellerName}'s reel on Kiva`,
+    title: `${sellerName}'s Reel | Ajyaa`,
+    description: reel.caption || `Watch ${sellerName}'s reel on Ajyaa`,
     openGraph: {
       images: [reel.thumbnailUrl || "/images/og-image.jpg"],
     },

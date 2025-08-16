@@ -241,7 +241,7 @@ export default function InfluencerDashboardPage() {
                 <div className="ml-3">
                   <h3 className="text-sm font-medium text-green-800">You are verified!</h3>
                   <div className="mt-2 text-sm text-green-700">
-                    <p>Your influencer profile is verified and active. You can now collaborate and earn with Kiva.</p>
+                    <p>Your influencer profile is verified and active. You can now collaborate and earn with Ajyaa.</p>
                   </div>
                 </div>
               </div>

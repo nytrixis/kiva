@@ -4,8 +4,8 @@ import { SignUpForm } from "@/components/auth/sign-up-form";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Sign Up | Kiva",
-  description: "Create your Kiva account",
+  title: "Sign Up | Ajyaa",
+  description: "Create your Ajyaa account",
 };
 
 export default function SignUpPage() {
@@ -68,7 +68,7 @@ export default function SignUpPage() {
             <Link href="/" className="inline-block">
               <Image 
                 src="/images/logob.png" 
-                alt="Kiva Logo" 
+                alt="Ajyaa Logo" 
                 width={50} 
                 height={50} 
                 className="mx-auto"

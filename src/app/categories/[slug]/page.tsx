@@ -21,12 +21,12 @@ export async function generateMetadata(props: { params: Promise<{ slug: string }
 
   if (!category) {
     return {
-      title: "Category Not Found | Kiva",
+      title: "Category Not Found | Ajyaa",
     };
   }
 
   return {
-    title: `${category.name} | Kiva`,
+    title: `${category.name} | Ajyaa`,
     description: category.description || undefined,
   };
 }

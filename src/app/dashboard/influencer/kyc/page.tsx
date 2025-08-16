@@ -27,7 +27,7 @@ export default function InfluencerKYCPage() {
     <div>
       <h1 className="text-3xl font-heading text-primary mb-2">Influencer KYC Verification</h1>
       <p className="text-gray-600 mb-8">
-        Complete your verification to start collaborating as an influencer on Kiva.
+        Complete your verification to start collaborating as an influencer on Ajyaa.
       </p>
       <div className="mb-6">
         <span className={`px-3 py-1 rounded-full text-sm font-semibold ${

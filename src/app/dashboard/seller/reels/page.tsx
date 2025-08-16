@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import SellerReelsClient from "@/app/dashboard/seller/reels/SellerReelsClient";
 
 export const metadata: Metadata = {
-  title: "Manage Reels | Seller Dashboard | Kiva",
+  title: "Manage Reels | Seller Dashboard | Ajyaa",
   description: "Create and manage your product reels",
 };
 

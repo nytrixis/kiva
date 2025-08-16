@@ -4,8 +4,8 @@ import { SignInForm } from "@/components/auth/sign-in-form";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Sign In | Kiva",
-  description: "Sign in to your Kiva account",
+  title: "Sign In | Ajyaa",
+  description: "Sign in to your Ajyaa account",
 };
 
 export default function SignInPage() {
@@ -18,7 +18,7 @@ export default function SignInPage() {
             <Link href="/" className="inline-block">
               <Image 
                 src="/images/logob.png" 
-                alt="Kiva Logo" 
+                alt="Ajyaa Logo" 
                 width={50} 
                 height={50} 
                 className="mx-auto"
@@ -38,7 +38,7 @@ export default function SignInPage() {
             Discover Unique Local Brands
           </h2>
           <p className="text-lg text-gray-700 max-w-md mb-8">
-            Join Kiva to explore handcrafted products from trusted local vendors with real recommendations.
+            Join Ajyaa to explore handcrafted products from trusted local vendors with real recommendations.
           </p>
           <div className="grid grid-cols-3 gap-6 max-w-md">
             <div className="bg-white/80 backdrop-blur-sm p-4 rounded-lg shadow-sm">

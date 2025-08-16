@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import KYCDocumentUpload from "@/components/seller/KYCDocumentUpload";
 
 export const metadata = {
-  title: "Verification | Seller Dashboard | Kiva",
+  title: "Verification | Seller Dashboard | Ajyaa",
   description: "Complete your seller verification by uploading required documents",
 };
 
@@ -19,7 +19,7 @@ export default async function SellerKYCPage() {
     <div>
       <h1 className="text-3xl font-heading text-primary mb-2">Seller Verification</h1>
       <p className="text-gray-600 mb-8">
-        Complete your verification to start selling on Kiva
+        Complete your verification to start selling on Ajyaa
       </p>
       
       <KYCDocumentUpload />

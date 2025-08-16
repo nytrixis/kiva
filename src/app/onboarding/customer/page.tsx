@@ -150,7 +150,7 @@ export default function CustomerOnboardingPage() {
           >
             <div className="text-center">
               <h1 className="text-3xl font-heading font-bold text-foreground mb-4">
-                Welcome to Kiva, {user?.name}!
+                Welcome to Ajyaa, {user?.name}!
               </h1>
               <p className="text-gray-600 max-w-md mx-auto">
                 Let&apos;s personalize your experience to help you discover unique local products you&apos;ll love.

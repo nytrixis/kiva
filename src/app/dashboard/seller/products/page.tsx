@@ -6,8 +6,8 @@ import { ProductsTable } from "@/components/dashboard/seller/ProductsTable";
 import { createClient } from "@supabase/supabase-js";
 
 export const metadata = {
-  title: "Manage Products | Seller Dashboard | Kiva",
-  description: "Manage your products in the Kiva marketplace",
+  title: "Manage Products | Seller Dashboard | Ajyaa",
+  description: "Manage your products in the Ajyaa marketplace",
 };
 
 interface Product {
@@ -96,7 +96,7 @@ export default async function SellerProductsPage() {
           </div>
           <h2 className="text-xl font-medium text-gray-800 mb-2">No products yet</h2>
           <p className="text-gray-500 max-w-md mx-auto mb-6">
-            Start adding products to your store to begin selling on Kiva marketplace.
+            Start adding products to your store to begin selling on Ajyaa marketplace.
           </p>
           <Link
             href="/seller/products/new"

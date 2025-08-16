@@ -4,8 +4,8 @@ import { authOptions } from "@/lib/auth";
 import KYCDocumentUpload from "@/components/seller/KYCDocumentUpload";
 
 export const metadata = {
-  title: "KYC Verification | Kiva",
-  description: "Complete your KYC verification to start selling on Kiva",
+  title: "KYC Verification | Ajyaa",
+  description: "Complete your KYC verification to start selling on Ajyaa",
 };
 
 export default async function SellerKYCPage() {

@@ -105,7 +105,7 @@ export default function SellerOnboardingForm() {
       <div className="mb-6">
         <h1 className="text-2xl font-heading text-primary">Seller Onboarding</h1>
         <p className="text-sm text-gray-500">
-          Complete your business information to start selling on Kiva
+          Complete your business information to start selling on Ajyaa
         </p>
       </div>
       

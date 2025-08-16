@@ -23,7 +23,7 @@ const testimonials = [
     location: "Ahmedabad, Gujarat",
     avatar: "/images/testimonials/avatar-2.png",
     rating: 5,
-    text: "I've been searching for authentic, traditional home decor items for years. Kiva has connected me with incredible craftspeople whose work transforms my living space.",
+    text: "I've been searching for authentic, traditional home decor items for years. Ajyaa has connected me with incredible craftspeople whose work transforms my living space.",
     product: "Hand-painted Ceramic Vase"
   },
   {
@@ -32,7 +32,7 @@ const testimonials = [
     location: "Bangalore, Karnataka",
     avatar: "/images/testimonials/avatar-3.png",
     rating: 4,
-    text: "The sustainable clothing options are not only eco-friendly but also incredibly stylish. I receive compliments every time I wear my Kiva purchases!",
+    text: "The sustainable clothing options are not only eco-friendly but also incredibly stylish. I receive compliments every time I wear my Ajyaa purchases!",
     product: "Organic Cotton Dress"
   },
   {
@@ -41,7 +41,7 @@ const testimonials = [
     location: "Jaipur, Rajasthan",
     avatar: "/images/testimonials/avatar-4.png",
     rating: 5,
-    text: "As someone who values heritage and tradition, I'm impressed by how Kiva preserves cultural craftsmanship while making it accessible to modern consumers.",
+    text: "As someone who values heritage and tradition, I'm impressed by how Ajyaa preserves cultural craftsmanship while making it accessible to modern consumers.",
     product: "Traditional Block Print Scarf"
   },
   {

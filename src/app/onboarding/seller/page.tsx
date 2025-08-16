@@ -5,8 +5,8 @@ import { authOptions } from "@/lib/auth";
 import SellerOnboardingForm from "@/components/seller/SellerOnboardingForm";
 
 export const metadata = {
-  title: "Seller Onboarding | Kiva",
-  description: "Complete your seller profile to start selling on Kiva",
+  title: "Seller Onboarding | Ajyaa",
+  description: "Complete your seller profile to start selling on Ajyaa",
 };
 
 export default async function SellerOnboardingPage() {

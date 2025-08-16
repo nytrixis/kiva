@@ -5,7 +5,7 @@ import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
 
 export const metadata = {
-  title: "Access Denied | Kiva",
+  title: "Access Denied | Ajyaa",
   description: "You don't have permission to access this page",
 };
 

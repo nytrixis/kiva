@@ -3,7 +3,7 @@ import { authOptions } from "@/lib/auth";
 import { Sidebar } from "@/components/dashboard/influencer/Sidebar";
 
 export const metadata = {
-  title: "Influencer Dashboard | Kiva",
+  title: "Influencer Dashboard | Ajyaa",
   description: "Manage your influencer profile, reels, referrals, and KYC",
 };
 

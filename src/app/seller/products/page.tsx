@@ -7,7 +7,7 @@ import Image from "next/image";
 
 export const metadata = {
   title: "My Products | Seller Dashboard",
-  description: "Manage your products on Kiva",
+  description: "Manage your products on Ajyaa",
 };
 
 interface Category {

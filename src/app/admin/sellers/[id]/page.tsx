@@ -55,7 +55,7 @@ export async function generateMetadata(
     sellerProfile?.businessName || seller?.name || "Seller";
 
   return {
-    title: `${sellerName} Details | Admin Dashboard | Kiva`,
+    title: `${sellerName} Details | Admin Dashboard | Ajyaa`,
   };
 }
 

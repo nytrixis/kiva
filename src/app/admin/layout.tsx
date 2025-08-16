@@ -2,7 +2,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 
 export const metadata = {
-  title: "Admin Dashboard | Kiva",
+  title: "Admin Dashboard | Ajyaa",
   description: "Manage your admin settings, users, and content",
 };
 

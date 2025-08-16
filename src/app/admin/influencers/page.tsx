@@ -42,7 +42,7 @@ type InfluencerProfileWithUser = {
 };
 
 export const metadata = {
-  title: "Manage Influencers | Admin Dashboard | Kiva",
+  title: "Manage Influencers | Admin Dashboard | Ajyaa",
 };
 
 export default async function AdminInfluencersPage() {

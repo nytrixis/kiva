@@ -19,8 +19,8 @@ import {
 } from "lucide-react";
 
 // export const metadata: Metadata = {
-//   title: "About Us | Kiva",
-//   description: "Learn about Kiva's mission to connect artisans with customers and our journey from a college project to a thriving marketplace.",
+//   title: "About Us | Ajyaa",
+//   description: "Learn about Ajyaa's mission to connect artisans with customers and our journey from a college project to a thriving marketplace.",
 // };
 
 export default function AboutPage() {
@@ -82,7 +82,7 @@ const handleSellerClick = async (e: React.MouseEvent) => {
               </h1>
               
               <p className="text-lg text-gray-700 mb-8">
-                Welcome to Kiva, a platform born from a passion for connecting artisans with customers who appreciate the beauty of handcrafted goods.
+                Welcome to Ajyaa, a platform born from a passion for connecting artisans with customers who appreciate the beauty of handcrafted goods.
               </p>
             </motion.div>
             
@@ -94,7 +94,7 @@ const handleSellerClick = async (e: React.MouseEvent) => {
             >
               <Image
                 src="/images/about-hero.png"
-                alt="Kiva Marketplace"
+                alt="Ajyaa Marketplace"
                 fill
                 className="object-cover"
                 sizes="(max-width: 768px) 100vw, 1000px"
@@ -127,7 +127,7 @@ const handleSellerClick = async (e: React.MouseEvent) => {
               
               <div className="space-y-4 text-gray-700">
                 <p>
-                  Kiva began as a college project by two passionate students, Nandini and Meraj, who shared a vision of creating a platform that celebrates craftsmanship and cultural heritage.
+                  Ajyaa began as a college project by two passionate students, Nandini and Meraj, who shared a vision of creating a platform that celebrates craftsmanship and cultural heritage.
                 </p>
                 <p>
                   What started as a simple idea in a dorm room has evolved into a vibrant marketplace connecting talented artisans with customers who value authenticity and quality.
@@ -170,7 +170,7 @@ const handleSellerClick = async (e: React.MouseEvent) => {
                 <div className="relative w-full pb-[50%] rounded-tl-3xl rounded-br-3xl overflow-hidden shadow-lg">
                     <Image
                         src="/images/founders.png"
-                        alt="Founders of Kiva"
+                        alt="Founders of Ajyaa"
                         fill
                         className="object-cover"
                         sizes="(max-width: 768px) 100vw, 500px"
@@ -180,7 +180,7 @@ const handleSellerClick = async (e: React.MouseEvent) => {
                 
                 <div className="absolute -bottom-6 -right-6 bg-white rounded-lg shadow-lg p-4 max-w-xs">
                   <p className="text-gray-700 text-sm italic">
-                    We created Kiva to celebrate the beauty of handcrafted goods and the stories behind them.
+                    We created Ajyaa to celebrate the beauty of handcrafted goods and the stories behind them.
                   </p>
                   <p className="text-right text-primary font-medium mt-2">— Nandini & Meraj</p>
                 </div>
@@ -207,7 +207,7 @@ const handleSellerClick = async (e: React.MouseEvent) => {
               Our Mission
             </h2>
             <p className="text-gray-700">
-              At Kiva, we are on a mission to transform how people discover and shop for unique, handcrafted products.
+              At Ajyaa, we are on a mission to transform how people discover and shop for unique, handcrafted products.
             </p>
           </motion.div>
           
@@ -248,7 +248,7 @@ const handleSellerClick = async (e: React.MouseEvent) => {
         </div>
       </section>
       
-      {/* Who is Kiva For? */}
+      {/* Who is Ajyaa For? */}
       <section className="py-16 bg-white">
         <div className="container mx-auto px-4">
           <motion.div
@@ -259,7 +259,7 @@ const handleSellerClick = async (e: React.MouseEvent) => {
             className="text-center max-w-3xl mx-auto mb-12"
           >
             <h2 className="font-heading text-3xl md:text-4xl text-primary mb-4">
-              Who is Kiva For?
+              Who is Ajyaa For?
             </h2>
             <p className="text-gray-700">
               Our platform brings together a community of creators and shoppers who value quality, authenticity, and connection.
@@ -310,7 +310,7 @@ const handleSellerClick = async (e: React.MouseEvent) => {
                   onClick={handleSellerClick}
                   className="inline-flex items-center text-primary hover:text-primary/80 font-medium"
                 >
-                  Start selling on Kiva
+                  Start selling on Ajyaa
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </button>
               </div>
@@ -381,7 +381,7 @@ const handleSellerClick = async (e: React.MouseEvent) => {
               Our Values
             </h2>
             <p className="text-gray-700">
-              These core principles guide everything we do at Kiva
+              These core principles guide everything we do at Ajyaa
             </p>
           </motion.div>
           
@@ -441,7 +441,7 @@ const handleSellerClick = async (e: React.MouseEvent) => {
               Meet the Founders
             </h2>
             <p className="text-gray-700">
-              The creative minds behind Kiva
+              The creative minds behind Ajyaa
             </p>
           </motion.div>
           
@@ -458,7 +458,7 @@ const handleSellerClick = async (e: React.MouseEvent) => {
                 name: "Meraj",
                 role: "Co-Founder & Creative Director",
                 image: "/images/meraj.png",
-                bio: "A design enthusiast with a passion for cultural heritage, Meraj brings his creative vision and eye for aesthetics to Kiva. He believes in the power of storytelling through craftsmanship.",
+                bio: "A design enthusiast with a passion for cultural heritage, Meraj brings his creative vision and eye for aesthetics to Ajyaa. He believes in the power of storytelling through craftsmanship.",
                 quote: "Beautiful things don't ask for attention, they simply deserve to be discovered."
               }
             ].map((founder, index) => (
@@ -520,7 +520,7 @@ const handleSellerClick = async (e: React.MouseEvent) => {
             </h2>
             
             <p className="text-lg text-gray-700 mb-8">
-              Kiva is more than a marketplace—it is a community of creators and customers who believe in the value of handcrafted goods and the stories behind them.
+              Ajyaa is more than a marketplace—it is a community of creators and customers who believe in the value of handcrafted goods and the stories behind them.
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -536,7 +536,7 @@ const handleSellerClick = async (e: React.MouseEvent) => {
                   onClick={handleSellerClick}
                   className="inline-flex items-center text-primary hover:text-primary/80 font-medium"
                 >
-                  Start selling on Kiva
+                  Start selling on Ajyaa
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </button>
             </div>

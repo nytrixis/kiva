@@ -36,7 +36,7 @@ interface CartItem {
 }
 
 export const metadata: Metadata = {
-  title: "Checkout | Kiva",
+  title: "Checkout | Ajyaa",
   description: "Complete your purchase",
 };
 

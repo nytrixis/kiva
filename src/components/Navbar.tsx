@@ -163,7 +163,7 @@ export default function Navbar() {
                 <div className="relative h-10 w-10 overflow-hidden border border-[#E6E6FA]">
                   <Image
                     src="/images/logob.png"
-                    alt="Kiva Logo"
+                    alt="Ajyaa Logo"
                     fill
                     className="object-cover"
                     sizes="40px"
