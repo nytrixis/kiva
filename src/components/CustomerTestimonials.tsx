@@ -222,7 +222,7 @@ export default function CustomerTestimonials() {
         >
           <div className="inline-flex items-center justify-center bg-primary/10 rounded-full px-6 py-2 text-primary text-sm font-medium">
             <Star className="h-4 w-4 mr-2 fill-primary" />
-            4.9 average rating from over 2,000 reviews
+            4.5 average rating from beta users.
           </div>
           <p className="mt-4 text-gray-600 max-w-2xl mx-auto">
             Join thousands of satisfied customers who have discovered the beauty of authentic craftsmanship

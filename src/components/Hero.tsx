@@ -105,8 +105,8 @@ export default function Hero() {
         <div className="hidden md:block md:w-[40%] bg-accent"></div>
       </div>
       
-      {/* Mobile-only background for the bottom part */}
-      <div className="absolute bottom-0 left-0 right-0 h-[40%] bg-accent md:hidden"></div>
+      {/* Mobile-only background for the bottom part - moved up */}
+      <div className="absolute bottom-0 left-0 right-0 h-[50%] bg-accent md:hidden"></div>
       
       {/* AJYAA background pattern on the right side - hidden on small screens */}
       <div className="absolute right-0 top-0 w-[40%] h-full overflow-hidden hidden md:block">
@@ -129,24 +129,24 @@ export default function Hero() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 0.7, y: 0 }}
           transition={{ duration: 1.5, repeat: Infinity, repeatType: "reverse" }}
-          className="absolute top-[65%] right-[20%] md:top-[15%] w-10 h-10 md:w-16 md:h-16 rounded-full bg-white/30 backdrop-blur-sm"
+          className="absolute top-[50%] right-[20%] md:top-[15%] w-10 h-10 md:w-16 md:h-16 rounded-full bg-white/30 backdrop-blur-sm"
         />
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 0.5, y: 0 }}
           transition={{ duration: 2, repeat: Infinity, repeatType: "reverse", delay: 0.5 }}
-          className="absolute top-[75%] right-[40%] md:top-[35%] md:right-[10%] w-6 h-6 md:w-10 md:h-10 rounded-full bg-primary/20 backdrop-blur-sm"
+          className="absolute top-[60%] right-[40%] md:top-[35%] md:right-[10%] w-6 h-6 md:w-10 md:h-10 rounded-full bg-primary/20 backdrop-blur-sm"
         />
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 0.6, y: 0 }}
           transition={{ duration: 1.8, repeat: Infinity, repeatType: "reverse", delay: 0.3 }}
-          className="absolute top-[85%] right-[10%] md:top-[60%] md:right-[25%] w-8 h-8 md:w-14 md:h-14 rounded-full bg-white/40 backdrop-blur-sm"
+          className="absolute top-[70%] right-[10%] md:top-[60%] md:right-[25%] w-8 h-8 md:w-14 md:h-14 rounded-full bg-white/40 backdrop-blur-sm"
         />
       </div>
       
-      {/* White circle positioned at the division line - adjusted for mobile */}
-      <div className="absolute left-1/2 md:left-[60%] top-[55%] md:top-1/3 transform -translate-x-1/2 -translate-y-1/2 w-[150px] h-[150px] md:w-[350px] md:h-[350px] bg-white rounded-full z-10"></div>
+      {/* White circle positioned at the division line - hidden on mobile */}
+      <div className="hidden md:block absolute left-[60%] top-1/3 transform -translate-x-1/2 -translate-y-1/2 w-[350px] h-[350px] bg-white rounded-full z-10"></div>
       
       <div className="container mx-auto px-4 md:px-10 h-full flex items-center relative z-20">
         <AnimatePresence mode="wait">
@@ -163,7 +163,7 @@ export default function Hero() {
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.5 }}
-              className="space-y-4 md:space-y-6 relative order-2 md:order-1 mt-8 md:mt-0"
+              className="space-y-4 md:space-y-6 relative order-2 md:order-1 mt-4 md:mt-0"
             >
               <h1 className="font-heading text-3xl md:text-4xl lg:text-6xl font-bold text-[#111827] leading-tight">
                 {carouselData[currentSlide].heading.split(' ').map((word, i, arr) => {
@@ -205,7 +205,7 @@ export default function Hero() {
               </div>
               
               {/* Carousel Indicators - Repositioned for mobile */}
-              <div className="absolute -bottom-16 md:-bottom-20 left-0 flex space-x-3 md:space-x-5 z-30">
+              <div className="absolute -bottom-12 md:-bottom-20 left-0 flex space-x-3 md:space-x-5 z-30">
                 {carouselData.map((_, index) => (
                   <button
                     key={index}
@@ -230,9 +230,9 @@ export default function Hero() {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.5, delay: 0.2 }}
-              className="relative order-1 md:order-2 -mt-6 md:mt-0"
+              className="relative order-1 md:order-2 -mt-12 md:mt-0"
             >
-              <div className="relative h-[350px] md:h-[500px] lg:h-[610px] w-[100%] md:w-[60%] transform translate-x-0 md:-translate-x-[20%]">
+              <div className="relative h-[300px] md:h-[500px] lg:h-[610px] w-[100%] md:w-[60%] transform translate-x-0 md:-translate-x-[20%]">
                 <Image
                   src={carouselData[currentSlide].image}
                   alt="Fashion Model"
@@ -250,10 +250,10 @@ export default function Hero() {
                 transition={{ duration: 0.7, delay: 0.6 }}
                 className="absolute top-[5%] right-[5%] md:top-[20%] md:left-[55%] z-30"
               >
-                <div className="flex flex-col space-y-10 md:space-y-20 items-start">
+                <div className="flex flex-col space-y-6 md:space-y-20 items-start">
                   {carouselData[currentSlide].stats.map((stat, index) => (
                     <div key={index} className="text-left">
-                      <p className="text-primary font-bold text-2xl md:text-4xl">{stat.value}</p>
+                      <p className="text-primary font-bold text-xl md:text-4xl">{stat.value}</p>
                       <p className="text-xs md:text-sm text-gray-700">{stat.label}</p>
                     </div>
                   ))}
@@ -264,7 +264,7 @@ export default function Hero() {
         </AnimatePresence>
         
         {/* Carousel Navigation Arrows - adjusted for mobile */}
-        <div className="absolute left-0 right-0 top-[30%] md:top-1/2 transform -translate-y-1/2 flex justify-between px-2 md:px-4 z-30">
+        <div className="absolute left-0 right-0 top-[25%] md:top-1/2 transform -translate-y-1/2 flex justify-between px-2 md:px-4 z-30">
           <button 
             onClick={prevSlide}
             className="bg-white/80 backdrop-blur-sm p-1 md:p-2 rounded-full shadow-md hover:bg-white transition-colors"
