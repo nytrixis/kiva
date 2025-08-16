@@ -44,7 +44,7 @@ const languages: Language[] = [
   { code: "en", name: "English" },
   { code: "hi", name: "हिन्दी (Hindi)" },
   { code: "bn", name: "বাংলা (Bengali)" },
-  { code: "te", name: "తెలుగు (Telugu)" },
+  { code: "te", name: "তেলুগু (Telugu)" },
   { code: "mr", name: "मराठी (Marathi)" },
   { code: "ta", name: "தமிழ் (Tamil)" },
   { code: "ur", name: "اردو (Urdu)" },
@@ -246,10 +246,10 @@ export default function Navbar() {
                 <div className="flex items-center space-x-3">
                   <Link href="/sign-in">
                     <Button variant="ghost" size="sm" className="text-gray-600 hover:text-primary">
-                      Sign In
+                      Login
                     </Button>
                   </Link>
-                  <Link href="/sign-up">
+                  <Link href="/sign-up" className="hidden md:block">
                     <Button variant="default" size="sm" className="bg-primary hover:bg-primary/90 text-white">
                       Sign Up
                     </Button>
@@ -281,8 +281,8 @@ export default function Navbar() {
                 </DropdownMenu>
               )}
               
-              {/* Wishlist Button */}
-              <Link href="/wishlist">
+              {/* Wishlist Button - Hidden on mobile */}
+              <Link href="/wishlist" className="hidden md:block">
                 <Button
                   variant="ghost"
                   size="icon"
@@ -301,8 +301,8 @@ export default function Navbar() {
                 </Button>
               </Link>
               
-              {/* Cart Button */}
-              <Link href="/cart">
+              {/* Cart Button - Hidden on mobile */}
+              <Link href="/cart" className="hidden md:block">
                 <Button variant="ghost" size="icon" className="relative">
                   <ShoppingCart className="h-5 w-5 text-gray-600" />
                   {cartCount > 0 && (
@@ -400,6 +400,7 @@ export default function Navbar() {
                         key={category.id}
                         href={`/categories/${category.slug}`}
                         className="block text-gray-600 hover:text-primary py-1"
+                        onClick={() => setIsMenuOpen(false)}
                       >
                         {category.name}
                       </Link>
@@ -411,15 +412,15 @@ export default function Navbar() {
               )}
             </div>
             
-            <Link href="/marketplace" className="flex items-center text-gray-600 hover:text-primary">
+            <Link href="/marketplace" className="flex items-center text-gray-600 hover:text-primary" onClick={() => setIsMenuOpen(false)}>
               <Grid className="mr-2 h-4 w-4" />
               Xplore
             </Link>
             
-            <Link href="/reels" className="block text-gray-600 hover:text-primary">
+            <Link href="/reels" className="block text-gray-600 hover:text-primary" onClick={() => setIsMenuOpen(false)}>
               Peeks
             </Link>
-            <Link href="/about" className="block text-gray-600 hover:text-primary">
+            <Link href="/about" className="block text-gray-600 hover:text-primary" onClick={() => setIsMenuOpen(false)}>
               About
             </Link>
             {/* <Link href="/sales" className="block text-gray-600 hover:text-primary">
@@ -430,29 +431,32 @@ export default function Navbar() {
             <div className="pt-4 border-t border-gray-100">
               {!isAuthenticated ? (
                 <>
-                  <Link href="/sign-in" className="block text-gray-600 hover:text-primary py-2">
-                    Sign In
+                  <Link href="/sign-in" className="block text-gray-600 hover:text-primary py-2" onClick={() => setIsMenuOpen(false)}>
+                    Login
                   </Link>
-                  <Link href="/sign-up" className="block text-gray-600 hover:text-primary py-2">
+                  <Link href="/sign-up" className="block text-gray-600 hover:text-primary py-2" onClick={() => setIsMenuOpen(false)}>
                     Sign Up
                   </Link>
                 </>
               ) : (
                 <>
-                  <Link href="/dashboard" className="block text-gray-600 hover:text-primary py-2">
+                  <Link href="/dashboard" className="block text-gray-600 hover:text-primary py-2" onClick={() => setIsMenuOpen(false)}>
                     Dashboard
                   </Link>
-                  <Link href="/profile" className="block text-gray-600 hover:text-primary py-2">
+                  <Link href="/profile" className="block text-gray-600 hover:text-primary py-2" onClick={() => setIsMenuOpen(false)}>
                     Profile
                   </Link>
-                  <Link href="/wishlist" className="block text-gray-600 hover:text-primary py-2">
+                  <Link href="/wishlist" className="block text-gray-600 hover:text-primary py-2" onClick={() => setIsMenuOpen(false)}>
                     Wishlist
                   </Link>
-                  <Link href="/cart" className="block text-gray-600 hover:text-primary py-2">
+                  <Link href="/cart" className="block text-gray-600 hover:text-primary py-2" onClick={() => setIsMenuOpen(false)}>
                     Cart
                   </Link>
                   <button
-                    onClick={logout}
+                    onClick={() => {
+                      logout();
+                      setIsMenuOpen(false);
+                    }}
                     className="block w-full text-left text-gray-600 hover:text-primary py-2"
                   >
                     Sign Out

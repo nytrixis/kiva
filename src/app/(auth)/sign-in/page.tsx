@@ -4,7 +4,7 @@ import { SignInForm } from "@/components/auth/sign-in-form";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Sign In | Ajyaa",
+  title: "Login | Ajyaa",
   description: "Sign in to your Ajyaa account",
 };
 
