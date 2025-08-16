@@ -108,7 +108,7 @@ export default function Hero() {
       {/* Mobile-only background for the bottom part */}
       <div className="absolute bottom-0 left-0 right-0 h-[40%] bg-accent md:hidden"></div>
       
-      {/* KIVA background pattern on the right side - hidden on small screens */}
+      {/* AJYAA background pattern on the right side - hidden on small screens */}
       <div className="absolute right-0 top-0 w-[40%] h-full overflow-hidden hidden md:block">
         <div className="absolute inset-0 flex flex-wrap justify-center items-center opacity-5">
           {Array(20).fill(0).map((_, i) => (
@@ -116,7 +116,7 @@ export default function Hero() {
               key={i}
               className="text-[#6c5a7c] font-heading text-8xl font-bold m-4 rotate-[-10deg]"
             >
-              KIVA
+              AJYAA
             </div>
           ))}
         </div>

@@ -138,8 +138,8 @@ export default function Footer() {
               </li>
               <li className="flex items-center">
                 <Mail className="mr-2 h-5 w-5 text-primary" />
-                <a href="mailto:contact@ajyaa.in" className="text-gray-600 hover:text-primary transition-colors">
-                  contact@ajyaa.in
+                <a href="mailto:connect@ajyaa.in" className="text-gray-600 hover:text-primary transition-colors">
+                  connect@ajyaa.in
                 </a>
               </li>
             </ul>
